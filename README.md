@@ -1,3 +1,21 @@
-dotnet ef database update --project src/MsLogistic.Infrastructure --startup-project src/MsLogistic.WebApi --context PersistenceDbContext
+# MsLogistic
 
-dotnet ef migrations add GeneralUpdate --project src/MsLogistic.Infrastructure --startup-project src/MsLogistic.WebApi --context PersistenceDbContext
+### Docker
+To build the Docker image for the MsLogistic application, use the following command:
+
+```bash
+docker container run -d -p 8080:8080 --name ms_logistic_app joselct/ms_logistic:1.0.0
+```
+
+### Migrations
+To apply the latest migrations to the database, run the following command:
+
+```bash
+dotnet ef database update --project src/MsLogistic.Infrastructure --startup-project src/MsLogistic.WebApi --context PersistenceDbContext
+```
+
+To create a new migration, use the following command:
+
+```bash
+dotnet ef migrations add [NAME] --project src/MsLogistic.Infrastructure --startup-project src/MsLogistic.WebApi --context PersistenceDbContext
+```

@@ -19,4 +19,6 @@ app.UseAuthorization();
 app.UseCors("AllowAll");
 app.MapControllers();
 
+app.MapGet("/", () => "MsLogistic API is running...");
+
 app.Run();
