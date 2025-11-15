@@ -1,0 +1,32 @@
+﻿services:
+  ms_logistic_db:
+    image: postgis/postgis:16-3.4
+    container_name: ms_logistic_db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5433:5432"
+    volumes:
+      - ms_logistic_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
+  ms_logistic_api:
+    image: joselct/ms_logistic:1.0.1
+    container_name: ms_logistic_api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=ms_logistic_db;Port=5432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
+    ports:
+      - "8080:8080"
+    depends_on:
+      ms_logistic_db:
+        condition: service_healthy
+
+volumes:
+  ms_logistic_db_data:

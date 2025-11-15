@@ -3,7 +3,7 @@ using MsLogistic.Infrastructure.Persistence.PersistenceModel.EFCoreEntities;
 
 namespace MsLogistic.Infrastructure.Persistence.PersistenceModel;
 
-internal class PersistenceDbContext : DbContext
+internal class PersistenceDbContext : DbContext, IDatabase
 {
     public DbSet<CustomerPersistenceModel> Customer { get; set; }
     public DbSet<DeliveryPersonPersistenceModel> DeliveryPerson { get; set; }

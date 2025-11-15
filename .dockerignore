@@ -12,4 +12,6 @@ riderModule.iml
 **/obj/
 **/out/
 
+Dockerfile
+docker-compose*.yml
 .env

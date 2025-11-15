@@ -39,6 +39,8 @@ public static class DependencyInjection
         services.AddDbContext<DomainDbContext>(context =>
             context.UseNpgsql(dbConnectionString, npgsqlOptions => { npgsqlOptions.UseNetTopologySuite(); }));
 
+        services.AddScoped<IDatabase, PersistenceDbContext>();
+
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<IDeliveryPersonRepository, DeliveryPersonRepository>();
         services.AddScoped<IDeliveryZoneRepository, DeliveryZoneRepository>();
