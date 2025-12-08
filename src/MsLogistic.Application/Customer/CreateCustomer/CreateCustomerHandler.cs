@@ -19,12 +19,27 @@ internal class CreateCustomerHandler : IRequestHandler<CreateCustomerCommand, Re
 
     public async Task<Result<Guid>> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
     {
-        var customer = new Domain.Customer.Entities.Customer(request.Name, new PhoneNumberValue(request.PhoneNumber));
+        try
+        {
+            var phoneNumber = new PhoneNumberValue(request.PhoneNumber);
+            var customer = new Domain.Customer.Entities.Customer(request.Name, phoneNumber);
+            await _customerRepository.AddAsync(customer);
 
-        await _customerRepository.AddAsync(customer);
+            await _unitOfWork.CommitAsync(cancellationToken);
 
-        await _unitOfWork.CommitAsync(cancellationToken);
-
-        return Result.Success(customer.Id);
+            return Result.Success(customer.Id);
+        }
+        catch (DomainException ex)
+        {
+            return Result.Failure<Guid>(ex.Error);
+        }
+        catch (ArgumentException ex)
+        {
+            return Result.Failure<Guid>(new Error(
+                "InvalidPhoneNumber",
+                ex.Message,
+                ErrorType.Validation
+            ));
+        }
     }
 }

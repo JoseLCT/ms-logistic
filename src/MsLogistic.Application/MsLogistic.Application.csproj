@@ -15,4 +15,8 @@
       <ProjectReference Include="..\MsLogistic.Domain\MsLogistic.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="MsLogistic.Test" />
+    </ItemGroup>
+
 </Project>

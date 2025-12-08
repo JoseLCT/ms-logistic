@@ -19,3 +19,19 @@ To create a new migration, use the following command:
 ```bash
 dotnet ef migrations add [NAME] --project src/MsLogistic.Infrastructure --startup-project src/MsLogistic.WebApi --context PersistenceDbContext
 ```
+
+
+### Testing
+To run the tests for the MsLogistic application, use the following command:
+```bash
+dotnet test tests/MsLogistic.Tests
+```
+
+To generate a code coverage report, use the following command:
+```bash
+dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+```
+To generate html report from the coverage data, use the following command:
+```bash
+reportgenerator -reports:"./src/MsLogistic.Test/coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:Html
+```
