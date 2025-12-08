@@ -24,7 +24,7 @@ dotnet ef migrations add [NAME] --project src/MsLogistic.Infrastructure --startu
 ### Testing
 To run the tests for the MsLogistic application, use the following command:
 ```bash
-dotnet test tests/MsLogistic.Tests
+dotnet test src/MsLogistic.Test/MsLogistic.Test.csproj
 ```
 
 To generate a code coverage report, use the following command:
