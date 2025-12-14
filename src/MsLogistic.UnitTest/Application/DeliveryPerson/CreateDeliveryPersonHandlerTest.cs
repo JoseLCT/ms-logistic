@@ -5,7 +5,7 @@ using MsLogistic.Core.Abstractions;
 using MsLogistic.Domain.DeliveryPerson.Repositories;
 using Xunit;
 
-namespace MsLogistic.Test.Application.DeliveryPerson;
+namespace MsLogistic.UnitTest.Application.DeliveryPerson;
 
 public class CreateDeliveryPersonHandlerTest
 {

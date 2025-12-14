@@ -1,5 +1,5 @@
 ﻿# Stage 1: Build the application
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 
 WORKDIR /src
 
@@ -21,11 +21,11 @@ COPY . .
 RUN dotnet publish src/MsLogistic.WebApi/MsLogistic.WebApi.csproj -c Release -o /app/out
 
 # Stage 2: Create the runtime image
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS runtime
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS runtime
 
 WORKDIR /app
 
-RUN dotnet tool install --global dotnet-ef --version 9.0.0
+RUN dotnet tool install --global dotnet-ef --version 10.0.0
 
 ENV PATH="${PATH}:/root/.dotnet/tools"
 

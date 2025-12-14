@@ -18,12 +18,27 @@ internal class CreateProductHandler : IRequestHandler<CreateProductCommand, Resu
 
     public async Task<Result<Guid>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
-        var product = new Domain.Product.Entities.Product(request.Name, request.Description);
+        try
+        {
+            var product = new Domain.Product.Entities.Product(request.Name, request.Description);
 
-        await _productRepository.AddAsync(product);
+            await _productRepository.AddAsync(product);
 
-        await _unitOfWork.CommitAsync(cancellationToken);
+            await _unitOfWork.CommitAsync(cancellationToken);
 
-        return Result.Success(product.Id);
+            return Result.Success(product.Id);
+        }
+        catch (DomainException ex)
+        {
+            return Result.Failure<Guid>(ex.Error);
+        }
+        catch (ArgumentException ex)
+        {
+            return Result.Failure<Guid>(new Error(
+                "InvalidProductData",
+                ex.Message,
+                ErrorType.Validation
+            ));
+        }
     }
 }

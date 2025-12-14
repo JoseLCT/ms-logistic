@@ -12,7 +12,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsLogistic.WebApi", "src\Ms
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsLogistic.Core", "src\MsLogistic.Core\MsLogistic.Core.csproj", "{B5D19099-DBBE-40C1-AB59-FCE6AF3A78D2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsLogistic.Test", "src\MsLogistic.Test\MsLogistic.Test.csproj", "{B3FB758D-344E-428D-945B-C795121689D8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsLogistic.UnitTest", "src\MsLogistic.UnitTest\MsLogistic.UnitTest.csproj", "{B3FB758D-344E-428D-945B-C795121689D8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsLogistic.IntegrationTest", "src\MsLogistic.IntegrationTest\MsLogistic.IntegrationTest.csproj", "{9568AF47-1AD4-48F1-AFD3-715EC9023B63}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +46,10 @@ Global
 		{B3FB758D-344E-428D-945B-C795121689D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3FB758D-344E-428D-945B-C795121689D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3FB758D-344E-428D-945B-C795121689D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9568AF47-1AD4-48F1-AFD3-715EC9023B63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9568AF47-1AD4-48F1-AFD3-715EC9023B63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9568AF47-1AD4-48F1-AFD3-715EC9023B63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9568AF47-1AD4-48F1-AFD3-715EC9023B63}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E5E33E27-5F0D-4A43-B6DC-FF4A79ECC06D} = {01FD9560-D526-41B3-B739-B375D3129D04}
@@ -52,5 +58,6 @@ Global
 		{FFDBCB2C-D791-491B-8D0F-262C91B64EF4} = {01FD9560-D526-41B3-B739-B375D3129D04}
 		{B5D19099-DBBE-40C1-AB59-FCE6AF3A78D2} = {01FD9560-D526-41B3-B739-B375D3129D04}
 		{B3FB758D-344E-428D-945B-C795121689D8} = {01FD9560-D526-41B3-B739-B375D3129D04}
+		{9568AF47-1AD4-48F1-AFD3-715EC9023B63} = {01FD9560-D526-41B3-B739-B375D3129D04}
 	EndGlobalSection
 EndGlobal

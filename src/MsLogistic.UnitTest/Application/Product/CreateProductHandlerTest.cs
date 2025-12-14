@@ -5,7 +5,7 @@ using MsLogistic.Core.Abstractions;
 using MsLogistic.Domain.Product.Repositories;
 using Xunit;
 
-namespace MsLogistic.Test.Application.Product;
+namespace MsLogistic.UnitTest.Application.Product;
 
 public class CreateProductHandlerTest
 {

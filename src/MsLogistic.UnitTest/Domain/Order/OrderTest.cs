@@ -1,7 +1,7 @@
 using MsLogistic.Domain.Shared.ValueObjects;
 using Xunit;
 
-namespace MsLogistic.Test.Domain.Order;
+namespace MsLogistic.UnitTest.Domain.Order;
 
 public class OrderTest
 {

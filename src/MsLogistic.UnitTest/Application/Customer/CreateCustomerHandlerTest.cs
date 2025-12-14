@@ -6,7 +6,7 @@ using MsLogistic.Domain.Customer.Errors;
 using MsLogistic.Domain.Customer.Repositories;
 using Xunit;
 
-namespace MsLogistic.Test.Application.Customer;
+namespace MsLogistic.UnitTest.Application.Customer;
 
 public class CreateCustomerHandlerTest
 {
