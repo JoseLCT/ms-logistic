@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MsLogistic.Domain.Route.Entities;
-using MsLogistic.Domain.Route.Repositories;
-using MsLogistic.Domain.Route.Types;
+using MsLogistic.Domain.Routes.Entities;
+using MsLogistic.Domain.Routes.Repositories;
 using MsLogistic.Infrastructure.Persistence.DomainModel;
 
 namespace MsLogistic.Infrastructure.Persistence.Repositories;
@@ -15,53 +14,30 @@ internal class RouteRepository : IRouteRepository
         _dbContext = dbContext;
     }
 
-    public async Task<IEnumerable<Route>> GetAllAsync()
+    public async Task<IReadOnlyList<Route>> GetAllAsync(CancellationToken ct = default)
     {
-        return await _dbContext.Route.AsNoTracking().ToListAsync();
+        var routes = await _dbContext.Routes.ToListAsync(ct);
+        return routes;
     }
 
-    public async Task<Route?> GetByIdAsync(Guid id, bool readOnly = false)
+    public async Task<Route?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        var query = _dbContext.Route.AsQueryable();
-
-        if (readOnly)
-        {
-            query = query.AsNoTracking();
-        }
-
-        return await query.FirstOrDefaultAsync(r => r.Id == id);
+        var route = await _dbContext.Routes.FirstOrDefaultAsync(r => r.Id == id, ct);
+        return route;
     }
 
-    public async Task<Route?> GetInProgressRouteByDeliveryZoneAsync(Guid deliveryZoneId, bool readOnly = false)
+    public async Task AddAsync(Route route, CancellationToken ct = default)
     {
-        var query = _dbContext.Route.AsQueryable();
-
-        if (readOnly)
-        {
-            query = query.AsNoTracking();
-        }
-
-        return await query.Where(r => r.DeliveryZoneId == deliveryZoneId && r.Status == RouteStatusType.InProgress)
-            .FirstOrDefaultAsync();
+        await _dbContext.Routes.AddAsync(route, ct);
     }
 
-    public async Task AddAsync(Route entity)
+    public void Update(Route route)
     {
-        await _dbContext.Route.AddAsync(entity);
+        _dbContext.Routes.Update(route);
     }
 
-    public Task UpdateAsync(Route route)
+    public void Remove(Route route)
     {
-        _dbContext.Route.Update(route);
-        return Task.CompletedTask;
-    }
-
-    public async Task DeleteAsync(Guid id)
-    {
-        var route = await GetByIdAsync(id);
-        if (route != null)
-        {
-            _dbContext.Route.Remove(route);
-        }
+        _dbContext.Routes.Remove(route);
     }
 }

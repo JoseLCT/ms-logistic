@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MsLogistic.Domain.DeliveryZone.Entities;
-using MsLogistic.Domain.DeliveryZone.Repositories;
+using MsLogistic.Domain.DeliveryZones.Entities;
+using MsLogistic.Domain.DeliveryZones.Repositories;
 using MsLogistic.Infrastructure.Persistence.DomainModel;
 
 namespace MsLogistic.Infrastructure.Persistence.Repositories;
@@ -14,40 +14,31 @@ internal class DeliveryZoneRepository : IDeliveryZoneRepository
         _dbContext = dbContext;
     }
 
-    public async Task<IEnumerable<DeliveryZone>> GetAllAsync()
+
+    public async Task<IReadOnlyList<DeliveryZone>> GetAllAsync(CancellationToken ct = default)
     {
-        return await _dbContext.DeliveryZone.AsNoTracking().ToListAsync();
+        var deliveryZones = await _dbContext.DeliveryZones.ToListAsync(ct);
+        return deliveryZones;
     }
 
-    public async Task<DeliveryZone?> GetByIdAsync(Guid id, bool readOnly = false)
+    public async Task<DeliveryZone?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        var query = _dbContext.DeliveryZone.AsQueryable();
-
-        if (readOnly)
-        {
-            query = query.AsNoTracking();
-        }
-
-        return await query.FirstOrDefaultAsync(dz => dz.Id == id);
+        var deliveryZone = await _dbContext.DeliveryZones.FirstOrDefaultAsync(dz => dz.Id == id, ct);
+        return deliveryZone;
     }
 
-    public async Task AddAsync(DeliveryZone entity)
+    public async Task AddAsync(DeliveryZone deliveryZone, CancellationToken ct = default)
     {
-        await _dbContext.DeliveryZone.AddAsync(entity);
+        await _dbContext.DeliveryZones.AddAsync(deliveryZone, ct);
     }
 
-    public Task UpdateAsync(DeliveryZone deliveryZone)
+    public void Update(DeliveryZone deliveryZone)
     {
-        _dbContext.DeliveryZone.Update(deliveryZone);
-        return Task.CompletedTask;
+        _dbContext.DeliveryZones.Update(deliveryZone);
     }
 
-    public async Task DeleteAsync(Guid id)
+    public void Remove(DeliveryZone deliveryZone)
     {
-        var deliveryZone = await GetByIdAsync(id);
-        if (deliveryZone != null)
-        {
-            _dbContext.DeliveryZone.Remove(deliveryZone);
-        }
+        _dbContext.DeliveryZones.Remove(deliveryZone);
     }
 }

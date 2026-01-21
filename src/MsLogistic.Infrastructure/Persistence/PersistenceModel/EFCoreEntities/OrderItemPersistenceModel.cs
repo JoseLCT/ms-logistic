@@ -11,25 +11,21 @@ internal class OrderItemPersistenceModel
     public Guid Id { get; set; }
     
     [Column("order_id")]
-    [Required]
     public Guid OrderId { get; set; }
     
-    [ForeignKey("OrderId")]
+    [ForeignKey(nameof(OrderId))]
     public required OrderPersistenceModel Order { get; set; }
     
     [Column("product_id")]
-    [Required]
     public Guid ProductId { get; set; }
     
-    [ForeignKey("ProductId")]
+    [ForeignKey(nameof(ProductId))]
     public required ProductPersistenceModel Product { get; set; }
     
     [Column("quantity")]
-    [Required]
     public int Quantity { get; set; }
     
     [Column("created_at")]
-    [Required]
     public DateTime CreatedAt { get; set; }
     
     [Column("updated_at")]

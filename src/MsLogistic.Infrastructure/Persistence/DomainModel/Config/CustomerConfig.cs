@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MsLogistic.Domain.Customer.Entities;
+using MsLogistic.Domain.Customers.Entities;
 using MsLogistic.Domain.Shared.ValueObjects;
 
 namespace MsLogistic.Infrastructure.Persistence.DomainModel.Config;
@@ -13,18 +13,20 @@ internal class CustomerConfig : IEntityTypeConfiguration<Customer>
 
         builder.HasKey(c => c.Id);
 
-        builder.Property(c => c.Id)
+        builder.Property(x => x.Id)
             .HasColumnName("id");
 
-        builder.Property(c => c.Name)
-            .HasColumnName("name");
+        builder.Property(c => c.FullName)
+            .HasColumnName("full_name")
+            .HasMaxLength(100);
 
         builder.Property(c => c.PhoneNumber)
             .HasColumnName("phone_number")
             .HasConversion(
-                v => v.Number,
-                v => new PhoneNumberValue(v)
-            );
+                phoneNumber => phoneNumber != null ? phoneNumber.Value : null,
+                value => value != null ? PhoneNumberValue.Create(value) : null
+            )
+            .HasMaxLength(15);
 
         builder.Property(c => c.CreatedAt)
             .HasColumnName("created_at");
@@ -32,7 +34,6 @@ internal class CustomerConfig : IEntityTypeConfiguration<Customer>
         builder.Property(c => c.UpdatedAt)
             .HasColumnName("updated_at");
 
-        builder.Ignore("_domainEvents");
         builder.Ignore(c => c.DomainEvents);
     }
 }

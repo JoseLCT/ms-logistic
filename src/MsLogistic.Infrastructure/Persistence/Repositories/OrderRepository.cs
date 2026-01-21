@@ -1,10 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MsLogistic.Domain.Order.Entities;
-using MsLogistic.Domain.Order.Repositories;
-using MsLogistic.Domain.Order.Types;
+using MsLogistic.Domain.Orders.Entities;
+using MsLogistic.Domain.Orders.Repositories;
 using MsLogistic.Infrastructure.Persistence.DomainModel;
-using MsLogistic.Infrastructure.Shared.Utils.Parsers;
-using NetTopologySuite.Geometries;
 
 namespace MsLogistic.Infrastructure.Persistence.Repositories;
 
@@ -17,56 +14,31 @@ internal class OrderRepository : IOrderRepository
         _dbContext = dbContext;
     }
 
-    public async Task<IEnumerable<Order>> GetAllAsync()
+
+    public async Task<IReadOnlyList<Order>> GetAllAsync(CancellationToken ct = default)
     {
-        return await _dbContext.Order.AsNoTracking().ToListAsync();
+        var orders = await _dbContext.Orders.ToListAsync(ct);
+        return orders;
     }
 
-    public async Task<Order?> GetByIdAsync(Guid id, bool readOnly = false)
+    public async Task<Order?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        var query = _dbContext.Order.AsQueryable();
-
-        if (readOnly)
-        {
-            query = query.AsNoTracking();
-        }
-
-        return await query.FirstOrDefaultAsync(o => o.Id == id);
+        var order = await _dbContext.Orders.FirstOrDefaultAsync(o => o.Id == id, ct);
+        return order;
     }
 
-    public async Task<IEnumerable<Order>> GetPendingOrdersAsync()
+    public async Task AddAsync(Order order, CancellationToken ct = default)
     {
-        return await _dbContext.Order
-            .AsNoTracking()
-            .Where(o => o.Status == OrderStatusType.Pending)
-            .ToListAsync();
+        await _dbContext.Orders.AddAsync(order, ct);
     }
 
-    public async Task<IEnumerable<Order>> GetByRouteIdAsync(Guid routeId)
+    public void Update(Order order)
     {
-        return await _dbContext.Order
-            .AsNoTracking()
-            .Where(o => o.RouteId == routeId)
-            .ToListAsync();
+        _dbContext.Orders.Update(order);
     }
 
-    public async Task AddAsync(Order entity)
+    public void Remove(Order order)
     {
-        await _dbContext.Order.AddAsync(entity);
-    }
-
-    public Task UpdateAsync(Order order)
-    {
-        _dbContext.Order.Update(order);
-        return Task.CompletedTask;
-    }
-
-    public async Task DeleteAsync(Guid id)
-    {
-        var order = await GetByIdAsync(id);
-        if (order != null)
-        {
-            _dbContext.Order.Remove(order);
-        }
+        _dbContext.Orders.Remove(order);
     }
 }

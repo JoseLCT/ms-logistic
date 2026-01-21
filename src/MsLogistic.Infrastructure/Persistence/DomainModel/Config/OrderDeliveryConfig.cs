@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MsLogistic.Domain.Order.Entities;
+using MsLogistic.Domain.Drivers.Entities;
+using MsLogistic.Domain.Orders.Entities;
 using MsLogistic.Infrastructure.Shared.Utils.Parsers;
 
 namespace MsLogistic.Infrastructure.Persistence.DomainModel.Config;
@@ -19,24 +20,27 @@ internal class OrderDeliveryConfig : IEntityTypeConfiguration<OrderDelivery>
         builder.Property(x => x.OrderId)
             .HasColumnName("order_id");
 
-        builder.Property(x => x.DeliveryPersonId)
-            .HasColumnName("delivery_person_id");
+        builder.Property(x => x.DriverId)
+            .HasColumnName("driver_id");
 
         builder.Property(x => x.Location)
             .HasColumnName("location")
+            .HasColumnType("geography")
             .HasConversion(
-                v => GeoPointParser.ConvertToPoint(v),
-                v => PointParser.ConvertToGeoPointValue(v)
+                geoPoint => GeoPointParser.ConvertToPoint(geoPoint),
+                point => PointParser.ConvertToGeoPointValue(point)
             );
 
         builder.Property(x => x.DeliveredAt)
             .HasColumnName("delivered_at");
 
         builder.Property(x => x.Comments)
-            .HasColumnName("comments");
+            .HasColumnName("comments")
+            .HasMaxLength(500);
 
         builder.Property(x => x.ImageUrl)
-            .HasColumnName("image_url");
+            .HasColumnName("image_url")
+            .HasMaxLength(250);
 
         builder.Property(c => c.CreatedAt)
             .HasColumnName("created_at");
@@ -44,7 +48,11 @@ internal class OrderDeliveryConfig : IEntityTypeConfiguration<OrderDelivery>
         builder.Property(c => c.UpdatedAt)
             .HasColumnName("updated_at");
 
-        builder.Ignore("_domainEvents");
+        builder.HasOne<Driver>()
+            .WithMany()
+            .HasForeignKey(od => od.DriverId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.Ignore(x => x.DomainEvents);
     }
 }

@@ -3,13 +3,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MsLogistic.Application;
-using MsLogistic.Core.Abstractions;
-using MsLogistic.Domain.Customer.Repositories;
-using MsLogistic.Domain.DeliveryPerson.Repositories;
-using MsLogistic.Domain.DeliveryZone.Repositories;
-using MsLogistic.Domain.Order.Repositories;
-using MsLogistic.Domain.Product.Repositories;
-using MsLogistic.Domain.Route.Repositories;
+using MsLogistic.Core.Interfaces;
+using MsLogistic.Domain.Batches.Repositories;
+using MsLogistic.Domain.Customers.Repositories;
+using MsLogistic.Domain.DeliveryZones.Repositories;
+using MsLogistic.Domain.Drivers.Repositories;
+using MsLogistic.Domain.Orders.Repositories;
+using MsLogistic.Domain.Products.Repositories;
+using MsLogistic.Domain.Routes.Repositories;
 using MsLogistic.Infrastructure.Persistence;
 using MsLogistic.Infrastructure.Persistence.DomainModel;
 using MsLogistic.Infrastructure.Persistence.PersistenceModel;
@@ -39,11 +40,12 @@ public static class DependencyInjection
         services.AddDbContext<DomainDbContext>(context =>
             context.UseNpgsql(dbConnectionString, npgsqlOptions => { npgsqlOptions.UseNetTopologySuite(); }));
 
-        services.AddScoped<IDatabase, PersistenceDbContext>();
+        services.AddScoped<IDatabase, DomainDbContext>();
 
+        services.AddScoped<IBatchRepository, BatchRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
-        services.AddScoped<IDeliveryPersonRepository, DeliveryPersonRepository>();
         services.AddScoped<IDeliveryZoneRepository, DeliveryZoneRepository>();
+        services.AddScoped<IDriverRepository, DriverRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IRouteRepository, RouteRepository>();

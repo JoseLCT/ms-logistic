@@ -2,17 +2,27 @@
 
 public sealed record ValidationError : Error
 {
-    public ValidationError(Error[] errors)
+    public ValidationFailure[] Failures { get; }
+
+    private ValidationError(ValidationFailure[] failures)
         : base(
             "Validation.General",
             "One or more validation errors occurred",
             ErrorType.Validation)
     {
-        Errors = errors;
+        Failures = failures;
     }
 
-    public Error[] Errors { get; }
+    public static ValidationError Create(params ValidationFailure[] failures) => new(failures);
 
-    public static ValidationError FromResults(IEnumerable<Result> results) =>
-        new(results.Where(r => r.IsFailure).Select(r => r.Error).ToArray());
+    public static ValidationError FromErrors(params Error[] errors)
+    {
+        var failures = errors
+            .Select(e => new ValidationFailure(e.Code, e.Message))
+            .ToArray();
+
+        return new ValidationError(failures);
+    }
 }
+
+public sealed record ValidationFailure(string PropertyName, string ErrorMessage);

@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MsLogistic.Domain.Order.Entities;
+using MsLogistic.Domain.Batches.Entities;
+using MsLogistic.Domain.Customers.Entities;
+using MsLogistic.Domain.Orders.Entities;
+using MsLogistic.Domain.Routes.Entities;
 using MsLogistic.Infrastructure.Shared.Utils.Parsers;
 
 namespace MsLogistic.Infrastructure.Persistence.DomainModel.Config;
@@ -15,6 +18,9 @@ internal class OrderConfig : IEntityTypeConfiguration<Order>
 
         builder.Property(x => x.Id)
             .HasColumnName("id");
+
+        builder.Property(x => x.BatchId)
+            .HasColumnName("batch_id");
 
         builder.Property(x => x.CustomerId)
             .HasColumnName("customer_id");
@@ -33,22 +39,16 @@ internal class OrderConfig : IEntityTypeConfiguration<Order>
             .HasColumnName("scheduled_delivery_date");
 
         builder.Property(x => x.DeliveryAddress)
-            .HasColumnName("delivery_address");
+            .HasColumnName("delivery_address")
+            .HasMaxLength(500);
 
         builder.Property(x => x.DeliveryLocation)
             .HasColumnName("delivery_location")
             .HasColumnType("geography")
             .HasConversion(
-                v => GeoPointParser.ConvertToPoint(v),
-                v => PointParser.ConvertToGeoPointValue(v)
+                geoPoint => GeoPointParser.ConvertToPoint(geoPoint),
+                point => PointParser.ConvertToGeoPointValue(point)
             );
-
-        builder.HasMany("_items");
-
-        builder.HasOne(o => o.Delivery)
-            .WithOne()
-            .HasForeignKey<OrderDelivery>(d => d.OrderId)
-            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Property(c => c.CreatedAt)
             .HasColumnName("created_at");
@@ -56,8 +56,40 @@ internal class OrderConfig : IEntityTypeConfiguration<Order>
         builder.Property(c => c.UpdatedAt)
             .HasColumnName("updated_at");
 
-        builder.Ignore("_domainEvents");
+        builder.HasOne(o => o.Delivery)
+            .WithOne()
+            .HasForeignKey<OrderDelivery>(od => od.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(o => o.Incident)
+            .WithOne()
+            .HasForeignKey<OrderIncident>(oi => oi.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(o => o.Items)
+            .WithOne()
+            .HasForeignKey(oi => oi.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<Batch>()
+            .WithMany()
+            .HasForeignKey(o => o.BatchId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<Customer>()
+            .WithMany()
+            .HasForeignKey(o => o.CustomerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<Route>()
+            .WithMany()
+            .HasForeignKey(o => o.RouteId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.Metadata
+            .FindNavigation(nameof(Order.Items))!
+            .SetPropertyAccessMode(PropertyAccessMode.Field);
+
         builder.Ignore(x => x.DomainEvents);
-        builder.Ignore(x => x.Items);
     }
 }

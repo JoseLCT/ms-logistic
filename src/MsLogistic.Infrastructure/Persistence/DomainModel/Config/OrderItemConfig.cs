@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MsLogistic.Domain.Order.Entities;
+using MsLogistic.Domain.Orders.Entities;
+using MsLogistic.Domain.Products.Entities;
 
 namespace MsLogistic.Infrastructure.Persistence.DomainModel.Config;
 
@@ -30,7 +31,11 @@ internal class OrderItemConfig : IEntityTypeConfiguration<OrderItem>
         builder.Property(c => c.UpdatedAt)
             .HasColumnName("updated_at");
 
-        builder.Ignore("_domainEvents");
+        builder.HasOne<Product>()
+            .WithMany()
+            .HasForeignKey(oi => oi.ProductId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.Ignore(x => x.DomainEvents);
     }
 }

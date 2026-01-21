@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MsLogistic.Domain.Product.Entities;
-using MsLogistic.Domain.Product.Repositories;
+using MsLogistic.Domain.Products.Entities;
+using MsLogistic.Domain.Products.Repositories;
 using MsLogistic.Infrastructure.Persistence.DomainModel;
 
 namespace MsLogistic.Infrastructure.Persistence.Repositories;
@@ -14,40 +14,41 @@ internal class ProductRepository : IProductRepository
         _dbContext = dbContext;
     }
 
-    public async Task<IEnumerable<Product>> GetAllAsync()
+    public async Task<IReadOnlyList<Product>> GetAllAsync(CancellationToken ct = default)
     {
-        return await _dbContext.Product.AsNoTracking().ToListAsync();
+        var products = await _dbContext.Products.ToListAsync(ct);
+        return products;
     }
 
-    public async Task<Product?> GetByIdAsync(Guid id, bool readOnly = false)
+    public async Task<Product?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        var query = _dbContext.Product.AsQueryable();
-
-        if (readOnly)
-        {
-            query = query.AsNoTracking();
-        }
-
-        return await query.FirstOrDefaultAsync(p => p.Id == id);
+        var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == id, ct);
+        return product;
     }
 
-    public async Task AddAsync(Product entity)
+    public async Task<IReadOnlyList<Product>> GetByIdsAsync(
+        IReadOnlyCollection<Guid> ids,
+        CancellationToken ct = default
+    )
     {
-        await _dbContext.Product.AddAsync(entity);
+        var products = await _dbContext.Products
+            .Where(p => ids.Contains(p.Id))
+            .ToListAsync(ct);
+        return products;
     }
 
-    public Task UpdateAsync(Product product)
+    public async Task AddAsync(Product product, CancellationToken ct = default)
     {
-        _dbContext.Product.Update(product);
-        return Task.CompletedTask;
+        await _dbContext.Products.AddAsync(product, ct);
     }
 
-    public async Task DeleteAsync(Guid id)
+    public void Update(Product product)
     {
-        var product = await GetByIdAsync(id);
-        if (product != null)
-        {
-            _dbContext.Product.Remove(product);
-        }
+        _dbContext.Products.Update(product);
+    }
+
+    public void Remove(Product product)
+    {
+        _dbContext.Products.Remove(product);
     }
 }

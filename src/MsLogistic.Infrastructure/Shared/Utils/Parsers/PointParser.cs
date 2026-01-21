@@ -7,6 +7,6 @@ internal class PointParser
 {
     public static GeoPointValue ConvertToGeoPointValue(Point point)
     {
-        return new GeoPointValue(point.Y, point.X);
+        return GeoPointValue.Create(point.Y, point.X);
     }
 }

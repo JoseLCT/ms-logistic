@@ -18,17 +18,23 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="MediatR" Version="13.1.0"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6"/>
+      <PackageReference Include="Asp.Versioning.Mvc" Version="8.1.1" />
+      <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.1" />
+      <PackageReference Include="MediatR" Version="13.1.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.0" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\MsLogistic.Application\MsLogistic.Application.csproj"/>
         <ProjectReference Include="..\MsLogistic.Infrastructure\MsLogistic.Infrastructure.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="MsLogistic.UnitTest" />
     </ItemGroup>
 
 </Project>

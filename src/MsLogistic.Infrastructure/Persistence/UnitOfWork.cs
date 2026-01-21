@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using MsLogistic.Core.Abstractions;
+using MsLogistic.Core.Interfaces;
 using MsLogistic.Infrastructure.Persistence.DomainModel;
 
 namespace MsLogistic.Infrastructure.Persistence;
@@ -15,7 +16,7 @@ internal class UnitOfWork : IUnitOfWork
         _mediator = mediator;
     }
 
-    public async Task CommitAsync(CancellationToken cancellationToken = default)
+    public async Task SaveChangesAsync(CancellationToken ct = default)
     {
         var domainEvents = _dbContext.ChangeTracker
             .Entries<Entity>()
@@ -31,9 +32,9 @@ internal class UnitOfWork : IUnitOfWork
 
         foreach (var domainEvent in domainEvents)
         {
-            await _mediator.Publish(domainEvent, cancellationToken);
+            await _mediator.Publish(domainEvent, ct);
         }
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await _dbContext.SaveChangesAsync(ct);
     }
 }

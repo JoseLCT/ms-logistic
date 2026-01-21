@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MsLogistic.Domain.Product.Entities;
+using MsLogistic.Domain.Products.Entities;
 
 namespace MsLogistic.Infrastructure.Persistence.DomainModel.Config;
 
@@ -16,10 +16,12 @@ internal class ProductConfig : IEntityTypeConfiguration<Product>
             .HasColumnName("id");
 
         builder.Property(x => x.Name)
-            .HasColumnName("name");
+            .HasColumnName("name")
+            .HasMaxLength(100);
 
         builder.Property(x => x.Description)
-            .HasColumnName("description");
+            .HasColumnName("description")
+            .HasMaxLength(500);
 
         builder.Property(c => c.CreatedAt)
             .HasColumnName("created_at");
@@ -27,7 +29,6 @@ internal class ProductConfig : IEntityTypeConfiguration<Product>
         builder.Property(c => c.UpdatedAt)
             .HasColumnName("updated_at");
 
-        builder.Ignore("_domainEvents");
         builder.Ignore(x => x.DomainEvents);
     }
 }

@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MsLogistic.Domain.Route.Entities;
+using MsLogistic.Domain.Batches.Entities;
+using MsLogistic.Domain.DeliveryZones.Entities;
+using MsLogistic.Domain.Drivers.Entities;
+using MsLogistic.Domain.Routes.Entities;
 using MsLogistic.Infrastructure.Shared.Utils.Parsers;
 
 namespace MsLogistic.Infrastructure.Persistence.DomainModel.Config;
@@ -16,20 +19,21 @@ internal class RouteConfig : IEntityTypeConfiguration<Route>
         builder.Property(x => x.Id)
             .HasColumnName("id");
 
+        builder.Property(x => x.BatchId)
+            .HasColumnName("batch_id");
+
         builder.Property(x => x.DeliveryZoneId)
             .HasColumnName("delivery_zone_id");
 
-        builder.Property(x => x.DeliveryPersonId)
-            .HasColumnName("delivery_person_id");
-
-        builder.Property(x => x.ScheduledDate)
-            .HasColumnName("scheduled_date");
+        builder.Property(x => x.DriverId)
+            .HasColumnName("driver_id");
 
         builder.Property(x => x.OriginLocation)
             .HasColumnName("origin_location")
+            .HasColumnType("geography")
             .HasConversion(
-                v => GeoPointParser.ConvertToPoint(v),
-                v => PointParser.ConvertToGeoPointValue(v)
+                geoPoint => GeoPointParser.ConvertToPoint(geoPoint),
+                point => PointParser.ConvertToGeoPointValue(point)
             );
 
         builder.Property(x => x.Status)
@@ -48,7 +52,21 @@ internal class RouteConfig : IEntityTypeConfiguration<Route>
         builder.Property(c => c.UpdatedAt)
             .HasColumnName("updated_at");
 
-        builder.Ignore("_domainEvents");
+        builder.HasOne<Batch>()
+            .WithMany()
+            .HasForeignKey(r => r.BatchId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<DeliveryZone>()
+            .WithMany()
+            .HasForeignKey(r => r.DeliveryZoneId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<Driver>()
+            .WithMany()
+            .HasForeignKey(r => r.DriverId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         builder.Ignore(x => x.DomainEvents);
     }
 }

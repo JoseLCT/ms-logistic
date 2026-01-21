@@ -12,7 +12,6 @@ internal class ProductPersistenceModel
 
     [Column("name")]
     [StringLength(100)]
-    [Required]
     public required string Name { get; set; }
 
     [Column("description")]
@@ -20,7 +19,6 @@ internal class ProductPersistenceModel
     public string? Description { get; set; }
     
     [Column("created_at")]
-    [Required]
     public DateTime CreatedAt { get; set; }
 
     [Column("updated_at")]

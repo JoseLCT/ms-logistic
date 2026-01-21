@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MsLogistic.Domain.Customer.Entities;
-using MsLogistic.Domain.Customer.Repositories;
+using MsLogistic.Domain.Customers.Entities;
+using MsLogistic.Domain.Customers.Repositories;
 using MsLogistic.Infrastructure.Persistence.DomainModel;
 
 namespace MsLogistic.Infrastructure.Persistence.Repositories;
@@ -14,40 +14,31 @@ internal class CustomerRepository : ICustomerRepository
         _dbContext = dbContext;
     }
 
-    public async Task<IEnumerable<Customer>> GetAllAsync()
+
+    public async Task<IReadOnlyList<Customer>> GetAllAsync(CancellationToken ct = default)
     {
-        return await _dbContext.Customer.AsNoTracking().ToListAsync();
+        var customers = await _dbContext.Customers.ToListAsync(ct);
+        return customers;
     }
 
-    public async Task<Customer?> GetByIdAsync(Guid id, bool readOnly = false)
+    public async Task<Customer?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        var query = _dbContext.Customer.AsQueryable();
-
-        if (readOnly)
-        {
-            query = query.AsNoTracking();
-        }
-
-        return await query.FirstOrDefaultAsync(c => c.Id == id);
+        var customer = await _dbContext.Customers.FirstOrDefaultAsync(c => c.Id == id, ct);
+        return customer;
     }
 
-    public async Task AddAsync(Customer entity)
+    public async Task AddAsync(Customer customer, CancellationToken ct = default)
     {
-        await _dbContext.Customer.AddAsync(entity);
+        await _dbContext.Customers.AddAsync(customer, ct);
     }
 
-    public Task UpdateAsync(Customer customer)
+    public void Update(Customer customer)
     {
-        _dbContext.Customer.Update(customer);
-        return Task.CompletedTask;
+        _dbContext.Customers.Update(customer);
     }
 
-    public async Task DeleteAsync(Guid id)
+    public void Remove(Customer customer)
     {
-        var customer = await GetByIdAsync(id);
-        if (customer != null)
-        {
-            _dbContext.Customer.Remove(customer);
-        }
+        _dbContext.Customers.Remove(customer);
     }
 }
