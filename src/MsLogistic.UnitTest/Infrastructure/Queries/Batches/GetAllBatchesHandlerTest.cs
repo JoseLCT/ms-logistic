@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Application.Batches.GetAllBatches;
 using MsLogistic.Domain.Batches.Enums;
@@ -9,13 +9,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Infrastructure.Queries.Batches;
 
-public class GetAllBatchesHandlerTest : IDisposable
-{
+public class GetAllBatchesHandlerTest : IDisposable {
     private readonly PersistenceDbContext _dbContext;
     private readonly GetAllBatchesHandler _handler;
 
-    public GetAllBatchesHandlerTest()
-    {
+    public GetAllBatchesHandlerTest() {
         var options = new DbContextOptionsBuilder<PersistenceDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -24,8 +22,7 @@ public class GetAllBatchesHandlerTest : IDisposable
         _handler = new GetAllBatchesHandler(_dbContext);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         _dbContext.Dispose();
     }
 
@@ -35,10 +32,8 @@ public class GetAllBatchesHandlerTest : IDisposable
         BatchStatusEnum status = BatchStatusEnum.Open,
         DateTime? openedAt = null,
         DateTime? closedAt = null
-    )
-    {
-        return new BatchPersistenceModel
-        {
+    ) {
+        return new BatchPersistenceModel {
             Id = id ?? Guid.NewGuid(),
             TotalOrders = totalOrders,
             Status = status,
@@ -50,8 +45,7 @@ public class GetAllBatchesHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithNoBatches_ShouldReturnEmptyList()
-    {
+    public async Task Handle_WithNoBatches_ShouldReturnEmptyList() {
         // Arrange
         var query = new GetAllBatchesQuery();
 
@@ -65,8 +59,7 @@ public class GetAllBatchesHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithSingleBatch_ShouldReturnListWithOneBatch()
-    {
+    public async Task Handle_WithSingleBatch_ShouldReturnListWithOneBatch() {
         // Arrange
         var batch = CreateBatchPersistenceModel();
 
@@ -87,8 +80,7 @@ public class GetAllBatchesHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithMultipleBatches_ShouldReturnAllBatches()
-    {
+    public async Task Handle_WithMultipleBatches_ShouldReturnAllBatches() {
         // Arrange
         var batch1 = CreateBatchPersistenceModel();
         var batch2 = CreateBatchPersistenceModel();

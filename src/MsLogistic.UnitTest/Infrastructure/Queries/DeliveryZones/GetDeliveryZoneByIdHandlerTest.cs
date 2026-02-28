@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Application.DeliveryZones.GetDeliveryZoneById;
 using MsLogistic.Domain.Shared.Errors;
@@ -10,13 +10,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Infrastructure.Queries.DeliveryZones;
 
-public class GetDeliveryZoneByIdHandlerTest : IDisposable
-{
+public class GetDeliveryZoneByIdHandlerTest : IDisposable {
     private readonly PersistenceDbContext _dbContext;
     private readonly GetDeliveryZoneByIdHandler _handler;
 
-    public GetDeliveryZoneByIdHandlerTest()
-    {
+    public GetDeliveryZoneByIdHandlerTest() {
         var options = new DbContextOptionsBuilder<PersistenceDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -25,8 +23,7 @@ public class GetDeliveryZoneByIdHandlerTest : IDisposable
         _handler = new GetDeliveryZoneByIdHandler(_dbContext);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         _dbContext.Dispose();
     }
 
@@ -36,10 +33,8 @@ public class GetDeliveryZoneByIdHandlerTest : IDisposable
         string code = "ABC-123",
         string name = "Zone A",
         Polygon? boundaries = null
-    )
-    {
-        return new DeliveryZonePersistenceModel
-        {
+    ) {
+        return new DeliveryZonePersistenceModel {
             Id = id ?? Guid.NewGuid(),
             DriverId = driverId,
             Code = code,
@@ -58,8 +53,7 @@ public class GetDeliveryZoneByIdHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithExistingDeliveryZoneId_ShouldReturnDeliveryZone()
-    {
+    public async Task Handle_WithExistingDeliveryZoneId_ShouldReturnDeliveryZone() {
         // Arrange
         var newDeliveryZone = CreateDeliveryZonePersistenceModel();
 
@@ -77,8 +71,7 @@ public class GetDeliveryZoneByIdHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithNonExistingDeliveryZoneId_ShouldReturnNotFoundError()
-    {
+    public async Task Handle_WithNonExistingDeliveryZoneId_ShouldReturnNotFoundError() {
         // Arrange
         var nonExistingId = Guid.NewGuid();
         var query = new GetDeliveryZoneByIdQuery(nonExistingId);
@@ -92,8 +85,7 @@ public class GetDeliveryZoneByIdHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithMultipleDeliveryZones_ShouldReturnCorrectDeliveryZone()
-    {
+    public async Task Handle_WithMultipleDeliveryZones_ShouldReturnCorrectDeliveryZone() {
         // Arrange
         var deliveryZone1 = CreateDeliveryZonePersistenceModel();
         var deliveryZone2 = CreateDeliveryZonePersistenceModel();

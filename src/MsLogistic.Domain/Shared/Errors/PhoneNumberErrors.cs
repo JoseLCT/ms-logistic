@@ -1,9 +1,8 @@
-﻿using MsLogistic.Core.Results;
+using MsLogistic.Core.Results;
 
 namespace MsLogistic.Domain.Shared.Errors;
 
-public static class PhoneNumberErrors
-{
+public static class PhoneNumberErrors {
     public static Error Empty =>
         Error.Validation(
             code: "PhoneNumber.Empty",

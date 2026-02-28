@@ -1,9 +1,8 @@
-﻿using MsLogistic.Core.Results;
+using MsLogistic.Core.Results;
 
 namespace MsLogistic.Domain.Shared.Errors;
 
-public static class CommonErrors
-{
+public static class CommonErrors {
     public static Error NotFound(string entityName) =>
         Error.NotFound(
             code: $"{entityName}.NotFound",

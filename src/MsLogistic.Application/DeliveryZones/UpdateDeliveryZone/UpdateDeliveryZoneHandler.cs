@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using MsLogistic.Core.Interfaces;
 using MsLogistic.Core.Results;
@@ -9,8 +9,7 @@ using MsLogistic.Domain.Shared.ValueObjects;
 
 namespace MsLogistic.Application.DeliveryZones.UpdateDeliveryZone;
 
-public class UpdateDeliveryZoneHandler : IRequestHandler<UpdateDeliveryZoneCommand, Result<Guid>>
-{
+public class UpdateDeliveryZoneHandler : IRequestHandler<UpdateDeliveryZoneCommand, Result<Guid>> {
     private readonly IDeliveryZoneRepository _deliveryZoneRepository;
     private readonly IDriverRepository _driverRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -21,30 +20,25 @@ public class UpdateDeliveryZoneHandler : IRequestHandler<UpdateDeliveryZoneComma
         IDriverRepository driverRepository,
         IUnitOfWork unitOfWork,
         ILogger<UpdateDeliveryZoneHandler> logger
-    )
-    {
+    ) {
         _deliveryZoneRepository = deliveryZoneRepository;
         _driverRepository = driverRepository;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
-    public async Task<Result<Guid>> Handle(UpdateDeliveryZoneCommand request, CancellationToken ct)
-    {
+    public async Task<Result<Guid>> Handle(UpdateDeliveryZoneCommand request, CancellationToken ct) {
         var deliveryZone = await _deliveryZoneRepository.GetByIdAsync(request.Id, ct);
 
-        if (deliveryZone is null)
-        {
+        if (deliveryZone is null) {
             return Result.Failure<Guid>(
                 CommonErrors.NotFoundById("DeliveryZone", request.Id)
             );
         }
 
-        if (request.DriverId.HasValue && request.DriverId != deliveryZone.DriverId)
-        {
+        if (request.DriverId.HasValue && request.DriverId != deliveryZone.DriverId) {
             var driverExistsResult = await DriverExists(request.DriverId.Value, ct);
-            if (driverExistsResult.IsFailure)
-            {
+            if (driverExistsResult.IsFailure) {
                 return Result.Failure<Guid>(driverExistsResult.Error);
             }
         }
@@ -68,12 +62,10 @@ public class UpdateDeliveryZoneHandler : IRequestHandler<UpdateDeliveryZoneComma
         return Result.Success(deliveryZone.Id);
     }
 
-    private async Task<Result> DriverExists(Guid driverId, CancellationToken ct)
-    {
+    private async Task<Result> DriverExists(Guid driverId, CancellationToken ct) {
         var driver = await _driverRepository.GetByIdAsync(driverId, ct);
 
-        if (driver is null)
-        {
+        if (driver is null) {
             return Result.Failure(
                 CommonErrors.NotFoundById("Driver", driverId)
             );

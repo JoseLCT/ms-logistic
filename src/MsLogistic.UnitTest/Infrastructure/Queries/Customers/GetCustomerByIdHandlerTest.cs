@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Application.Customers.GetCustomerById;
 using MsLogistic.Domain.Shared.Errors;
@@ -9,13 +9,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Infrastructure.Queries.Customers;
 
-public class GetCustomerByIdHandlerTest : IDisposable
-{
+public class GetCustomerByIdHandlerTest : IDisposable {
     private readonly PersistenceDbContext _dbContext;
     private readonly GetCustomerByIdHandler _handler;
 
-    public GetCustomerByIdHandlerTest()
-    {
+    public GetCustomerByIdHandlerTest() {
         var options = new DbContextOptionsBuilder<PersistenceDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -24,8 +22,7 @@ public class GetCustomerByIdHandlerTest : IDisposable
         _handler = new GetCustomerByIdHandler(_dbContext);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         _dbContext.Dispose();
     }
 
@@ -33,10 +30,8 @@ public class GetCustomerByIdHandlerTest : IDisposable
         Guid? id = null,
         string fullName = "John Doe",
         string phoneNumber = "1234567890"
-    )
-    {
-        return new CustomerPersistenceModel
-        {
+    ) {
+        return new CustomerPersistenceModel {
             Id = id ?? Guid.NewGuid(),
             FullName = fullName,
             PhoneNumber = phoneNumber,
@@ -46,8 +41,7 @@ public class GetCustomerByIdHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithExistingCustomerId_ShouldReturnCustomer()
-    {
+    public async Task Handle_WithExistingCustomerId_ShouldReturnCustomer() {
         // Arrange
         var newCustomer = CreateCustomerPersistenceModel();
 
@@ -65,8 +59,7 @@ public class GetCustomerByIdHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithNonExistingCustomerId_ShouldReturnNotFoundError()
-    {
+    public async Task Handle_WithNonExistingCustomerId_ShouldReturnNotFoundError() {
         // Arrange
         var nonExistingId = Guid.NewGuid();
         var query = new GetCustomerByIdQuery(nonExistingId);
@@ -81,8 +74,7 @@ public class GetCustomerByIdHandlerTest : IDisposable
 
 
     [Fact]
-    public async Task Handle_WithMultipleCustomers_ShouldReturnCorrectCustomer()
-    {
+    public async Task Handle_WithMultipleCustomers_ShouldReturnCorrectCustomer() {
         // Arrange
         var customer1 = CreateCustomerPersistenceModel();
         var customer2 = CreateCustomerPersistenceModel();

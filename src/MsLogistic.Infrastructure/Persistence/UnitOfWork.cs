@@ -1,28 +1,24 @@
-﻿using MediatR;
+using MediatR;
 using MsLogistic.Core.Abstractions;
 using MsLogistic.Core.Interfaces;
 using MsLogistic.Infrastructure.Persistence.DomainModel;
 
 namespace MsLogistic.Infrastructure.Persistence;
 
-internal class UnitOfWork : IUnitOfWork
-{
+internal class UnitOfWork : IUnitOfWork {
     private readonly DomainDbContext _dbContext;
     private readonly IMediator _mediator;
 
-    public UnitOfWork(DomainDbContext dbContext, IMediator mediator)
-    {
+    public UnitOfWork(DomainDbContext dbContext, IMediator mediator) {
         _dbContext = dbContext;
         _mediator = mediator;
     }
 
-    public async Task SaveChangesAsync(CancellationToken ct = default)
-    {
+    public async Task SaveChangesAsync(CancellationToken ct = default) {
         var domainEvents = _dbContext.ChangeTracker
             .Entries<Entity>()
             .Where(x => x.Entity.DomainEvents.Any())
-            .Select(x =>
-            {
+            .Select(x => {
                 var events = x.Entity.DomainEvents.ToArray();
                 x.Entity.ClearDomainEvents();
                 return events;
@@ -30,8 +26,7 @@ internal class UnitOfWork : IUnitOfWork
             .SelectMany(events => events)
             .ToList();
 
-        foreach (var domainEvent in domainEvents)
-        {
+        foreach (var domainEvent in domainEvents) {
             await _mediator.Publish(domainEvent, ct);
         }
 

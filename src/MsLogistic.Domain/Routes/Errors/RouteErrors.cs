@@ -1,10 +1,9 @@
-﻿using MsLogistic.Core.Results;
+using MsLogistic.Core.Results;
 using MsLogistic.Domain.Routes.Enums;
 
 namespace MsLogistic.Domain.Routes.Errors;
 
-public static class RouteErrors
-{
+public static class RouteErrors {
     public static Error ScheduleDateCannotBeInThePast =>
         Error.Validation(
             code: "Route.ScheduleDate.CannotBeInThePast",

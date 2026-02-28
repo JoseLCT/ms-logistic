@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Application.Orders.GetOrderById;
 using MsLogistic.Domain.Orders.Enums;
@@ -11,13 +11,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Infrastructure.Queries.Orders;
 
-public class GetOrderByIdHandlerTest : IDisposable
-{
+public class GetOrderByIdHandlerTest : IDisposable {
     private readonly PersistenceDbContext _dbContext;
     private readonly GetOrderByIdHandler _handler;
 
-    public GetOrderByIdHandlerTest()
-    {
+    public GetOrderByIdHandlerTest() {
         var options = new DbContextOptionsBuilder<PersistenceDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -26,8 +24,7 @@ public class GetOrderByIdHandlerTest : IDisposable
         _handler = new GetOrderByIdHandler(_dbContext);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         _dbContext.Dispose();
     }
 
@@ -41,10 +38,8 @@ public class GetOrderByIdHandlerTest : IDisposable
         DateTime? scheduledDeliveryDate = null,
         string? deliveryAddress = null,
         Point? deliveryLocation = null
-    )
-    {
-        return new OrderPersistenceModel
-        {
+    ) {
+        return new OrderPersistenceModel {
             Id = id ?? Guid.NewGuid(),
             BatchId = batchId ?? Guid.NewGuid(),
             CustomerId = customerId ?? Guid.NewGuid(),
@@ -60,8 +55,7 @@ public class GetOrderByIdHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithExistingOrderId_ShouldReturnOrder()
-    {
+    public async Task Handle_WithExistingOrderId_ShouldReturnOrder() {
         // Arrange
         var newOrder = CreateOrderPersistenceModel();
 
@@ -79,8 +73,7 @@ public class GetOrderByIdHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithNonExistingOrderId_ShouldReturnNotFoundError()
-    {
+    public async Task Handle_WithNonExistingOrderId_ShouldReturnNotFoundError() {
         // Arrange
         var nonExistingId = Guid.NewGuid();
         var query = new GetOrderByIdQuery(nonExistingId);
@@ -94,8 +87,7 @@ public class GetOrderByIdHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithMultipleOrders_ShouldReturnCorrectOrder()
-    {
+    public async Task Handle_WithMultipleOrders_ShouldReturnCorrectOrder() {
         // Arrange
         var order1 = CreateOrderPersistenceModel();
         var order2 = CreateOrderPersistenceModel();

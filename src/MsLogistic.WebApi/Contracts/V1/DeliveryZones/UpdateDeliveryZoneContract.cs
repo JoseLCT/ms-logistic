@@ -1,10 +1,9 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 using MsLogistic.WebApi.Contracts.Shared;
 
 namespace MsLogistic.WebApi.Contracts.V1.DeliveryZones;
 
-public record UpdateDeliveryZoneContract
-{
+public record UpdateDeliveryZoneContract {
     [property: JsonPropertyName("driver_id")]
     public Guid? DriverId { get; init; }
 

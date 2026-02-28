@@ -1,9 +1,8 @@
-﻿using MsLogistic.Core.Results;
+using MsLogistic.Core.Results;
 
 namespace MsLogistic.Domain.Batches.Errors;
 
-public static class BatchErrors
-{
+public static class BatchErrors {
     public static Error TotalOrdersCannotBeNegative =>
         Error.Validation(
             code: "Batch.TotalOrders.Negative",

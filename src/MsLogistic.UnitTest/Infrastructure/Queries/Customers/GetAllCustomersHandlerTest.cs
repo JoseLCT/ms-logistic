@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Application.Customers.GetAllCustomers;
 using MsLogistic.Infrastructure.Persistence.PersistenceModel;
@@ -8,13 +8,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Infrastructure.Queries.Customers;
 
-public class GetAllCustomersHandlerTest : IDisposable
-{
+public class GetAllCustomersHandlerTest : IDisposable {
     private readonly PersistenceDbContext _dbContext;
     private readonly GetAllCustomersHandler _handler;
 
-    public GetAllCustomersHandlerTest()
-    {
+    public GetAllCustomersHandlerTest() {
         var options = new DbContextOptionsBuilder<PersistenceDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -23,8 +21,7 @@ public class GetAllCustomersHandlerTest : IDisposable
         _handler = new GetAllCustomersHandler(_dbContext);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         _dbContext.Dispose();
     }
 
@@ -32,10 +29,8 @@ public class GetAllCustomersHandlerTest : IDisposable
         Guid? id = null,
         string fullName = "John Doe",
         string phoneNumber = "1234567890"
-    )
-    {
-        return new CustomerPersistenceModel
-        {
+    ) {
+        return new CustomerPersistenceModel {
             Id = id ?? Guid.NewGuid(),
             FullName = fullName,
             PhoneNumber = phoneNumber,
@@ -45,8 +40,7 @@ public class GetAllCustomersHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithNoCustomers_ShouldReturnEmptyList()
-    {
+    public async Task Handle_WithNoCustomers_ShouldReturnEmptyList() {
         // Arrange
         var query = new GetAllCustomersQuery();
 
@@ -60,8 +54,7 @@ public class GetAllCustomersHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithSingleCustomer_ShouldReturnListWithOneCustomer()
-    {
+    public async Task Handle_WithSingleCustomer_ShouldReturnListWithOneCustomer() {
         // Arrange
         var customer = CreateCustomerPersistenceModel();
 
@@ -82,8 +75,7 @@ public class GetAllCustomersHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithMultipleCustomers_ShouldReturnAllCustomers()
-    {
+    public async Task Handle_WithMultipleCustomers_ShouldReturnAllCustomers() {
         // Arrange
         var customer1 = CreateCustomerPersistenceModel();
         var customer2 = CreateCustomerPersistenceModel();

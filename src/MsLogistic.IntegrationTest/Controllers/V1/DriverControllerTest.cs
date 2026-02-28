@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
@@ -13,24 +13,20 @@ using Xunit;
 
 namespace MsLogistic.IntegrationTest.Controllers.V1;
 
-public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>, IAsyncLifetime
-{
+public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>, IAsyncLifetime {
     private readonly HttpClient _client;
     private readonly WebApplicationFactoryFixture _factory;
     private readonly List<Guid> _createdDriverIds = [];
 
-    public DriverControllerTest(WebApplicationFactoryFixture factory)
-    {
+    public DriverControllerTest(WebApplicationFactoryFixture factory) {
         _factory = factory;
         _client = factory.CreateClient();
     }
 
     public Task InitializeAsync() => Task.CompletedTask;
 
-    public async Task DisposeAsync()
-    {
-        if (!_createdDriverIds.Any())
-        {
+    public async Task DisposeAsync() {
+        if (!_createdDriverIds.Any()) {
             return;
         }
 
@@ -41,8 +37,7 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
             .Where(d => _createdDriverIds.Contains(d.Id))
             .ToListAsync();
 
-        if (driversToDelete.Any())
-        {
+        if (driversToDelete.Any()) {
             persistenceDb.Drivers.RemoveRange(driversToDelete);
             await persistenceDb.SaveChangesAsync();
         }
@@ -51,11 +46,9 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
     #region Create Driver Tests
 
     [Fact]
-    public async Task CreateDriver_WithValidData_ShouldCreateDriverSuccessfully()
-    {
+    public async Task CreateDriver_WithValidData_ShouldCreateDriverSuccessfully() {
         // Arrange
-        var contract = new CreateDriverContract
-        {
+        var contract = new CreateDriverContract {
             FullName = "Juan Pérez García"
         };
 
@@ -73,11 +66,9 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
     }
 
     [Fact]
-    public async Task CreateDriver_WithEmptyName_ShouldReturnBadRequest()
-    {
+    public async Task CreateDriver_WithEmptyName_ShouldReturnBadRequest() {
         // Arrange
-        var contract = new CreateDriverContract
-        {
+        var contract = new CreateDriverContract {
             FullName = ""
         };
 
@@ -92,11 +83,9 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
     }
 
     [Fact]
-    public async Task CreateDriver_WithNullName_ShouldReturnBadRequest()
-    {
+    public async Task CreateDriver_WithNullName_ShouldReturnBadRequest() {
         // Arrange
-        var contract = new CreateDriverContract
-        {
+        var contract = new CreateDriverContract {
             FullName = null!
         };
 
@@ -112,16 +101,14 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
     #region Update Driver Tests
 
     [Fact]
-    public async Task UpdateDriver_WithValidData_ShouldUpdateDriverSuccessfully()
-    {
+    public async Task UpdateDriver_WithValidData_ShouldUpdateDriverSuccessfully() {
         // Arrange
         var createContract = new CreateDriverContract { FullName = "María López" };
         var createResponse = await _client.PostAsJsonAsync("/api/v1/drivers", createContract);
         var driverId = await createResponse.Content.ReadFromJsonAsync<Guid>();
         _createdDriverIds.Add(driverId);
 
-        var updateContract = new UpdateDriverContract
-        {
+        var updateContract = new UpdateDriverContract {
             FullName = "María López Rodríguez",
             IsActive = false
         };
@@ -136,12 +123,10 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
     }
 
     [Fact]
-    public async Task UpdateDriver_WithNonExistingId_ShouldReturnNotFound()
-    {
+    public async Task UpdateDriver_WithNonExistingId_ShouldReturnNotFound() {
         // Arrange
         var nonExistingId = Guid.NewGuid();
-        var updateContract = new UpdateDriverContract
-        {
+        var updateContract = new UpdateDriverContract {
             FullName = "Conductor Inexistente",
             IsActive = true
         };
@@ -158,8 +143,7 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
     #region Delete Driver Tests
 
     [Fact]
-    public async Task RemoveDriver_WithExistingId_ShouldDeleteDriverSuccessfully()
-    {
+    public async Task RemoveDriver_WithExistingId_ShouldDeleteDriverSuccessfully() {
         // Arrange
         var createContract = new CreateDriverContract { FullName = "Pedro Sánchez" };
         var createResponse = await _client.PostAsJsonAsync("/api/v1/drivers", createContract);
@@ -176,8 +160,7 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
     }
 
     [Fact]
-    public async Task RemoveDriver_WithNonExistingId_ShouldReturnNotFound()
-    {
+    public async Task RemoveDriver_WithNonExistingId_ShouldReturnNotFound() {
         // Arrange
         var nonExistingId = Guid.NewGuid();
 
@@ -193,8 +176,7 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
     #region Get Driver Tests
 
     [Fact]
-    public async Task GetDriverById_WithExistingId_ShouldReturnDriver()
-    {
+    public async Task GetDriverById_WithExistingId_ShouldReturnDriver() {
         // Arrange
         var createContract = new CreateDriverContract { FullName = "Ana Martínez" };
         var createResponse = await _client.PostAsJsonAsync("/api/v1/drivers", createContract);
@@ -214,8 +196,7 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
     }
 
     [Fact]
-    public async Task GetDriverById_WithNonExistingId_ShouldReturnNotFound()
-    {
+    public async Task GetDriverById_WithNonExistingId_ShouldReturnNotFound() {
         // Arrange
         var nonExistingId = Guid.NewGuid();
 
@@ -227,8 +208,7 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
     }
 
     [Fact]
-    public async Task GetAllDrivers_ShouldReturnListOfDrivers()
-    {
+    public async Task GetAllDrivers_ShouldReturnListOfDrivers() {
         // Arrange
         var driver1 = new CreateDriverContract { FullName = "Conductor 1" };
         var driver2 = new CreateDriverContract { FullName = "Conductor 2" };
@@ -258,8 +238,7 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
     #region Complete CRUD Flow
 
     [Fact]
-    public async Task CompleteDriverCRUDFlow_ShouldWorkEndToEnd()
-    {
+    public async Task CompleteDriverCRUDFlow_ShouldWorkEndToEnd() {
         // CREATE
         var createContract = new CreateDriverContract { FullName = "Test Driver CRUD" };
         var createResponse = await _client.PostAsJsonAsync("/api/v1/drivers", createContract);
@@ -275,8 +254,7 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
         driver!.FullName.Should().Be("Test Driver CRUD");
 
         // UPDATE
-        var updateContract = new UpdateDriverContract
-        {
+        var updateContract = new UpdateDriverContract {
             FullName = "Test Driver Updated",
             IsActive = false
         };
@@ -303,8 +281,7 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
 
     #region Helper Methods
 
-    private async Task VerifyDriverInPersistenceDb(Guid driverId, string expectedFullName, bool? isActive = null)
-    {
+    private async Task VerifyDriverInPersistenceDb(Guid driverId, string expectedFullName, bool? isActive = null) {
         using var scope = _factory.Services.CreateScope();
         var persistenceDb = scope.ServiceProvider.GetRequiredService<PersistenceDbContext>();
 
@@ -314,14 +291,12 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
         driver.Should().NotBeNull();
         driver!.FullName.Should().Be(expectedFullName);
 
-        if (isActive.HasValue)
-        {
+        if (isActive.HasValue) {
             driver.IsActive.Should().Be(isActive.Value);
         }
     }
 
-    private async Task VerifyDriverDoesNotExist(Guid driverId)
-    {
+    private async Task VerifyDriverDoesNotExist(Guid driverId) {
         using var scope = _factory.Services.CreateScope();
         var persistenceDb = scope.ServiceProvider.GetRequiredService<PersistenceDbContext>();
 

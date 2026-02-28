@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using MsLogistic.Core.Results;
 using MsLogistic.Domain.Orders.Entities;
 using MsLogistic.Domain.Orders.Enums;
@@ -7,13 +7,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Domain.Orders;
 
-public class OrderIncidentTest
-{
+public class OrderIncidentTest {
     #region Create
 
     [Fact]
-    public void Create_WithValidParameters_ShouldSucceed()
-    {
+    public void Create_WithValidParameters_ShouldSucceed() {
         // Arrange
         var orderId = Guid.NewGuid();
         var driverId = Guid.NewGuid();
@@ -42,8 +40,7 @@ public class OrderIncidentTest
     [InlineData(OrderIncidentTypeEnum.AbsentRecipient)]
     [InlineData(OrderIncidentTypeEnum.DamagedPackage)]
     [InlineData(OrderIncidentTypeEnum.Other)]
-    public void Create_WithDifferentIncidentTypes_ShouldSucceed(OrderIncidentTypeEnum incidentType)
-    {
+    public void Create_WithDifferentIncidentTypes_ShouldSucceed(OrderIncidentTypeEnum incidentType) {
         // Arrange
         var orderId = Guid.NewGuid();
         var driverId = Guid.NewGuid();
@@ -65,8 +62,7 @@ public class OrderIncidentTest
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
-    public void Create_WithInvalidDescription_ShouldThrowDomainException(string invalidDescription)
-    {
+    public void Create_WithInvalidDescription_ShouldThrowDomainException(string invalidDescription) {
         // Arrange
         var orderId = Guid.NewGuid();
         var driverId = Guid.NewGuid();

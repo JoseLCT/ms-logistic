@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using MsLogistic.Application.Customers.CreateCustomer;
@@ -11,15 +11,13 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Application.Customers;
 
-public class CreateCustomerHandlerTest
-{
+public class CreateCustomerHandlerTest {
     private readonly Mock<ICustomerRepository> _customerRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly Mock<ILogger<CreateCustomerHandler>> _loggerMock;
     private readonly CreateCustomerHandler _handler;
 
-    public CreateCustomerHandlerTest()
-    {
+    public CreateCustomerHandlerTest() {
         _customerRepositoryMock = new Mock<ICustomerRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
         _loggerMock = new Mock<ILogger<CreateCustomerHandler>>();
@@ -28,8 +26,7 @@ public class CreateCustomerHandlerTest
     }
 
     [Fact]
-    public async Task Handle_WithValidCommand_ShouldCreateCustomerAndReturnSuccessResult()
-    {
+    public async Task Handle_WithValidCommand_ShouldCreateCustomerAndReturnSuccessResult() {
         // Arrange
         const string fullName = "Juan Perez";
         const string phoneNumber = "+591 12345678";
@@ -54,8 +51,7 @@ public class CreateCustomerHandlerTest
     }
 
     [Fact]
-    public async Task Handle_WithEmptyFullName_ShouldReturnFailureResult()
-    {
+    public async Task Handle_WithEmptyFullName_ShouldReturnFailureResult() {
         // Arrange
         const string fullName = "";
         const string phoneNumber = "+591 12345678";

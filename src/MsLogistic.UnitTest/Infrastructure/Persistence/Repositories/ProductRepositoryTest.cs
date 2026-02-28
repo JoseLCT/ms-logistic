@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Domain.Products.Entities;
 using MsLogistic.Infrastructure.Persistence.DomainModel;
@@ -7,13 +7,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Infrastructure.Persistence.Repositories;
 
-public class ProductRepositoryTest : IDisposable
-{
+public class ProductRepositoryTest : IDisposable {
     private readonly DomainDbContext _dbContext;
     private readonly ProductRepository _repository;
 
-    public ProductRepositoryTest()
-    {
+    public ProductRepositoryTest() {
         var options = new DbContextOptionsBuilder<DomainDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
@@ -22,8 +20,7 @@ public class ProductRepositoryTest : IDisposable
         _repository = new ProductRepository(_dbContext);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         _dbContext.Database.EnsureDeleted();
         _dbContext.Dispose();
     }
@@ -31,8 +28,7 @@ public class ProductRepositoryTest : IDisposable
     private static Product CreateValidProduct(
         string name = "Chicken Soup",
         string description = "Delicious chicken soup"
-    )
-    {
+    ) {
         return Product.Create(
             name: name,
             description: description
@@ -42,8 +38,7 @@ public class ProductRepositoryTest : IDisposable
     #region GetByIdAsync
 
     [Fact]
-    public async Task GetByIdAsync_WhenProductExists_ShouldReturnProduct()
-    {
+    public async Task GetByIdAsync_WhenProductExists_ShouldReturnProduct() {
         // Arrange
         var product = CreateValidProduct();
         await _dbContext.Products.AddAsync(product);
@@ -60,8 +55,7 @@ public class ProductRepositoryTest : IDisposable
     }
 
     [Fact]
-    public async Task GetByIdAsync_WhenProductDoesNotExist_ShouldReturnNull()
-    {
+    public async Task GetByIdAsync_WhenProductDoesNotExist_ShouldReturnNull() {
         // Arrange
         var nonExistingId = Guid.NewGuid();
 
@@ -77,8 +71,7 @@ public class ProductRepositoryTest : IDisposable
     #region GetAllAsync
 
     [Fact]
-    public async Task GetAllAsync_WhenProductsExist_ShouldReturnAllProducts()
-    {
+    public async Task GetAllAsync_WhenProductsExist_ShouldReturnAllProducts() {
         // Arrange
         var product1 = CreateValidProduct("Pasta Alfredo");
         var product2 = CreateValidProduct("Beef Stew");
@@ -98,8 +91,7 @@ public class ProductRepositoryTest : IDisposable
     }
 
     [Fact]
-    public async Task GetAllAsync_WhenNoProducts_ShouldReturnEmptyList()
-    {
+    public async Task GetAllAsync_WhenNoProducts_ShouldReturnEmptyList() {
         // Act
         var result = await _repository.GetAllAsync();
 
@@ -112,8 +104,7 @@ public class ProductRepositoryTest : IDisposable
     #region GetByIdsAsync
 
     [Fact]
-    public async Task GetByIdsAsync_WhenProductsExist_ShouldReturnMatchingProducts()
-    {
+    public async Task GetByIdsAsync_WhenProductsExist_ShouldReturnMatchingProducts() {
         // Arrange
         var product1 = CreateValidProduct();
         var product2 = CreateValidProduct();
@@ -135,8 +126,7 @@ public class ProductRepositoryTest : IDisposable
     }
 
     [Fact]
-    public async Task GetByIdsAsync_WhenNoMatchingProducts_ShouldReturnEmptyList()
-    {
+    public async Task GetByIdsAsync_WhenNoMatchingProducts_ShouldReturnEmptyList() {
         // Arrange
         var product = CreateValidProduct();
         await _dbContext.Products.AddAsync(product);
@@ -156,8 +146,7 @@ public class ProductRepositoryTest : IDisposable
     #region AddAsync
 
     [Fact]
-    public async Task AddAsync_ShouldAddProductToDatabase()
-    {
+    public async Task AddAsync_ShouldAddProductToDatabase() {
         // Arrange
         var product = CreateValidProduct();
 
@@ -178,8 +167,7 @@ public class ProductRepositoryTest : IDisposable
     #region Update
 
     [Fact]
-    public async Task Update_ShouldUpdateProductInDatabase()
-    {
+    public async Task Update_ShouldUpdateProductInDatabase() {
         // Arrange
         var product = CreateValidProduct();
         await _dbContext.Products.AddAsync(product);
@@ -205,8 +193,7 @@ public class ProductRepositoryTest : IDisposable
     #region Remove
 
     [Fact]
-    public async Task Remove_ShouldDeleteProductFromDatabase()
-    {
+    public async Task Remove_ShouldDeleteProductFromDatabase() {
         // Arrange
         var product = CreateValidProduct();
         await _dbContext.Products.AddAsync(product);

@@ -1,9 +1,8 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace MsLogistic.WebApi.Contracts.V1.Customers;
 
-public record UpdateCustomerContract
-{
+public record UpdateCustomerContract {
     [property: JsonPropertyName("full_name")]
     public required string FullName { get; init; }
 

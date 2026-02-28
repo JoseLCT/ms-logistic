@@ -1,4 +1,4 @@
-﻿using MsLogistic.Domain.Routes.Enums;
+using MsLogistic.Domain.Routes.Enums;
 
 namespace MsLogistic.Application.Routes.GetAllRoutes;
 

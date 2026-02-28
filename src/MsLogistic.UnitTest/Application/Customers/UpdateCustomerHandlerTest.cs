@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using MsLogistic.Application.Customers.UpdateCustomer;
@@ -10,15 +10,13 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Application.Customers;
 
-public class UpdateCustomerHandlerTest
-{
+public class UpdateCustomerHandlerTest {
     private readonly Mock<ICustomerRepository> _customerRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly Mock<ILogger<UpdateCustomerHandler>> _logger;
     private readonly UpdateCustomerHandler _handler;
 
-    public UpdateCustomerHandlerTest()
-    {
+    public UpdateCustomerHandlerTest() {
         _customerRepositoryMock = new Mock<ICustomerRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
         _logger = new Mock<ILogger<UpdateCustomerHandler>>();
@@ -29,14 +27,12 @@ public class UpdateCustomerHandlerTest
         );
     }
 
-    private static Customer CreateValidCustomer(string fullName = "Juan Perez")
-    {
+    private static Customer CreateValidCustomer(string fullName = "Juan Perez") {
         return Customer.Create(fullName, null);
     }
 
     [Fact]
-    public async Task Handle_WhenCustomerExists_ShouldUpdateCustomerAndReturnSuccessResult()
-    {
+    public async Task Handle_WhenCustomerExists_ShouldUpdateCustomerAndReturnSuccessResult() {
         // Arrange
         var customer = CreateValidCustomer();
         const string fullName = "Maria Lopez";
@@ -74,8 +70,7 @@ public class UpdateCustomerHandlerTest
     }
 
     [Fact]
-    public async Task Handle_WhenCustomerExistsWithNullPhoneNumber_ShouldUpdateCustomerWithoutPhoneNumber()
-    {
+    public async Task Handle_WhenCustomerExistsWithNullPhoneNumber_ShouldUpdateCustomerWithoutPhoneNumber() {
         // Arrange
         var customer = CreateValidCustomer();
         const string fullName = "Carlos Gomez";
@@ -106,8 +101,7 @@ public class UpdateCustomerHandlerTest
     }
 
     [Fact]
-    public async Task Handle_WhenCustomerDoesNotExist_ShouldReturnFailureResult()
-    {
+    public async Task Handle_WhenCustomerDoesNotExist_ShouldReturnFailureResult() {
         // Arrange
         var customerId = Guid.NewGuid();
         var command = new UpdateCustomerCommand(customerId, "Ana Martinez", "+59178888888");

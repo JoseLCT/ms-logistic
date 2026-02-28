@@ -1,6 +1,5 @@
-﻿namespace MsLogistic.Core.Interfaces;
+namespace MsLogistic.Core.Interfaces;
 
-public interface IUnitOfWork
-{
+public interface IUnitOfWork {
     Task SaveChangesAsync(CancellationToken ct = default);
 }

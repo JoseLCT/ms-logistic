@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using MsLogistic.Application.Customers.RemoveCustomer;
@@ -10,15 +10,13 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Application.Customers;
 
-public class RemoveCustomerHandlerTest
-{
+public class RemoveCustomerHandlerTest {
     private readonly Mock<ICustomerRepository> _customerRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly Mock<ILogger<RemoveCustomerHandler>> _logger;
     private readonly RemoveCustomerHandler _handler;
 
-    public RemoveCustomerHandlerTest()
-    {
+    public RemoveCustomerHandlerTest() {
         _customerRepositoryMock = new Mock<ICustomerRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
         _logger = new Mock<ILogger<RemoveCustomerHandler>>();
@@ -29,14 +27,12 @@ public class RemoveCustomerHandlerTest
         );
     }
 
-    private static Customer CreateValidCustomer(string fullName = "Juan Perez")
-    {
+    private static Customer CreateValidCustomer(string fullName = "Juan Perez") {
         return Customer.Create(fullName, null);
     }
 
     [Fact]
-    public async Task Handle_WhenCustomerExists_ShouldRemoveCustomerAndReturnSuccessResult()
-    {
+    public async Task Handle_WhenCustomerExists_ShouldRemoveCustomerAndReturnSuccessResult() {
         // Arrange
         var customer = CreateValidCustomer();
         var command = new RemoveCustomerCommand(customer.Id);
@@ -69,8 +65,7 @@ public class RemoveCustomerHandlerTest
     }
 
     [Fact]
-    public async Task Handle_WhenCustomerDoesNotExist_ShouldReturnFailureResult()
-    {
+    public async Task Handle_WhenCustomerDoesNotExist_ShouldReturnFailureResult() {
         // Arrange
         var customerId = Guid.NewGuid();
         var command = new RemoveCustomerCommand(customerId);

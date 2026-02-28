@@ -1,4 +1,4 @@
-﻿namespace MsLogistic.Application.Products.GetProductById;
+namespace MsLogistic.Application.Products.GetProductById;
 
 public record ProductDetailDto(
     Guid Id,

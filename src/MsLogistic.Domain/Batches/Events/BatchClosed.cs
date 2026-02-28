@@ -1,4 +1,4 @@
-﻿using MsLogistic.Core.Abstractions;
+using MsLogistic.Core.Abstractions;
 
 namespace MsLogistic.Domain.Batches.Events;
 

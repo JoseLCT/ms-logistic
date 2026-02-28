@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Application.Orders.GetOrderById;
 using MsLogistic.Application.Shared.DTOs;
@@ -8,17 +8,14 @@ using MsLogistic.Infrastructure.Persistence.PersistenceModel;
 
 namespace MsLogistic.Infrastructure.Queries.Orders;
 
-internal class GetOrderByIdHandler : IRequestHandler<GetOrderByIdQuery, Result<OrderDetailDto>>
-{
+internal class GetOrderByIdHandler : IRequestHandler<GetOrderByIdQuery, Result<OrderDetailDto>> {
     private readonly PersistenceDbContext _dbContext;
 
-    public GetOrderByIdHandler(PersistenceDbContext dbContext)
-    {
+    public GetOrderByIdHandler(PersistenceDbContext dbContext) {
         _dbContext = dbContext;
     }
 
-    public async Task<Result<OrderDetailDto>> Handle(GetOrderByIdQuery request, CancellationToken ct)
-    {
+    public async Task<Result<OrderDetailDto>> Handle(GetOrderByIdQuery request, CancellationToken ct) {
         var order = await _dbContext.Orders
             .AsNoTracking()
             .Where(o => o.Id == request.Id)
@@ -64,8 +61,7 @@ internal class GetOrderByIdHandler : IRequestHandler<GetOrderByIdQuery, Result<O
             ))
             .FirstOrDefaultAsync(ct);
 
-        if (order == null)
-        {
+        if (order == null) {
             return Result.Failure<OrderDetailDto>(
                 CommonErrors.NotFoundById("Order", request.Id)
             );

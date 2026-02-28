@@ -1,9 +1,8 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace MsLogistic.WebApi.Contracts.Shared;
 
-public record CoordinateContract
-{
+public record CoordinateContract {
     [property: JsonPropertyName("latitude")]
     public required double Latitude { get; init; }
 

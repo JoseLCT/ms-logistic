@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using MsLogistic.Application.DeliveryZones.CreateDeliveryZone;
@@ -13,16 +13,14 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Application.DeliveryZones;
 
-public class CreateDeliveryZoneHandlerTest
-{
+public class CreateDeliveryZoneHandlerTest {
     private readonly Mock<IDeliveryZoneRepository> _deliveryZoneRepositoryMock;
     private readonly Mock<IDriverRepository> _driverRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly Mock<ILogger<CreateDeliveryZoneHandler>> _logger;
     private readonly CreateDeliveryZoneHandler _handler;
 
-    public CreateDeliveryZoneHandlerTest()
-    {
+    public CreateDeliveryZoneHandlerTest() {
         _deliveryZoneRepositoryMock = new Mock<IDeliveryZoneRepository>();
         _driverRepositoryMock = new Mock<IDriverRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
@@ -35,13 +33,11 @@ public class CreateDeliveryZoneHandlerTest
         );
     }
 
-    private static Driver CreateValidDriver(string fullName = "Juan Perez")
-    {
+    private static Driver CreateValidDriver(string fullName = "Juan Perez") {
         return Driver.Create(fullName);
     }
 
-    private static List<CoordinateDto> CreateValidBoundaries()
-    {
+    private static List<CoordinateDto> CreateValidBoundaries() {
         return new List<CoordinateDto>
         {
             new(-17.7833, -63.1821),
@@ -52,8 +48,7 @@ public class CreateDeliveryZoneHandlerTest
     }
 
     [Fact]
-    public async Task Handle_WithValidCommandAndNoDriver_ShouldCreateDeliveryZoneAndReturnSuccessResult()
-    {
+    public async Task Handle_WithValidCommandAndNoDriver_ShouldCreateDeliveryZoneAndReturnSuccessResult() {
         // Arrange
         var boundaries = CreateValidBoundaries();
         var command = new CreateDeliveryZoneCommand(null, "ZON-001", "North Zone", boundaries);
@@ -82,8 +77,7 @@ public class CreateDeliveryZoneHandlerTest
     }
 
     [Fact]
-    public async Task Handle_WithValidCommandAndExistingDriver_ShouldCreateDeliveryZoneAndReturnSuccessResult()
-    {
+    public async Task Handle_WithValidCommandAndExistingDriver_ShouldCreateDeliveryZoneAndReturnSuccessResult() {
         // Arrange
         var driver = CreateValidDriver();
         var boundaries = CreateValidBoundaries();
@@ -117,8 +111,7 @@ public class CreateDeliveryZoneHandlerTest
     }
 
     [Fact]
-    public async Task Handle_WithNonExistingDriver_ShouldReturnFailureResult()
-    {
+    public async Task Handle_WithNonExistingDriver_ShouldReturnFailureResult() {
         // Arrange
         var driverId = Guid.NewGuid();
         var boundaries = CreateValidBoundaries();
@@ -152,8 +145,7 @@ public class CreateDeliveryZoneHandlerTest
     }
 
     [Fact]
-    public async Task Handle_ShouldCreateDeliveryZoneWithCorrectBoundaries()
-    {
+    public async Task Handle_ShouldCreateDeliveryZoneWithCorrectBoundaries() {
         // Arrange
         var boundaries = CreateValidBoundaries();
         var command = new CreateDeliveryZoneCommand(null, "ZON-004", "West Zone", boundaries);

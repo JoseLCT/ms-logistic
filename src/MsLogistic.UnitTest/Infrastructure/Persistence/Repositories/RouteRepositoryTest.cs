@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Domain.Routes.Entities;
 using MsLogistic.Domain.Routes.Enums;
@@ -9,13 +9,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Infrastructure.Persistence.Repositories;
 
-public class RouteRepositoryTest : IDisposable
-{
+public class RouteRepositoryTest : IDisposable {
     private readonly DomainDbContext _dbContext;
     private readonly RouteRepository _repository;
 
-    public RouteRepositoryTest()
-    {
+    public RouteRepositoryTest() {
         var options = new DbContextOptionsBuilder<DomainDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
@@ -24,8 +22,7 @@ public class RouteRepositoryTest : IDisposable
         _repository = new RouteRepository(_dbContext);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         _dbContext.Database.EnsureDeleted();
         _dbContext.Dispose();
     }
@@ -33,8 +30,7 @@ public class RouteRepositoryTest : IDisposable
     private static Route CreateValidRoute(
         Guid? driverId = null,
         GeoPointValue? originLocation = null
-    )
-    {
+    ) {
         return Route.Create(
             batchId: Guid.NewGuid(),
             deliveryZoneId: Guid.NewGuid(),
@@ -46,8 +42,7 @@ public class RouteRepositoryTest : IDisposable
     #region GetByIdAsync
 
     [Fact]
-    public async Task GetByIdAsync_WhenRouteExists_ShouldReturnRoute()
-    {
+    public async Task GetByIdAsync_WhenRouteExists_ShouldReturnRoute() {
         // Arrange
         var route = CreateValidRoute();
         await _dbContext.Routes.AddAsync(route);
@@ -62,8 +57,7 @@ public class RouteRepositoryTest : IDisposable
     }
 
     [Fact]
-    public async Task GetByIdAsync_WhenRouteDoesNotExist_ShouldReturnNull()
-    {
+    public async Task GetByIdAsync_WhenRouteDoesNotExist_ShouldReturnNull() {
         // Arrange
         var nonExistingId = Guid.NewGuid();
 
@@ -79,8 +73,7 @@ public class RouteRepositoryTest : IDisposable
     #region GetAllAsync
 
     [Fact]
-    public async Task GetAllAsync_WhenRoutesExist_ShouldReturnAllRoutes()
-    {
+    public async Task GetAllAsync_WhenRoutesExist_ShouldReturnAllRoutes() {
         // Arrange
         var route1 = CreateValidRoute();
         var route2 = CreateValidRoute();
@@ -100,8 +93,7 @@ public class RouteRepositoryTest : IDisposable
     }
 
     [Fact]
-    public async Task GetAllAsync_WhenNoRoutes_ShouldReturnEmptyList()
-    {
+    public async Task GetAllAsync_WhenNoRoutes_ShouldReturnEmptyList() {
         // Act
         var result = await _repository.GetAllAsync();
 
@@ -114,8 +106,7 @@ public class RouteRepositoryTest : IDisposable
     #region AddAsync
 
     [Fact]
-    public async Task AddAsync_ShouldAddRouteToDatabase()
-    {
+    public async Task AddAsync_ShouldAddRouteToDatabase() {
         // Arrange
         var route = CreateValidRoute();
 
@@ -134,8 +125,7 @@ public class RouteRepositoryTest : IDisposable
     #region Update
 
     [Fact]
-    public async Task Update_ShouldUpdateRouteInDatabase()
-    {
+    public async Task Update_ShouldUpdateRouteInDatabase() {
         // Arrange
         var route = CreateValidRoute();
         await _dbContext.Routes.AddAsync(route);
@@ -159,8 +149,7 @@ public class RouteRepositoryTest : IDisposable
     #region Remove
 
     [Fact]
-    public async Task Remove_ShouldDeleteRouteFromDatabase()
-    {
+    public async Task Remove_ShouldDeleteRouteFromDatabase() {
         // Arrange
         var route = CreateValidRoute();
         await _dbContext.Routes.AddAsync(route);

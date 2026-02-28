@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using MsLogistic.Core.Results;
 using MsLogistic.Domain.Drivers.Entities;
 using MsLogistic.Domain.Drivers.Enums;
@@ -7,13 +7,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Domain.Drivers;
 
-public class DriverTest
-{
+public class DriverTest {
     #region Create
 
     [Fact]
-    public void Create_WithValidFullName_ShouldSucceed()
-    {
+    public void Create_WithValidFullName_ShouldSucceed() {
         // Arrange
         var fullName = "John Doe";
 
@@ -31,8 +29,7 @@ public class DriverTest
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
-    public void Create_WithInvalidFullName_ShouldThrowDomainException(string invalidFullName)
-    {
+    public void Create_WithInvalidFullName_ShouldThrowDomainException(string invalidFullName) {
         // Act
         Action act = () => Driver.Create(invalidFullName);
 
@@ -46,8 +43,7 @@ public class DriverTest
     #region SetFullName
 
     [Fact]
-    public void SetFullName_WithValidName_ShouldUpdateName()
-    {
+    public void SetFullName_WithValidName_ShouldUpdateName() {
         // Arrange
         var driver = Driver.Create("John Doe");
         var newFullName = "Jane Smith";
@@ -62,8 +58,7 @@ public class DriverTest
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
-    public void SetFullName_WithInvalidName_ShouldThrowDomainException(string invalidFullName)
-    {
+    public void SetFullName_WithInvalidName_ShouldThrowDomainException(string invalidFullName) {
         // Arrange
         var driver = Driver.Create("John Doe");
 
@@ -80,8 +75,7 @@ public class DriverTest
     #region SetIsActive
 
     [Fact]
-    public void SetIsActive_ToFalse_ShouldDeactivateDriver()
-    {
+    public void SetIsActive_ToFalse_ShouldDeactivateDriver() {
         // Arrange
         var driver = Driver.Create("John Doe");
 
@@ -93,8 +87,7 @@ public class DriverTest
     }
 
     [Fact]
-    public void SetIsActive_ToTrue_ShouldActivateDriver()
-    {
+    public void SetIsActive_ToTrue_ShouldActivateDriver() {
         // Arrange
         var driver = Driver.Create("John Doe");
         driver.SetIsActive(false);
@@ -113,8 +106,7 @@ public class DriverTest
     [Theory]
     [InlineData(DriverStatusEnum.Available)]
     [InlineData(DriverStatusEnum.Unavailable)]
-    public void SetStatus_WithValidStatus_ShouldUpdateStatus(DriverStatusEnum newStatus)
-    {
+    public void SetStatus_WithValidStatus_ShouldUpdateStatus(DriverStatusEnum newStatus) {
         // Arrange
         var driver = Driver.Create("John Doe");
 

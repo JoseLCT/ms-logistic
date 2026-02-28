@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using MsLogistic.Core.Results;
 using MsLogistic.Domain.Products.Entities;
 using MsLogistic.Domain.Products.Errors;
@@ -6,13 +6,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Domain.Products;
 
-public class ProductTest
-{
+public class ProductTest {
     #region Create
 
     [Fact]
-    public void Create_WithValidParameters_ShouldSucceed()
-    {
+    public void Create_WithValidParameters_ShouldSucceed() {
         // Arrange
         var name = "Soup";
         var description = "Delicious chicken soup";
@@ -28,8 +26,7 @@ public class ProductTest
     }
 
     [Fact]
-    public void Create_WithNullDescription_ShouldSucceed()
-    {
+    public void Create_WithNullDescription_ShouldSucceed() {
         // Arrange
         var name = "Salad";
 
@@ -45,8 +42,7 @@ public class ProductTest
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
-    public void Create_WithInvalidName_ShouldThrowDomainException(string invalidName)
-    {
+    public void Create_WithInvalidName_ShouldThrowDomainException(string invalidName) {
         // Act
         Action act = () => Product.Create(invalidName, "Description");
 
@@ -60,8 +56,7 @@ public class ProductTest
     #region SetName
 
     [Fact]
-    public void SetName_WithValidName_ShouldUpdateName()
-    {
+    public void SetName_WithValidName_ShouldUpdateName() {
         // Arrange
         var product = Product.Create("Old Name", "Description");
         var newName = "New Product Name";
@@ -76,8 +71,7 @@ public class ProductTest
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
-    public void SetName_WithInvalidName_ShouldThrowDomainException(string invalidName)
-    {
+    public void SetName_WithInvalidName_ShouldThrowDomainException(string invalidName) {
         // Arrange
         var product = Product.Create("Valid Name", "Description");
 
@@ -94,8 +88,7 @@ public class ProductTest
     #region SetDescription
 
     [Fact]
-    public void SetDescription_WithValidDescription_ShouldUpdateDescription()
-    {
+    public void SetDescription_WithValidDescription_ShouldUpdateDescription() {
         // Arrange
         var product = Product.Create("Product Name", "Old description");
         var newDescription = "Updated description";
@@ -108,8 +101,7 @@ public class ProductTest
     }
 
     [Fact]
-    public void SetDescription_WithNull_ShouldSetToNull()
-    {
+    public void SetDescription_WithNull_ShouldSetToNull() {
         // Arrange
         var product = Product.Create("Product Name", "Old description");
 
@@ -121,8 +113,7 @@ public class ProductTest
     }
 
     [Fact]
-    public void SetDescription_WithEmptyString_ShouldSetToEmptyString()
-    {
+    public void SetDescription_WithEmptyString_ShouldSetToEmptyString() {
         // Arrange
         var product = Product.Create("Product Name", "Old description");
 

@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using MsLogistic.Core.Results;
 using MsLogistic.Domain.Shared.Errors;
 using MsLogistic.Domain.Shared.ValueObjects;
@@ -6,13 +6,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Domain.Shared.ValueObjects;
 
-public class GeoPointValueTest
-{
+public class GeoPointValueTest {
     #region Create
 
     [Fact]
-    public void Create_WithValidCoordinates_ShouldSucceed()
-    {
+    public void Create_WithValidCoordinates_ShouldSucceed() {
         // Arrange
         var latitude = -17.7833;
         var longitude = -63.1821;
@@ -33,8 +31,7 @@ public class GeoPointValueTest
     [InlineData(45.5, -122.6)]
     [InlineData(-33.8688, 151.2093)]
     [InlineData(51.5074, -0.1278)]
-    public void Create_WithValidBoundaryCoordinates_ShouldSucceed(double latitude, double longitude)
-    {
+    public void Create_WithValidBoundaryCoordinates_ShouldSucceed(double latitude, double longitude) {
         // Act
         var geoPoint = GeoPointValue.Create(latitude, longitude);
 
@@ -53,8 +50,7 @@ public class GeoPointValueTest
     [InlineData(100)]
     [InlineData(double.MinValue)]
     [InlineData(double.MaxValue)]
-    public void Create_WithInvalidLatitude_ShouldThrowDomainException(double invalidLatitude)
-    {
+    public void Create_WithInvalidLatitude_ShouldThrowDomainException(double invalidLatitude) {
         // Arrange
         var validLongitude = 0.0;
 
@@ -75,8 +71,7 @@ public class GeoPointValueTest
     [InlineData(200)]
     [InlineData(double.MinValue)]
     [InlineData(double.MaxValue)]
-    public void Create_WithInvalidLongitude_ShouldThrowDomainException(double invalidLongitude)
-    {
+    public void Create_WithInvalidLongitude_ShouldThrowDomainException(double invalidLongitude) {
         // Arrange
         var validLatitude = 0.0;
 

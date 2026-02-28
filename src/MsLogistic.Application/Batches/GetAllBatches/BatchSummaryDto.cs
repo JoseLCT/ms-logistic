@@ -1,4 +1,4 @@
-﻿using MsLogistic.Domain.Batches.Enums;
+using MsLogistic.Domain.Batches.Enums;
 
 namespace MsLogistic.Application.Batches.GetAllBatches;
 

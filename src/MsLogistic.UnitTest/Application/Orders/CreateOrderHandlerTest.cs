@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using MsLogistic.Application.Orders.CreateOrder;
@@ -12,16 +12,14 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Application.Orders;
 
-public class CreateOrderHandlerTest
-{
+public class CreateOrderHandlerTest {
     private readonly Mock<IOrderRepository> _orderRepositoryMock;
     private readonly Mock<IBatchRepository> _batchRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly Mock<ILogger<CreateOrderHandler>> _loggerMock;
     private readonly CreateOrderHandler _handler;
 
-    public CreateOrderHandlerTest()
-    {
+    public CreateOrderHandlerTest() {
         _orderRepositoryMock = new Mock<IOrderRepository>();
         _batchRepositoryMock = new Mock<IBatchRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
@@ -37,8 +35,7 @@ public class CreateOrderHandlerTest
 
 
     [Fact]
-    public async Task Handle_WhenOpenBatchExists_ShouldUseExistingBatchAndCreateOrder()
-    {
+    public async Task Handle_WhenOpenBatchExists_ShouldUseExistingBatchAndCreateOrder() {
         // Arrange
         var existingBatch = Batch.Create();
         var command = CreateValidCommand();
@@ -77,8 +74,7 @@ public class CreateOrderHandlerTest
 
 
     [Fact]
-    public async Task Handle_WhenNoOpenBatchExists_ShouldCreateNewBatchAndOrder()
-    {
+    public async Task Handle_WhenNoOpenBatchExists_ShouldCreateNewBatchAndOrder() {
         // Arrange
         var command = CreateValidCommand();
 
@@ -117,8 +113,7 @@ public class CreateOrderHandlerTest
     }
 
     [Fact]
-    public async Task Handle_WhenLatestBatchIsNotOpen_ShouldCreateNewBatch()
-    {
+    public async Task Handle_WhenLatestBatchIsNotOpen_ShouldCreateNewBatch() {
         // Arrange
         var closedBatch = Batch.Create();
 
@@ -161,8 +156,7 @@ public class CreateOrderHandlerTest
 
 
     [Fact]
-    public async Task Handle_ShouldCreateOrderWithCorrectProperties()
-    {
+    public async Task Handle_ShouldCreateOrderWithCorrectProperties() {
         // Arrange
         var existingBatch = Batch.Create();
         var command = CreateValidCommand();
@@ -191,8 +185,7 @@ public class CreateOrderHandlerTest
 
     #region Helper Methods
 
-    private static CreateOrderCommand CreateValidCommand()
-    {
+    private static CreateOrderCommand CreateValidCommand() {
         return new CreateOrderCommand(
             CustomerId: Guid.NewGuid(),
             ScheduledDeliveryDate: DateTime.UtcNow.AddDays(3),

@@ -1,11 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MsLogistic.Infrastructure.Persistence.PersistenceModel.EFCoreEntities;
 
 [Table("products")]
-internal class ProductPersistenceModel
-{
+internal class ProductPersistenceModel {
     [Key]
     [Column("id")]
     public Guid Id { get; set; }
@@ -17,7 +16,7 @@ internal class ProductPersistenceModel
     [Column("description")]
     [StringLength(500)]
     public string? Description { get; set; }
-    
+
     [Column("created_at")]
     public DateTime CreatedAt { get; set; }
 

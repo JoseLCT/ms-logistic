@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Application.Products.GetProductById;
 using MsLogistic.Core.Results;
@@ -8,17 +8,14 @@ using MsLogistic.Infrastructure.Persistence.PersistenceModel;
 
 namespace MsLogistic.Infrastructure.Queries.Products;
 
-internal class GetProductByIdHandler : IRequestHandler<GetProductByIdQuery, Result<ProductDetailDto>>
-{
+internal class GetProductByIdHandler : IRequestHandler<GetProductByIdQuery, Result<ProductDetailDto>> {
     private readonly PersistenceDbContext _dbContext;
 
-    public GetProductByIdHandler(PersistenceDbContext dbContext)
-    {
+    public GetProductByIdHandler(PersistenceDbContext dbContext) {
         _dbContext = dbContext;
     }
 
-    public async Task<Result<ProductDetailDto>> Handle(GetProductByIdQuery request, CancellationToken ct)
-    {
+    public async Task<Result<ProductDetailDto>> Handle(GetProductByIdQuery request, CancellationToken ct) {
         var product = await _dbContext.Products
             .AsNoTracking()
             .Where(p => p.Id == request.Id)
@@ -29,8 +26,7 @@ internal class GetProductByIdHandler : IRequestHandler<GetProductByIdQuery, Resu
             ))
             .FirstOrDefaultAsync(ct);
 
-        if (product is null)
-        {
+        if (product is null) {
             return Result.Failure<ProductDetailDto>(
                 CommonErrors.NotFoundById("Product", request.Id)
             );

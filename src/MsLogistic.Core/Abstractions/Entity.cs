@@ -1,7 +1,6 @@
-﻿namespace MsLogistic.Core.Abstractions;
+namespace MsLogistic.Core.Abstractions;
 
-public abstract class Entity
-{
+public abstract class Entity {
     public Guid Id { get; protected set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
@@ -9,14 +8,11 @@ public abstract class Entity
     private readonly List<DomainEvent> _domainEvents = [];
     public IReadOnlyCollection<DomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
-    protected Entity()
-    {
+    protected Entity() {
     }
 
-    protected Entity(Guid id)
-    {
-        if (id == Guid.Empty)
-        {
+    protected Entity(Guid id) {
+        if (id == Guid.Empty) {
             throw new ArgumentException("Id cannot be empty.", nameof(id));
         }
 
@@ -24,18 +20,15 @@ public abstract class Entity
         CreatedAt = DateTime.UtcNow;
     }
 
-    protected void MarkAsUpdated()
-    {
+    protected void MarkAsUpdated() {
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public void AddDomainEvent(DomainEvent domainEvent)
-    {
+    public void AddDomainEvent(DomainEvent domainEvent) {
         _domainEvents.Add(domainEvent);
     }
 
-    public void ClearDomainEvents()
-    {
+    public void ClearDomainEvents() {
         _domainEvents.Clear();
     }
 }

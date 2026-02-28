@@ -1,4 +1,4 @@
-﻿using MsLogistic.Core.Abstractions;
+using MsLogistic.Core.Abstractions;
 using MsLogistic.Core.Results;
 using MsLogistic.Domain.Orders.Enums;
 using MsLogistic.Domain.Orders.Errors;
@@ -7,8 +7,7 @@ using MsLogistic.Domain.Shared.ValueObjects;
 
 namespace MsLogistic.Domain.Orders.Entities;
 
-public class Order : AggregateRoot
-{
+public class Order : AggregateRoot {
     public Guid BatchId { get; private set; }
     public Guid CustomerId { get; private set; }
     public Guid? RouteId { get; private set; }
@@ -23,8 +22,7 @@ public class Order : AggregateRoot
     private readonly List<OrderItem> _items = [];
     public IReadOnlyCollection<OrderItem> Items => _items;
 
-    private Order()
-    {
+    private Order() {
     }
 
     private Order(
@@ -33,8 +31,7 @@ public class Order : AggregateRoot
         DateTime scheduledDeliveryDate,
         string deliveryAddress,
         GeoPointValue deliveryLocation
-    ) : base(Guid.NewGuid())
-    {
+    ) : base(Guid.NewGuid()) {
         BatchId = batchId;
         CustomerId = customerId;
         Status = OrderStatusEnum.Pending;
@@ -49,15 +46,12 @@ public class Order : AggregateRoot
         DateTime scheduledDeliveryDate,
         string deliveryAddress,
         GeoPointValue deliveryLocation
-    )
-    {
-        if (scheduledDeliveryDate < DateTime.UtcNow.Date)
-        {
+    ) {
+        if (scheduledDeliveryDate < DateTime.UtcNow.Date) {
             throw new DomainException(OrderErrors.ScheduledDeliveryDateCannotBeInThePast);
         }
 
-        if (string.IsNullOrWhiteSpace(deliveryAddress))
-        {
+        if (string.IsNullOrWhiteSpace(deliveryAddress)) {
             throw new DomainException(OrderErrors.DeliveryAddressIsRequired);
         }
 
@@ -70,42 +64,37 @@ public class Order : AggregateRoot
         );
     }
 
-    public void AddItem(Guid productId, int quantity)
-    {
-        if (Status != OrderStatusEnum.Pending)
-        {
+    public bool CanDeliver() {
+        return Status == OrderStatusEnum.InTransit;
+    }
+
+    public void AddItem(Guid productId, int quantity) {
+        if (Status != OrderStatusEnum.Pending) {
             throw new DomainException(OrderErrors.CannotModifyOrderThatIsNotPending);
         }
 
         var item = OrderItem.Create(Id, productId, quantity);
 
         var existingItem = _items.FirstOrDefault(x => x.ProductId == productId);
-        if (existingItem != null)
-        {
+        if (existingItem != null) {
             existingItem.IncreaseQuantity(quantity);
-        }
-        else
-        {
+        } else {
             _items.Add(item);
         }
 
         MarkAsUpdated();
     }
 
-    public void AssignToRoute(Guid routeId, int deliverySequence)
-    {
-        if (Status != OrderStatusEnum.Pending)
-        {
+    public void AssignToRoute(Guid routeId, int deliverySequence) {
+        if (Status != OrderStatusEnum.Pending) {
             throw new DomainException(OrderErrors.CannotAssignOrderThatIsNotPending);
         }
 
-        if (deliverySequence <= 0)
-        {
+        if (deliverySequence <= 0) {
             throw new DomainException(OrderErrors.DeliverySequenceMustBeGreaterThanZero);
         }
 
-        if (_items.Count == 0)
-        {
+        if (_items.Count == 0) {
             throw new DomainException(OrderErrors.CannotAssignOrderWithoutItems);
         }
 
@@ -114,10 +103,8 @@ public class Order : AggregateRoot
         MarkAsUpdated();
     }
 
-    public void MarkAsInTransit()
-    {
-        if (Status != OrderStatusEnum.Pending)
-        {
+    public void MarkAsInTransit() {
+        if (Status != OrderStatusEnum.Pending) {
             throw new DomainException(OrderErrors.CannotChangeStatusFromTo(Status, OrderStatusEnum.InTransit));
         }
 
@@ -125,16 +112,14 @@ public class Order : AggregateRoot
         MarkAsUpdated();
     }
 
-    public void Cancel()
-    {
-        if (Status != OrderStatusEnum.Pending && Status != OrderStatusEnum.InTransit)
-        {
+    public void Cancel() {
+        if (Status != OrderStatusEnum.Pending && Status != OrderStatusEnum.InTransit) {
             throw new DomainException(OrderErrors.CannotChangeStatusFromTo(Status, OrderStatusEnum.Cancelled));
         }
 
         Status = OrderStatusEnum.Cancelled;
 
-        var domainEvent = new OrderCancelled(Id, DateTime.UtcNow);
+        var domainEvent = new OrderCancelled(Id, RouteId, DateTime.UtcNow);
         AddDomainEvent(domainEvent);
         MarkAsUpdated();
     }
@@ -143,15 +128,12 @@ public class Order : AggregateRoot
         Guid driverId,
         OrderIncidentTypeEnum incidentType,
         string description
-    )
-    {
-        if (Incident != null)
-        {
+    ) {
+        if (Incident != null) {
             throw new DomainException(OrderErrors.IncidentAlreadyReported);
         }
 
-        if (Status != OrderStatusEnum.InTransit)
-        {
+        if (Status != OrderStatusEnum.InTransit) {
             throw new DomainException(OrderErrors.CannotReportIncidentForOrderWithStatus(Status));
         }
 
@@ -160,7 +142,7 @@ public class Order : AggregateRoot
         Incident = incident;
         Status = OrderStatusEnum.Failed;
 
-        var domainEvent = new OrderIncidentReported(Id, incidentType, DateTime.UtcNow);
+        var domainEvent = new OrderIncidentReported(Id, RouteId, incidentType, DateTime.UtcNow);
         AddDomainEvent(domainEvent);
         MarkAsUpdated();
     }
@@ -170,10 +152,8 @@ public class Order : AggregateRoot
         GeoPointValue location,
         string? comments,
         string? imageUrl
-    )
-    {
-        if (Status != OrderStatusEnum.InTransit)
-        {
+    ) {
+        if (Status != OrderStatusEnum.InTransit) {
             throw new DomainException(OrderErrors.CannotDeliverOrderWithStatus(Status));
         }
 
@@ -182,7 +162,7 @@ public class Order : AggregateRoot
         Delivery = delivery;
         Status = OrderStatusEnum.Delivered;
 
-        var domainEvent = new OrderDelivered(Id, DateTime.UtcNow);
+        var domainEvent = new OrderDelivered(Id, RouteId, DateTime.UtcNow);
         AddDomainEvent(domainEvent);
         MarkAsUpdated();
     }

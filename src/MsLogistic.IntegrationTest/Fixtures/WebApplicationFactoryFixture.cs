@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,12 +10,10 @@ using Testcontainers.PostgreSql;
 
 namespace MsLogistic.IntegrationTest.Fixtures;
 
-public class WebApplicationFactoryFixture : WebApplicationFactory<Program>
-{
+public class WebApplicationFactoryFixture : WebApplicationFactory<Program> {
     private readonly PostgreSqlContainer _postgresContainer;
 
-    public WebApplicationFactoryFixture()
-    {
+    public WebApplicationFactoryFixture() {
         _postgresContainer = new PostgreSqlBuilder()
             .WithImage("postgis/postgis:16-3.4")
             .WithDatabase("logistic_test_db")
@@ -28,10 +26,8 @@ public class WebApplicationFactoryFixture : WebApplicationFactory<Program>
         _postgresContainer.StartAsync().GetAwaiter().GetResult();
     }
 
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
-    {
-        builder.ConfigureServices(services =>
-        {
+    protected override void ConfigureWebHost(IWebHostBuilder builder) {
+        builder.ConfigureServices(services => {
             // Remove existing DbContext registrations
             services.RemoveAll<DbContextOptions<PersistenceDbContext>>();
             services.RemoveAll<DbContextOptions<DomainDbContext>>();
@@ -41,20 +37,18 @@ public class WebApplicationFactoryFixture : WebApplicationFactory<Program>
             var connectionString = _postgresContainer.GetConnectionString();
 
             services.AddDbContext<PersistenceDbContext>(options =>
-                options.UseNpgsql(connectionString, npgsqlOptions =>
-                    {
-                        npgsqlOptions.UseNetTopologySuite();
-                        npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "persistence");
-                    }
+                options.UseNpgsql(connectionString, npgsqlOptions => {
+                    npgsqlOptions.UseNetTopologySuite();
+                    npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "persistence");
+                }
                 )
             );
 
             services.AddDbContext<DomainDbContext>(options =>
-                options.UseNpgsql(connectionString, npgsqlOptions =>
-                    {
-                        npgsqlOptions.UseNetTopologySuite();
-                        npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "domain");
-                    }
+                options.UseNpgsql(connectionString, npgsqlOptions => {
+                    npgsqlOptions.UseNetTopologySuite();
+                    npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "domain");
+                }
                 )
             );
 
@@ -72,8 +66,7 @@ public class WebApplicationFactoryFixture : WebApplicationFactory<Program>
         builder.UseEnvironment("Test");
     }
 
-    protected override void Dispose(bool disposing)
-    {
+    protected override void Dispose(bool disposing) {
         base.Dispose(disposing);
         _postgresContainer.DisposeAsync().GetAwaiter().GetResult();
     }

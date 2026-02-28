@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
@@ -15,24 +15,20 @@ using Xunit;
 
 namespace MsLogistic.IntegrationTest.Controllers.V1;
 
-public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>, IAsyncLifetime
-{
+public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>, IAsyncLifetime {
     private readonly HttpClient _client;
     private readonly WebApplicationFactoryFixture _factory;
     private readonly List<Guid> _createdProductIds = [];
 
-    public ProductControllerTest(WebApplicationFactoryFixture factory)
-    {
+    public ProductControllerTest(WebApplicationFactoryFixture factory) {
         _factory = factory;
         _client = factory.CreateClient();
     }
 
     public Task InitializeAsync() => Task.CompletedTask;
 
-    public async Task DisposeAsync()
-    {
-        if (!_createdProductIds.Any())
-        {
+    public async Task DisposeAsync() {
+        if (!_createdProductIds.Any()) {
             return;
         }
 
@@ -43,8 +39,7 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
             .Where(p => _createdProductIds.Contains(p.Id))
             .ToListAsync();
 
-        if (productsToDelete.Any())
-        {
+        if (productsToDelete.Any()) {
             persistenceDb.Products.RemoveRange(productsToDelete);
             await persistenceDb.SaveChangesAsync();
         }
@@ -53,11 +48,9 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
     #region Create Product Tests
 
     [Fact]
-    public async Task CreateProduct_WithValidData_ShouldCreateProductSuccessfully()
-    {
+    public async Task CreateProduct_WithValidData_ShouldCreateProductSuccessfully() {
         // Arrange
-        var contract = new CreateProductContract
-        {
+        var contract = new CreateProductContract {
             Name = "Maruchan",
             Description = "Sopa instantánea sabor pollo"
         };
@@ -76,11 +69,9 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
     }
 
     [Fact]
-    public async Task CreateProduct_WithEmptyName_ShouldReturnBadRequest()
-    {
+    public async Task CreateProduct_WithEmptyName_ShouldReturnBadRequest() {
         // Arrange
-        var contract = new CreateProductContract
-        {
+        var contract = new CreateProductContract {
             Name = "",
             Description = "Producto sin nombre"
         };
@@ -97,11 +88,9 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
     }
 
     [Fact]
-    public async Task CreateProduct_WithNullName_ShouldReturnBadRequest()
-    {
+    public async Task CreateProduct_WithNullName_ShouldReturnBadRequest() {
         // Arrange
-        var contract = new CreateProductContract
-        {
+        var contract = new CreateProductContract {
             Name = null!,
             Description = "Producto sin nombre"
         };
@@ -118,11 +107,9 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
     #region Update Product Tests
 
     [Fact]
-    public async Task UpdateProduct_WithValidData_ShouldUpdateProductSuccessfully()
-    {
+    public async Task UpdateProduct_WithValidData_ShouldUpdateProductSuccessfully() {
         // Arrange
-        var createContract = new CreateProductContract
-        {
+        var createContract = new CreateProductContract {
             Name = "Pollo",
             Description = "Pollo con papas"
         };
@@ -130,8 +117,7 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
         var productId = await createResponse.Content.ReadFromJsonAsync<Guid>();
         _createdProductIds.Add(productId);
 
-        var updateContract = new UpdateProductContract
-        {
+        var updateContract = new UpdateProductContract {
             Name = "Pollo Asado",
             Description = "Pollo asado con papas"
         };
@@ -146,12 +132,10 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
     }
 
     [Fact]
-    public async Task UpdateProduct_WithNonExistingId_ShouldReturnNotFound()
-    {
+    public async Task UpdateProduct_WithNonExistingId_ShouldReturnNotFound() {
         // Arrange
         var nonExistingId = Guid.NewGuid();
-        var updateContract = new UpdateProductContract
-        {
+        var updateContract = new UpdateProductContract {
             Name = "Producto Inexistente",
             Description = "Este producto no existe"
         };
@@ -168,11 +152,9 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
     #region Delete Product Tests
 
     [Fact]
-    public async Task DeleteProduct_WithExistingId_ShouldDeleteProductSuccessfully()
-    {
+    public async Task DeleteProduct_WithExistingId_ShouldDeleteProductSuccessfully() {
         // Arrange
-        var createContract = new CreateProductContract
-        {
+        var createContract = new CreateProductContract {
             Name = "Producto a eliminar",
             Description = "Este producto será eliminado"
         };
@@ -190,8 +172,7 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
     }
 
     [Fact]
-    public async Task DeleteProduct_WithNonExistingId_ShouldReturnNotFound()
-    {
+    public async Task DeleteProduct_WithNonExistingId_ShouldReturnNotFound() {
         // Arrange
         var nonExistingId = Guid.NewGuid();
 
@@ -207,11 +188,9 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
     #region Get Product Tests
 
     [Fact]
-    public async Task GetProductById_WithExistingId_ShouldReturnProduct()
-    {
+    public async Task GetProductById_WithExistingId_ShouldReturnProduct() {
         // Arrange
-        var createContract = new CreateProductContract
-        {
+        var createContract = new CreateProductContract {
             Name = "Pizza Margarita",
             Description = "Pizza con tomate y queso"
         };
@@ -233,8 +212,7 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
     }
 
     [Fact]
-    public async Task GetProductById_WithNonExistingId_ShouldReturnNotFound()
-    {
+    public async Task GetProductById_WithNonExistingId_ShouldReturnNotFound() {
         // Arrange
         var nonExistingId = Guid.NewGuid();
 
@@ -246,21 +224,17 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
     }
 
     [Fact]
-    public async Task GetAllProducts_ShouldReturnListOfProducts()
-    {
+    public async Task GetAllProducts_ShouldReturnListOfProducts() {
         // Arrange
-        var product1 = new CreateProductContract
-        {
+        var product1 = new CreateProductContract {
             Name = "Producto 1",
             Description = "Descripción 1"
         };
-        var product2 = new CreateProductContract
-        {
+        var product2 = new CreateProductContract {
             Name = "Producto 2",
             Description = "Descripción 2"
         };
-        var product3 = new CreateProductContract
-        {
+        var product3 = new CreateProductContract {
             Name = "Producto 3",
             Description = "Descripción 3"
         };
@@ -289,11 +263,9 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
     #region Complete CRUD Flow
 
     [Fact]
-    public async Task CompleteProductCRUDFlow_ShouldWorkEndToEnd()
-    {
+    public async Task CompleteProductCRUDFlow_ShouldWorkEndToEnd() {
         // CREATE
-        var createContract = new CreateProductContract
-        {
+        var createContract = new CreateProductContract {
             Name = "Test Product CRUD",
             Description = "Descripción de prueba"
         };
@@ -310,8 +282,7 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
         product.Name.Should().Be("Test Product CRUD");
 
         // UPDATE
-        var updateContract = new UpdateProductContract
-        {
+        var updateContract = new UpdateProductContract {
             Name = "Test Product Updated",
             Description = "Descripción actualizada"
         };
@@ -338,8 +309,7 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
 
     #region Helper Methods
 
-    private async Task VerifyProductInPersistenceDb(Guid productId, string expectedName, string? expectedDescription)
-    {
+    private async Task VerifyProductInPersistenceDb(Guid productId, string expectedName, string? expectedDescription) {
         using var scope = _factory.Services.CreateScope();
         var persistenceDb = scope.ServiceProvider.GetRequiredService<PersistenceDbContext>();
 
@@ -351,8 +321,7 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
         product.Description.Should().Be(expectedDescription);
     }
 
-    private async Task VerifyProductDoesNotExist(Guid productId)
-    {
+    private async Task VerifyProductDoesNotExist(Guid productId) {
         using var scope = _factory.Services.CreateScope();
         var persistenceDb = scope.ServiceProvider.GetRequiredService<PersistenceDbContext>();
 

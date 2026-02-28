@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Domain.Customers.Entities;
 using MsLogistic.Domain.Shared.ValueObjects;
@@ -8,13 +8,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Infrastructure.Persistence.Repositories;
 
-public class CustomerRepositoryTest : IDisposable
-{
+public class CustomerRepositoryTest : IDisposable {
     private readonly DomainDbContext _dbContext;
     private readonly CustomerRepository _repository;
 
-    public CustomerRepositoryTest()
-    {
+    public CustomerRepositoryTest() {
         var options = new DbContextOptionsBuilder<DomainDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
@@ -23,8 +21,7 @@ public class CustomerRepositoryTest : IDisposable
         _repository = new CustomerRepository(_dbContext);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         _dbContext.Database.EnsureDeleted();
         _dbContext.Dispose();
     }
@@ -32,8 +29,7 @@ public class CustomerRepositoryTest : IDisposable
     private static Customer CreateValidCustomer(
         string fullName = "John Doe",
         string phoneNumber = "+59112345678"
-    )
-    {
+    ) {
         var phone = PhoneNumberValue.Create(phoneNumber);
         return Customer.Create(fullName, phone);
     }
@@ -41,8 +37,7 @@ public class CustomerRepositoryTest : IDisposable
     #region GetByIdAsync
 
     [Fact]
-    public async Task GetByIdAsync_WhenCustomerExists_ShouldReturnCustomer()
-    {
+    public async Task GetByIdAsync_WhenCustomerExists_ShouldReturnCustomer() {
         // Arrange
         var customer = CreateValidCustomer();
         await _dbContext.Customers.AddAsync(customer);
@@ -58,8 +53,7 @@ public class CustomerRepositoryTest : IDisposable
     }
 
     [Fact]
-    public async Task GetByIdAsync_WhenCustomerDoesNotExist_ShouldReturnNull()
-    {
+    public async Task GetByIdAsync_WhenCustomerDoesNotExist_ShouldReturnNull() {
         // Arrange
         var nonExistingId = Guid.NewGuid();
 
@@ -75,8 +69,7 @@ public class CustomerRepositoryTest : IDisposable
     #region GetAllAsync
 
     [Fact]
-    public async Task GetAllAsync_WhenCustomersExist_ShouldReturnAllCustomers()
-    {
+    public async Task GetAllAsync_WhenCustomersExist_ShouldReturnAllCustomers() {
         // Arrange
         var customer1 = CreateValidCustomer("Mike Brown");
         var customer2 = CreateValidCustomer("Jane Smith");
@@ -96,8 +89,7 @@ public class CustomerRepositoryTest : IDisposable
     }
 
     [Fact]
-    public async Task GetAllAsync_WhenNoCustomers_ShouldReturnEmptyList()
-    {
+    public async Task GetAllAsync_WhenNoCustomers_ShouldReturnEmptyList() {
         // Act
         var result = await _repository.GetAllAsync();
 
@@ -110,8 +102,7 @@ public class CustomerRepositoryTest : IDisposable
     #region AddAsync
 
     [Fact]
-    public async Task AddAsync_ShouldAddCustomerToDatabase()
-    {
+    public async Task AddAsync_ShouldAddCustomerToDatabase() {
         // Arrange
         var customer = CreateValidCustomer();
 
@@ -131,8 +122,7 @@ public class CustomerRepositoryTest : IDisposable
     #region Update
 
     [Fact]
-    public async Task Update_ShouldUpdateCustomerInDatabase()
-    {
+    public async Task Update_ShouldUpdateCustomerInDatabase() {
         // Arrange
         var customer = CreateValidCustomer();
         await _dbContext.Customers.AddAsync(customer);
@@ -156,8 +146,7 @@ public class CustomerRepositoryTest : IDisposable
     #region Remove
 
     [Fact]
-    public async Task Remove_ShouldDeleteCustomerFromDatabase()
-    {
+    public async Task Remove_ShouldDeleteCustomerFromDatabase() {
         // Arrange
         var customer = CreateValidCustomer();
         await _dbContext.Customers.AddAsync(customer);

@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Domain.DeliveryZones.Entities;
 using MsLogistic.Domain.Shared.ValueObjects;
@@ -8,13 +8,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Infrastructure.Persistence.Repositories;
 
-public class DeliveryZoneRepositoryTest : IDisposable
-{
+public class DeliveryZoneRepositoryTest : IDisposable {
     private readonly DomainDbContext _dbContext;
     private readonly DeliveryZoneRepository _repository;
 
-    public DeliveryZoneRepositoryTest()
-    {
+    public DeliveryZoneRepositoryTest() {
         var options = new DbContextOptionsBuilder<DomainDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
@@ -23,8 +21,7 @@ public class DeliveryZoneRepositoryTest : IDisposable
         _repository = new DeliveryZoneRepository(_dbContext);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         _dbContext.Database.EnsureDeleted();
         _dbContext.Dispose();
     }
@@ -33,8 +30,7 @@ public class DeliveryZoneRepositoryTest : IDisposable
         Guid? driverId = null,
         string code = "ABC-123",
         string name = "North Zone"
-    )
-    {
+    ) {
         var points = new List<GeoPointValue>
         {
             GeoPointValue.Create(-17.7833, -63.1821),
@@ -55,8 +51,7 @@ public class DeliveryZoneRepositoryTest : IDisposable
     #region GetByIdAsync
 
     [Fact]
-    public async Task GetByIdAsync_WhenDeliveryZoneExists_ShouldReturnDeliveryZone()
-    {
+    public async Task GetByIdAsync_WhenDeliveryZoneExists_ShouldReturnDeliveryZone() {
         // Arrange
         var zone = CreateValidDeliveryZone();
         await _dbContext.DeliveryZones.AddAsync(zone);
@@ -73,8 +68,7 @@ public class DeliveryZoneRepositoryTest : IDisposable
     }
 
     [Fact]
-    public async Task GetByIdAsync_WhenDeliveryZoneDoesNotExist_ShouldReturnNull()
-    {
+    public async Task GetByIdAsync_WhenDeliveryZoneDoesNotExist_ShouldReturnNull() {
         // Arrange
         var nonExistingId = Guid.NewGuid();
 
@@ -90,8 +84,7 @@ public class DeliveryZoneRepositoryTest : IDisposable
     #region GetAllAsync
 
     [Fact]
-    public async Task GetAllAsync_WhenDeliveryZonesExist_ShouldReturnAllDeliveryZones()
-    {
+    public async Task GetAllAsync_WhenDeliveryZonesExist_ShouldReturnAllDeliveryZones() {
         // Arrange
         var zone1 = CreateValidDeliveryZone(code: "ABC-123", name: "North Zone");
         var zone2 = CreateValidDeliveryZone(code: "XYZ-456", name: "South Zone");
@@ -111,8 +104,7 @@ public class DeliveryZoneRepositoryTest : IDisposable
     }
 
     [Fact]
-    public async Task GetAllAsync_WhenNoDeliveryZones_ShouldReturnEmptyList()
-    {
+    public async Task GetAllAsync_WhenNoDeliveryZones_ShouldReturnEmptyList() {
         // Act
         var result = await _repository.GetAllAsync();
 
@@ -125,8 +117,7 @@ public class DeliveryZoneRepositoryTest : IDisposable
     #region AddAsync
 
     [Fact]
-    public async Task AddAsync_ShouldAddDeliveryZoneToDatabase()
-    {
+    public async Task AddAsync_ShouldAddDeliveryZoneToDatabase() {
         // Arrange
         var zone = CreateValidDeliveryZone();
 
@@ -146,8 +137,7 @@ public class DeliveryZoneRepositoryTest : IDisposable
     #region Update
 
     [Fact]
-    public async Task Update_ShouldUpdateDeliveryZoneInDatabase()
-    {
+    public async Task Update_ShouldUpdateDeliveryZoneInDatabase() {
         // Arrange
         var zone = CreateValidDeliveryZone();
         await _dbContext.DeliveryZones.AddAsync(zone);
@@ -171,8 +161,7 @@ public class DeliveryZoneRepositoryTest : IDisposable
     #region Remove
 
     [Fact]
-    public async Task Remove_ShouldDeleteDeliveryZoneFromDatabase()
-    {
+    public async Task Remove_ShouldDeleteDeliveryZoneFromDatabase() {
         // Arrange
         var zone = CreateValidDeliveryZone();
         await _dbContext.DeliveryZones.AddAsync(zone);

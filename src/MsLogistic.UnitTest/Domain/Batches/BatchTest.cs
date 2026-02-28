@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using MsLogistic.Core.Results;
 using MsLogistic.Domain.Batches.Entities;
 using MsLogistic.Domain.Batches.Enums;
@@ -8,13 +8,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Domain.Batches;
 
-public class BatchTest
-{
+public class BatchTest {
     #region Create
 
     [Fact]
-    public void Create_WithValidTotalOrders_ShouldSucceed()
-    {
+    public void Create_WithValidTotalOrders_ShouldSucceed() {
         // Arrange
         var totalOrders = 10;
 
@@ -29,8 +27,7 @@ public class BatchTest
     }
 
     [Fact]
-    public void Create_WithNegativeTotalOrders_ShouldThrowDomainException()
-    {
+    public void Create_WithNegativeTotalOrders_ShouldThrowDomainException() {
         // Arrange
         var totalOrders = -5;
 
@@ -46,8 +43,7 @@ public class BatchTest
     #region AddOrders
 
     [Fact]
-    public void AddOrders_WithValidQuantity_ShouldIncreaseTotal()
-    {
+    public void AddOrders_WithValidQuantity_ShouldIncreaseTotal() {
         // Arrange
         var batch = Batch.Create(5);
 
@@ -59,8 +55,7 @@ public class BatchTest
     }
 
     [Fact]
-    public void AddOrders_WithZeroOrNegative_ShouldThrowDomainException()
-    {
+    public void AddOrders_WithZeroOrNegative_ShouldThrowDomainException() {
         // Arrange
         var batch = Batch.Create();
 
@@ -73,8 +68,7 @@ public class BatchTest
     }
 
     [Fact]
-    public void AddOrders_WhenBatchIsClosed_ShouldThrowDomainException()
-    {
+    public void AddOrders_WhenBatchIsClosed_ShouldThrowDomainException() {
         // Arrange
         var batch = Batch.Create();
         batch.Close();
@@ -92,8 +86,7 @@ public class BatchTest
     #region Close
 
     [Fact]
-    public void Close_WhenOpen_ShouldCloseAndRaiseEvent()
-    {
+    public void Close_WhenOpen_ShouldCloseAndRaiseEvent() {
         // Arrange
         var batch = Batch.Create();
 
@@ -107,8 +100,7 @@ public class BatchTest
     }
 
     [Fact]
-    public void Close_WhenAlreadyClosed_ShouldThrowDomainException()
-    {
+    public void Close_WhenAlreadyClosed_ShouldThrowDomainException() {
         // Arrange
         var batch = Batch.Create();
         batch.Close();

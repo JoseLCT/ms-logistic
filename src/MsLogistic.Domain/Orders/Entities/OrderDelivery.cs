@@ -1,10 +1,9 @@
-﻿using MsLogistic.Core.Abstractions;
+using MsLogistic.Core.Abstractions;
 using MsLogistic.Domain.Shared.ValueObjects;
 
 namespace MsLogistic.Domain.Orders.Entities;
 
-public class OrderDelivery : Entity
-{
+public class OrderDelivery : Entity {
     public Guid OrderId { get; private set; }
     public Guid DriverId { get; private set; }
     public GeoPointValue Location { get; private set; }
@@ -12,8 +11,7 @@ public class OrderDelivery : Entity
     public string? Comments { get; private set; }
     public string? ImageUrl { get; private set; }
 
-    private OrderDelivery()
-    {
+    private OrderDelivery() {
     }
 
     private OrderDelivery(
@@ -23,8 +21,7 @@ public class OrderDelivery : Entity
         DateTime deliveredAt,
         string? comments,
         string? imageUrl
-    ) : base(Guid.NewGuid())
-    {
+    ) : base(Guid.NewGuid()) {
         OrderId = orderId;
         DriverId = driverId;
         Location = location;
@@ -40,8 +37,7 @@ public class OrderDelivery : Entity
         DateTime deliveredAt,
         string? comments,
         string? imageUrl
-    )
-    {
+    ) {
         return new OrderDelivery(
             orderId,
             driverId,

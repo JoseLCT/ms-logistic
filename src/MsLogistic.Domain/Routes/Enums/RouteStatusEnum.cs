@@ -1,7 +1,6 @@
-﻿namespace MsLogistic.Domain.Routes.Enums;
+namespace MsLogistic.Domain.Routes.Enums;
 
-public enum RouteStatusEnum
-{
+public enum RouteStatusEnum {
     Pending = 0,
     InProgress = 1,
     Completed = 2,

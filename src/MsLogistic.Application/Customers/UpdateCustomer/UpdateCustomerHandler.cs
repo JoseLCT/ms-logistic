@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using MsLogistic.Core.Interfaces;
 using MsLogistic.Core.Results;
@@ -8,8 +8,7 @@ using MsLogistic.Domain.Shared.ValueObjects;
 
 namespace MsLogistic.Application.Customers.UpdateCustomer;
 
-public class UpdateCustomerHandler : IRequestHandler<UpdateCustomerCommand, Result<Guid>>
-{
+public class UpdateCustomerHandler : IRequestHandler<UpdateCustomerCommand, Result<Guid>> {
     private readonly ICustomerRepository _customerRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<UpdateCustomerHandler> _logger;
@@ -18,19 +17,16 @@ public class UpdateCustomerHandler : IRequestHandler<UpdateCustomerCommand, Resu
         ICustomerRepository customerRepository,
         IUnitOfWork unitOfWork,
         ILogger<UpdateCustomerHandler> logger
-    )
-    {
+    ) {
         _customerRepository = customerRepository;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
-    public async Task<Result<Guid>> Handle(UpdateCustomerCommand request, CancellationToken ct)
-    {
+    public async Task<Result<Guid>> Handle(UpdateCustomerCommand request, CancellationToken ct) {
         var customer = await _customerRepository.GetByIdAsync(request.Id, ct);
 
-        if (customer is null)
-        {
+        if (customer is null) {
             return Result.Failure<Guid>(
                 CommonErrors.NotFoundById("Customer", request.Id)
             );

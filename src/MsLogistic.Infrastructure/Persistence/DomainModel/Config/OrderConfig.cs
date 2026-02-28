@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MsLogistic.Domain.Batches.Entities;
 using MsLogistic.Domain.Customers.Entities;
@@ -8,10 +8,8 @@ using MsLogistic.Infrastructure.Shared.Utils.Parsers;
 
 namespace MsLogistic.Infrastructure.Persistence.DomainModel.Config;
 
-internal class OrderConfig : IEntityTypeConfiguration<Order>
-{
-    public void Configure(EntityTypeBuilder<Order> builder)
-    {
+internal class OrderConfig : IEntityTypeConfiguration<Order> {
+    public void Configure(EntityTypeBuilder<Order> builder) {
         builder.ToTable("orders");
 
         builder.HasKey(x => x.Id);

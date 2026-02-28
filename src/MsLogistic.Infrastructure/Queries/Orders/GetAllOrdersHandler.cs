@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Application.Orders.GetAllOrders;
 using MsLogistic.Application.Shared.DTOs;
@@ -7,17 +7,14 @@ using MsLogistic.Infrastructure.Persistence.PersistenceModel;
 
 namespace MsLogistic.Infrastructure.Queries.Orders;
 
-internal class GetAllOrdersHandler : IRequestHandler<GetAllOrdersQuery, Result<IReadOnlyList<OrderSummaryDto>>>
-{
+internal class GetAllOrdersHandler : IRequestHandler<GetAllOrdersQuery, Result<IReadOnlyList<OrderSummaryDto>>> {
     private readonly PersistenceDbContext _dbContext;
 
-    public GetAllOrdersHandler(PersistenceDbContext dbContext)
-    {
+    public GetAllOrdersHandler(PersistenceDbContext dbContext) {
         _dbContext = dbContext;
     }
 
-    public async Task<Result<IReadOnlyList<OrderSummaryDto>>> Handle(GetAllOrdersQuery request, CancellationToken ct)
-    {
+    public async Task<Result<IReadOnlyList<OrderSummaryDto>>> Handle(GetAllOrdersQuery request, CancellationToken ct) {
         var orders = await _dbContext.Orders
             .AsNoTracking()
             .Select(o => new OrderSummaryDto(

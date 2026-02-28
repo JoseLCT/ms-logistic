@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using MsLogistic.Core.Results;
 using MsLogistic.Domain.Orders.Entities;
 using MsLogistic.Domain.Orders.Errors;
@@ -6,13 +6,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Domain.Orders;
 
-public class OrderItemTest
-{
+public class OrderItemTest {
     #region Create
 
     [Fact]
-    public void Create_WithValidParameters_ShouldSucceed()
-    {
+    public void Create_WithValidParameters_ShouldSucceed() {
         // Arrange
         var orderId = Guid.NewGuid();
         var productId = Guid.NewGuid();
@@ -34,8 +32,7 @@ public class OrderItemTest
     [InlineData(10)]
     [InlineData(100)]
     [InlineData(1000)]
-    public void Create_WithDifferentValidQuantities_ShouldSucceed(int quantity)
-    {
+    public void Create_WithDifferentValidQuantities_ShouldSucceed(int quantity) {
         // Arrange
         var orderId = Guid.NewGuid();
         var productId = Guid.NewGuid();
@@ -53,8 +50,7 @@ public class OrderItemTest
     [InlineData(-1)]
     [InlineData(-10)]
     [InlineData(-100)]
-    public void Create_WithInvalidQuantity_ShouldThrowDomainException(int invalidQuantity)
-    {
+    public void Create_WithInvalidQuantity_ShouldThrowDomainException(int invalidQuantity) {
         // Arrange
         var orderId = Guid.NewGuid();
         var productId = Guid.NewGuid();
@@ -72,8 +68,7 @@ public class OrderItemTest
     #region IncreaseQuantity
 
     [Fact]
-    public void IncreaseQuantity_WithValidQuantity_ShouldIncreaseQuantity()
-    {
+    public void IncreaseQuantity_WithValidQuantity_ShouldIncreaseQuantity() {
         // Arrange
         var orderItem = OrderItem.Create(Guid.NewGuid(), Guid.NewGuid(), 5);
         var initialQuantity = orderItem.Quantity;
@@ -94,8 +89,7 @@ public class OrderItemTest
     public void IncreaseQuantity_WithDifferentValues_ShouldCalculateCorrectly(
         int initialQuantity,
         int increaseAmount,
-        int expectedQuantity)
-    {
+        int expectedQuantity) {
         // Arrange
         var orderItem = OrderItem.Create(Guid.NewGuid(), Guid.NewGuid(), initialQuantity);
 
@@ -107,8 +101,7 @@ public class OrderItemTest
     }
 
     [Fact]
-    public void IncreaseQuantity_MultipleTimes_ShouldAccumulateCorrectly()
-    {
+    public void IncreaseQuantity_MultipleTimes_ShouldAccumulateCorrectly() {
         // Arrange
         var orderItem = OrderItem.Create(Guid.NewGuid(), Guid.NewGuid(), 5);
 

@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Domain.Orders.Entities;
 using MsLogistic.Domain.Orders.Enums;
@@ -9,13 +9,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Infrastructure.Persistence.Repositories;
 
-public class OrderRepositoryTest : IDisposable
-{
+public class OrderRepositoryTest : IDisposable {
     private readonly DomainDbContext _dbContext;
     private readonly OrderRepository _repository;
 
-    public OrderRepositoryTest()
-    {
+    public OrderRepositoryTest() {
         var options = new DbContextOptionsBuilder<DomainDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
@@ -24,8 +22,7 @@ public class OrderRepositoryTest : IDisposable
         _repository = new OrderRepository(_dbContext);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         _dbContext.Database.EnsureDeleted();
         _dbContext.Dispose();
     }
@@ -34,8 +31,7 @@ public class OrderRepositoryTest : IDisposable
         DateTime? scheduledDeliveryDate = null,
         string deliveryAddress = "123 Main St",
         GeoPointValue? deliveryLocation = null
-    )
-    {
+    ) {
         return Order.Create(
             batchId: Guid.NewGuid(),
             customerId: Guid.NewGuid(),
@@ -48,8 +44,7 @@ public class OrderRepositoryTest : IDisposable
     #region GetByIdAsync
 
     [Fact]
-    public async Task GetByIdAsync_WhenOrderExists_ShouldReturnOrder()
-    {
+    public async Task GetByIdAsync_WhenOrderExists_ShouldReturnOrder() {
         // Arrange
         var order = CreateValidOrder();
         await _dbContext.Orders.AddAsync(order);
@@ -64,8 +59,7 @@ public class OrderRepositoryTest : IDisposable
     }
 
     [Fact]
-    public async Task GetByIdAsync_WhenOrderDoesNotExist_ShouldReturnNull()
-    {
+    public async Task GetByIdAsync_WhenOrderDoesNotExist_ShouldReturnNull() {
         // Arrange
         var nonExistingId = Guid.NewGuid();
 
@@ -81,8 +75,7 @@ public class OrderRepositoryTest : IDisposable
     #region GetAllAsync
 
     [Fact]
-    public async Task GetAllAsync_WhenOrdersExist_ShouldReturnAllOrders()
-    {
+    public async Task GetAllAsync_WhenOrdersExist_ShouldReturnAllOrders() {
         // Arrange
         var order1 = CreateValidOrder();
         var order2 = CreateValidOrder();
@@ -102,8 +95,7 @@ public class OrderRepositoryTest : IDisposable
     }
 
     [Fact]
-    public async Task GetAllAsync_WhenNoOrders_ShouldReturnEmptyList()
-    {
+    public async Task GetAllAsync_WhenNoOrders_ShouldReturnEmptyList() {
         // Act
         var result = await _repository.GetAllAsync();
 
@@ -116,8 +108,7 @@ public class OrderRepositoryTest : IDisposable
     #region AddAsync
 
     [Fact]
-    public async Task AddAsync_ShouldAddOrderToDatabase()
-    {
+    public async Task AddAsync_ShouldAddOrderToDatabase() {
         // Arrange
         var order = CreateValidOrder();
 
@@ -137,8 +128,7 @@ public class OrderRepositoryTest : IDisposable
     #region Update
 
     [Fact]
-    public async Task Update_ShouldUpdateOrderInDatabase()
-    {
+    public async Task Update_ShouldUpdateOrderInDatabase() {
         // Arrange
         var order = CreateValidOrder();
         await _dbContext.Orders.AddAsync(order);
@@ -162,8 +152,7 @@ public class OrderRepositoryTest : IDisposable
     #region Remove
 
     [Fact]
-    public async Task Remove_ShouldDeleteOrderFromDatabase()
-    {
+    public async Task Remove_ShouldDeleteOrderFromDatabase() {
         // Arrange
         var order = CreateValidOrder();
         await _dbContext.Orders.AddAsync(order);

@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using MediatR;
 using MsLogistic.Core.Results;
 
@@ -7,38 +7,29 @@ namespace MsLogistic.Application.Shared.Behaviors;
 public class DomainExceptionBehavior<TRequest, TResponse>
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
-    where TResponse : Result
-{
+    where TResponse : Result {
     private static readonly Func<Error, TResponse> FailureFactory = CreateFailureFactory();
 
     public async Task<TResponse> Handle(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,
         CancellationToken ct
-    )
-    {
-        try
-        {
+    ) {
+        try {
             return await next();
-        }
-        catch (DomainException ex)
-        {
+        } catch (DomainException ex) {
             return FailureFactory(ex.Error);
         }
     }
 
-    private static Func<Error, TResponse> CreateFailureFactory()
-    {
+    private static Func<Error, TResponse> CreateFailureFactory() {
         var responseType = typeof(TResponse);
 
-        if (responseType == typeof(Result))
-        {
-            return error => (TResponse)(object)Result.Failure(error);
+        if (responseType == typeof(Result)) {
+            return error => (TResponse)Result.Failure(error);
         }
 
-        if (responseType.IsGenericType &&
-            responseType.GetGenericTypeDefinition() == typeof(Result<>))
-        {
+        if (responseType.IsGenericType && responseType.GetGenericTypeDefinition() == typeof(Result<>)) {
             var valueType = responseType.GetGenericArguments()[0];
 
             var failureMethod = typeof(Result)

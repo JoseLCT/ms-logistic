@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using MsLogistic.Core.Results;
 using MsLogistic.Domain.Orders.Entities;
 using MsLogistic.Domain.Orders.Enums;
@@ -9,13 +9,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Domain.Orders;
 
-public class OrderTest
-{
+public class OrderTest {
     private static GeoPointValue CreateValidGeoPoint()
         => GeoPointValue.Create(-17.7833, -63.1821);
 
-    private static Order CreateValidOrder()
-    {
+    private static Order CreateValidOrder() {
         return Order.Create(
             batchId: Guid.NewGuid(),
             customerId: Guid.NewGuid(),
@@ -28,8 +26,7 @@ public class OrderTest
     #region Create
 
     [Fact]
-    public void Create_WithValidData_ShouldSucceed()
-    {
+    public void Create_WithValidData_ShouldSucceed() {
         // Arrange
         var batchId = Guid.NewGuid();
         var customerId = Guid.NewGuid();
@@ -53,8 +50,7 @@ public class OrderTest
     }
 
     [Fact]
-    public void Create_WithPastDate_ShouldThrowDomainException()
-    {
+    public void Create_WithPastDate_ShouldThrowDomainException() {
         // Arrange
         var batchId = Guid.NewGuid();
         var customerId = Guid.NewGuid();
@@ -80,8 +76,7 @@ public class OrderTest
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
-    public void Create_WithInvalidAddress_ShouldThrowDomainException(string invalidAddress)
-    {
+    public void Create_WithInvalidAddress_ShouldThrowDomainException(string invalidAddress) {
         // Arrange
         var batchId = Guid.NewGuid();
         var customerId = Guid.NewGuid();
@@ -107,8 +102,7 @@ public class OrderTest
     #region AddItem
 
     [Fact]
-    public void AddItem_WithValidData_ShouldAddItem()
-    {
+    public void AddItem_WithValidData_ShouldAddItem() {
         // Arrange
         var order = CreateValidOrder();
         var productId = Guid.NewGuid();
@@ -123,8 +117,7 @@ public class OrderTest
     }
 
     [Fact]
-    public void AddItem_SameProductTwice_ShouldIncreaseQuantity()
-    {
+    public void AddItem_SameProductTwice_ShouldIncreaseQuantity() {
         // Arrange
         var order = CreateValidOrder();
         var productId = Guid.NewGuid();
@@ -139,8 +132,7 @@ public class OrderTest
     }
 
     [Fact]
-    public void AddItem_DifferentProducts_ShouldAddMultipleItems()
-    {
+    public void AddItem_DifferentProducts_ShouldAddMultipleItems() {
         // Arrange
         var order = CreateValidOrder();
         var productId1 = Guid.NewGuid();
@@ -155,8 +147,7 @@ public class OrderTest
     }
 
     [Fact]
-    public void AddItem_WhenNotPending_ShouldThrowDomainException()
-    {
+    public void AddItem_WhenNotPending_ShouldThrowDomainException() {
         // Arrange
         var order = CreateValidOrder();
         order.AddItem(Guid.NewGuid(), 1);
@@ -176,8 +167,7 @@ public class OrderTest
     #region AssignToRoute
 
     [Fact]
-    public void AssignToRoute_WithValidData_ShouldAssignRoute()
-    {
+    public void AssignToRoute_WithValidData_ShouldAssignRoute() {
         // Arrange
         var order = CreateValidOrder();
         order.AddItem(Guid.NewGuid(), 5);
@@ -192,8 +182,7 @@ public class OrderTest
     }
 
     [Fact]
-    public void AssignToRoute_WhenNotPending_ShouldThrowDomainException()
-    {
+    public void AssignToRoute_WhenNotPending_ShouldThrowDomainException() {
         // Arrange
         var order = CreateValidOrder();
         order.AddItem(Guid.NewGuid(), 1);
@@ -209,8 +198,7 @@ public class OrderTest
     }
 
     [Fact]
-    public void AssignToRoute_WithInvalidSequence_ShouldThrowDomainException()
-    {
+    public void AssignToRoute_WithInvalidSequence_ShouldThrowDomainException() {
         // Arrange
         var order = CreateValidOrder();
         order.AddItem(Guid.NewGuid(), 1);
@@ -224,8 +212,7 @@ public class OrderTest
     }
 
     [Fact]
-    public void AssignToRoute_WithoutItems_ShouldThrowDomainException()
-    {
+    public void AssignToRoute_WithoutItems_ShouldThrowDomainException() {
         // Arrange
         var order = CreateValidOrder();
 
@@ -242,8 +229,7 @@ public class OrderTest
     #region MarkAsInTransit
 
     [Fact]
-    public void MarkAsInTransit_WhenPending_ShouldChangeStatus()
-    {
+    public void MarkAsInTransit_WhenPending_ShouldChangeStatus() {
         // Arrange
         var order = CreateValidOrder();
 
@@ -255,8 +241,7 @@ public class OrderTest
     }
 
     [Fact]
-    public void MarkAsInTransit_WhenNotPending_ShouldThrowDomainException()
-    {
+    public void MarkAsInTransit_WhenNotPending_ShouldThrowDomainException() {
         // Arrange
         var order = CreateValidOrder();
         order.Cancel();
@@ -273,8 +258,7 @@ public class OrderTest
     #region Cancel
 
     [Fact]
-    public void Cancel_WhenPending_ShouldCancelAndRaiseEvent()
-    {
+    public void Cancel_WhenPending_ShouldCancelAndRaiseEvent() {
         // Arrange
         var order = CreateValidOrder();
 
@@ -287,8 +271,7 @@ public class OrderTest
     }
 
     [Fact]
-    public void Cancel_WhenInTransit_ShouldCancelAndRaiseEvent()
-    {
+    public void Cancel_WhenInTransit_ShouldCancelAndRaiseEvent() {
         // Arrange
         var order = CreateValidOrder();
         order.MarkAsInTransit();
@@ -302,8 +285,7 @@ public class OrderTest
     }
 
     [Fact]
-    public void Cancel_WhenDelivered_ShouldThrowDomainException()
-    {
+    public void Cancel_WhenDelivered_ShouldThrowDomainException() {
         // Arrange
         var order = CreateValidOrder();
         order.MarkAsInTransit();
@@ -321,8 +303,7 @@ public class OrderTest
     #region ReportIncident
 
     [Fact]
-    public void ReportIncident_WhenInTransit_ShouldReportAndRaiseEvent()
-    {
+    public void ReportIncident_WhenInTransit_ShouldReportAndRaiseEvent() {
         // Arrange
         var order = CreateValidOrder();
         order.MarkAsInTransit();
@@ -338,8 +319,7 @@ public class OrderTest
     }
 
     [Fact]
-    public void ReportIncident_WhenNotInTransit_ShouldThrowDomainException()
-    {
+    public void ReportIncident_WhenNotInTransit_ShouldThrowDomainException() {
         // Arrange
         var order = CreateValidOrder();
 
@@ -355,8 +335,7 @@ public class OrderTest
     }
 
     [Fact]
-    public void ReportIncident_WhenAlreadyReported_ShouldThrowDomainException()
-    {
+    public void ReportIncident_WhenAlreadyReported_ShouldThrowDomainException() {
         // Arrange
         var order = CreateValidOrder();
         order.MarkAsInTransit();
@@ -379,8 +358,7 @@ public class OrderTest
     #region Deliver
 
     [Fact]
-    public void Deliver_WhenInTransit_ShouldDeliverAndRaiseEvent()
-    {
+    public void Deliver_WhenInTransit_ShouldDeliverAndRaiseEvent() {
         // Arrange
         var order = CreateValidOrder();
         order.MarkAsInTransit();
@@ -398,8 +376,7 @@ public class OrderTest
     }
 
     [Fact]
-    public void Deliver_WhenNotInTransit_ShouldThrowDomainException()
-    {
+    public void Deliver_WhenNotInTransit_ShouldThrowDomainException() {
         // Arrange
         var order = CreateValidOrder();
 
@@ -415,8 +392,7 @@ public class OrderTest
     #region Workflow
 
     [Fact]
-    public void Order_CompleteHappyPath_ShouldSucceed()
-    {
+    public void Order_CompleteHappyPath_ShouldSucceed() {
         // Arrange
         var order = CreateValidOrder();
 

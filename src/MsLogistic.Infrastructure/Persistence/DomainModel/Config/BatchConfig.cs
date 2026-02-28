@@ -1,13 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MsLogistic.Domain.Batches.Entities;
 
 namespace MsLogistic.Infrastructure.Persistence.DomainModel.Config;
 
-internal class BatchConfig : IEntityTypeConfiguration<Batch>
-{
-    public void Configure(EntityTypeBuilder<Batch> builder)
-    {
+internal class BatchConfig : IEntityTypeConfiguration<Batch> {
+    public void Configure(EntityTypeBuilder<Batch> builder) {
         builder.ToTable("batches");
 
         builder.HasKey(x => x.Id);

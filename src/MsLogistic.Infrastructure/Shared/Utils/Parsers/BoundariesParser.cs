@@ -1,12 +1,10 @@
-﻿using MsLogistic.Domain.Shared.ValueObjects;
+using MsLogistic.Domain.Shared.ValueObjects;
 using NetTopologySuite.Geometries;
 
 namespace MsLogistic.Infrastructure.Shared.Utils.Parsers;
 
-internal class BoundariesParser
-{
-    public static Polygon ConvertToPolygon(BoundariesValue boundaries)
-    {
+internal class BoundariesParser {
+    public static Polygon ConvertToPolygon(BoundariesValue boundaries) {
         var geometryFactory = NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
         var coordinates = boundaries.Coordinates

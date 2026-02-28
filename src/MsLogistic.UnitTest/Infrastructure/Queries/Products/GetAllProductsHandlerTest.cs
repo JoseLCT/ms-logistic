@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Application.Products.GetAllProducts;
 using MsLogistic.Infrastructure.Persistence.PersistenceModel;
@@ -8,13 +8,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Infrastructure.Queries.Products;
 
-public class GetAllProductsHandlerTest : IDisposable
-{
+public class GetAllProductsHandlerTest : IDisposable {
     private readonly PersistenceDbContext _dbContext;
     private readonly GetAllProductsHandler _handler;
 
-    public GetAllProductsHandlerTest()
-    {
+    public GetAllProductsHandlerTest() {
         var options = new DbContextOptionsBuilder<PersistenceDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -23,8 +21,7 @@ public class GetAllProductsHandlerTest : IDisposable
         _handler = new GetAllProductsHandler(_dbContext);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         _dbContext.Dispose();
     }
 
@@ -32,10 +29,8 @@ public class GetAllProductsHandlerTest : IDisposable
         Guid? id = null,
         string name = "Sample Product",
         string description = "This is a sample product description."
-    )
-    {
-        return new ProductPersistenceModel
-        {
+    ) {
+        return new ProductPersistenceModel {
             Id = id ?? Guid.NewGuid(),
             Name = name,
             Description = description,
@@ -45,8 +40,7 @@ public class GetAllProductsHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithNoProducts_ShouldReturnEmptyList()
-    {
+    public async Task Handle_WithNoProducts_ShouldReturnEmptyList() {
         // Arrange
         var query = new GetAllProductsQuery();
 
@@ -60,8 +54,7 @@ public class GetAllProductsHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithSingleProduct_ShouldReturnListWithOneProduct()
-    {
+    public async Task Handle_WithSingleProduct_ShouldReturnListWithOneProduct() {
         // Arrange
         var product = CreateProductPersistenceModel();
 
@@ -82,8 +75,7 @@ public class GetAllProductsHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithMultipleProducts_ShouldReturnAllProducts()
-    {
+    public async Task Handle_WithMultipleProducts_ShouldReturnAllProducts() {
         // Arrange
         var product1 = CreateProductPersistenceModel();
         var product2 = CreateProductPersistenceModel();

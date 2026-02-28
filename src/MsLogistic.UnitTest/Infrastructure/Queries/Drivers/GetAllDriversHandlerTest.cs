@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Application.Drivers.GetAllDrivers;
 using MsLogistic.Domain.Drivers.Enums;
@@ -9,13 +9,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Infrastructure.Queries.Drivers;
 
-public class GetAllDriversHandlerTest : IDisposable
-{
+public class GetAllDriversHandlerTest : IDisposable {
     private readonly PersistenceDbContext _dbContext;
     private readonly GetAllDriversHandler _handler;
 
-    public GetAllDriversHandlerTest()
-    {
+    public GetAllDriversHandlerTest() {
         var options = new DbContextOptionsBuilder<PersistenceDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -24,8 +22,7 @@ public class GetAllDriversHandlerTest : IDisposable
         _handler = new GetAllDriversHandler(_dbContext);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         _dbContext.Dispose();
     }
 
@@ -34,10 +31,8 @@ public class GetAllDriversHandlerTest : IDisposable
         string fullName = "Jane Smith",
         bool isActive = true,
         DriverStatusEnum status = DriverStatusEnum.Available
-    )
-    {
-        return new DriverPersistenceModel
-        {
+    ) {
+        return new DriverPersistenceModel {
             Id = id ?? Guid.NewGuid(),
             FullName = fullName,
             IsActive = isActive,
@@ -48,8 +43,7 @@ public class GetAllDriversHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithNoDrivers_ShouldReturnEmptyList()
-    {
+    public async Task Handle_WithNoDrivers_ShouldReturnEmptyList() {
         // Arrange
         var query = new GetAllDriversQuery();
 
@@ -63,8 +57,7 @@ public class GetAllDriversHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithSingleDriver_ShouldReturnListWithOneDriver()
-    {
+    public async Task Handle_WithSingleDriver_ShouldReturnListWithOneDriver() {
         // Arrange
         var driver = CreateDriverPersistenceModel();
 
@@ -85,8 +78,7 @@ public class GetAllDriversHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithMultipleDrivers_ShouldReturnAllDrivers()
-    {
+    public async Task Handle_WithMultipleDrivers_ShouldReturnAllDrivers() {
         // Arrange
         var driver1 = CreateDriverPersistenceModel();
         var driver2 = CreateDriverPersistenceModel();

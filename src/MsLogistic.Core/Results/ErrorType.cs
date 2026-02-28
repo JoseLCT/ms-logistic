@@ -1,7 +1,6 @@
-﻿namespace MsLogistic.Core.Results;
+namespace MsLogistic.Core.Results;
 
-public enum ErrorType
-{
+public enum ErrorType {
     Failure = 0,
     Validation = 1,
     NotFound = 2,

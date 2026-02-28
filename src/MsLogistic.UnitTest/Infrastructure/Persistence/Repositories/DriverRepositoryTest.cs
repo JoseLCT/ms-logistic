@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Domain.Drivers.Entities;
 using MsLogistic.Infrastructure.Persistence.DomainModel;
@@ -7,13 +7,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Infrastructure.Persistence.Repositories;
 
-public class DriverRepositoryTest : IDisposable
-{
+public class DriverRepositoryTest : IDisposable {
     private readonly DomainDbContext _dbContext;
     private readonly DriverRepository _repository;
 
-    public DriverRepositoryTest()
-    {
+    public DriverRepositoryTest() {
         var options = new DbContextOptionsBuilder<DomainDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
@@ -22,22 +20,19 @@ public class DriverRepositoryTest : IDisposable
         _repository = new DriverRepository(_dbContext);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         _dbContext.Database.EnsureDeleted();
         _dbContext.Dispose();
     }
 
-    private static Driver CreateValidDriver(string fullName = "Juan Perez")
-    {
+    private static Driver CreateValidDriver(string fullName = "Juan Perez") {
         return Driver.Create(fullName: fullName);
     }
 
     #region GetByIdAsync
 
     [Fact]
-    public async Task GetByIdAsync_WhenDriverExists_ShouldReturnDriver()
-    {
+    public async Task GetByIdAsync_WhenDriverExists_ShouldReturnDriver() {
         // Arrange
         var driver = CreateValidDriver();
         await _dbContext.Drivers.AddAsync(driver);
@@ -53,8 +48,7 @@ public class DriverRepositoryTest : IDisposable
     }
 
     [Fact]
-    public async Task GetByIdAsync_WhenDriverDoesNotExist_ShouldReturnNull()
-    {
+    public async Task GetByIdAsync_WhenDriverDoesNotExist_ShouldReturnNull() {
         // Arrange
         var nonExistingId = Guid.NewGuid();
 
@@ -70,8 +64,7 @@ public class DriverRepositoryTest : IDisposable
     #region GetAllAsync
 
     [Fact]
-    public async Task GetAllAsync_WhenDriversExist_ShouldReturnAllDrivers()
-    {
+    public async Task GetAllAsync_WhenDriversExist_ShouldReturnAllDrivers() {
         // Arrange
         var driver1 = CreateValidDriver("Luis Rodríguez");
         var driver2 = CreateValidDriver("Ana Martínez");
@@ -91,8 +84,7 @@ public class DriverRepositoryTest : IDisposable
     }
 
     [Fact]
-    public async Task GetAllAsync_WhenNoDrivers_ShouldReturnEmptyList()
-    {
+    public async Task GetAllAsync_WhenNoDrivers_ShouldReturnEmptyList() {
         // Act
         var result = await _repository.GetAllAsync();
 
@@ -105,8 +97,7 @@ public class DriverRepositoryTest : IDisposable
     #region AddAsync
 
     [Fact]
-    public async Task AddAsync_ShouldAddDriverToDatabase()
-    {
+    public async Task AddAsync_ShouldAddDriverToDatabase() {
         // Arrange
         var driver = CreateValidDriver();
 
@@ -126,8 +117,7 @@ public class DriverRepositoryTest : IDisposable
     #region Update
 
     [Fact]
-    public async Task Update_ShouldUpdateDriverInDatabase()
-    {
+    public async Task Update_ShouldUpdateDriverInDatabase() {
         // Arrange
         var driver = CreateValidDriver();
         await _dbContext.Drivers.AddAsync(driver);
@@ -153,8 +143,7 @@ public class DriverRepositoryTest : IDisposable
     #region Remove
 
     [Fact]
-    public async Task Remove_ShouldDeleteDriverFromDatabase()
-    {
+    public async Task Remove_ShouldDeleteDriverFromDatabase() {
         // Arrange
         var driver = CreateValidDriver();
         await _dbContext.Drivers.AddAsync(driver);

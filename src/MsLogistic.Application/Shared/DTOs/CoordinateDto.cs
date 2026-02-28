@@ -1,4 +1,4 @@
-﻿namespace MsLogistic.Application.Shared.DTOs;
+namespace MsLogistic.Application.Shared.DTOs;
 
 public record CoordinateDto(
     double Latitude,

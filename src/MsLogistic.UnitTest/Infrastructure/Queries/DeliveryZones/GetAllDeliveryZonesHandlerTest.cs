@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Application.DeliveryZones.GetAllDeliveryZones;
 using MsLogistic.Infrastructure.Persistence.PersistenceModel;
@@ -9,13 +9,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Infrastructure.Queries.DeliveryZones;
 
-public class GetAllDeliveryZonesHandlerTest : IDisposable
-{
+public class GetAllDeliveryZonesHandlerTest : IDisposable {
     private readonly PersistenceDbContext _dbContext;
     private readonly GetAllDeliveryZonesHandler _handler;
 
-    public GetAllDeliveryZonesHandlerTest()
-    {
+    public GetAllDeliveryZonesHandlerTest() {
         var options = new DbContextOptionsBuilder<PersistenceDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -24,8 +22,7 @@ public class GetAllDeliveryZonesHandlerTest : IDisposable
         _handler = new GetAllDeliveryZonesHandler(_dbContext);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         _dbContext.Dispose();
     }
 
@@ -35,10 +32,8 @@ public class GetAllDeliveryZonesHandlerTest : IDisposable
         string code = "ABC-123",
         string name = "Zone A",
         Polygon? boundaries = null
-    )
-    {
-        return new DeliveryZonePersistenceModel
-        {
+    ) {
+        return new DeliveryZonePersistenceModel {
             Id = id ?? Guid.NewGuid(),
             DriverId = driverId,
             Code = code,
@@ -57,8 +52,7 @@ public class GetAllDeliveryZonesHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithNoDeliveryZones_ShouldReturnEmptyList()
-    {
+    public async Task Handle_WithNoDeliveryZones_ShouldReturnEmptyList() {
         // Arrange
         var query = new GetAllDeliveryZonesQuery();
 
@@ -72,8 +66,7 @@ public class GetAllDeliveryZonesHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithSingleDeliveryZone_ShouldReturnListWithOneDeliveryZone()
-    {
+    public async Task Handle_WithSingleDeliveryZone_ShouldReturnListWithOneDeliveryZone() {
         // Arrange
         var deliveryZone = CreateDeliveryZonePersistenceModel();
 
@@ -94,8 +87,7 @@ public class GetAllDeliveryZonesHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithMultipleDeliveryZones_ShouldReturnAllDeliveryZones()
-    {
+    public async Task Handle_WithMultipleDeliveryZones_ShouldReturnAllDeliveryZones() {
         // Arrange
         var deliveryZone1 = CreateDeliveryZonePersistenceModel();
         var deliveryZone2 = CreateDeliveryZonePersistenceModel();

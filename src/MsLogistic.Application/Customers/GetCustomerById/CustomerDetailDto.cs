@@ -1,4 +1,4 @@
-﻿namespace MsLogistic.Application.Customers.GetCustomerById;
+namespace MsLogistic.Application.Customers.GetCustomerById;
 
 public record CustomerDetailDto(
     Guid Id,

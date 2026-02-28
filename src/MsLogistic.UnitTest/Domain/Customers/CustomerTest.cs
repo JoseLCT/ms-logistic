@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using MsLogistic.Core.Results;
 using MsLogistic.Domain.Customers.Entities;
 using MsLogistic.Domain.Customers.Errors;
@@ -7,13 +7,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Domain.Customers;
 
-public class CustomerTest
-{
+public class CustomerTest {
     #region Create
 
     [Fact]
-    public void Create_WithValidData_ShouldSucceed()
-    {
+    public void Create_WithValidData_ShouldSucceed() {
         // Arrange
         var fullName = "John Doe";
         var phoneNumber = PhoneNumberValue.Create("+59112345678");
@@ -29,8 +27,7 @@ public class CustomerTest
     }
 
     [Fact]
-    public void Create_WithoutPhoneNumber_ShouldSucceed()
-    {
+    public void Create_WithoutPhoneNumber_ShouldSucceed() {
         // Arrange
         var fullName = "Jane Smith";
 
@@ -46,8 +43,7 @@ public class CustomerTest
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
-    public void Create_WithInvalidFullName_ShouldThrowDomainException(string invalidFullName)
-    {
+    public void Create_WithInvalidFullName_ShouldThrowDomainException(string invalidFullName) {
         // Act
         Action act = () => Customer.Create(invalidFullName, null);
 
@@ -61,8 +57,7 @@ public class CustomerTest
     #region SetFullName
 
     [Fact]
-    public void SetFullName_WithValidName_ShouldUpdateName()
-    {
+    public void SetFullName_WithValidName_ShouldUpdateName() {
         // Arrange
         var customer = Customer.Create("John Doe", null);
         var newFullName = "Jane Smith";
@@ -77,8 +72,7 @@ public class CustomerTest
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
-    public void SetFullName_WithInvalidName_ShouldThrowDomainException(string invalidFullName)
-    {
+    public void SetFullName_WithInvalidName_ShouldThrowDomainException(string invalidFullName) {
         // Arrange
         var customer = Customer.Create("John Doe", null);
 
@@ -95,8 +89,7 @@ public class CustomerTest
     #region SetPhoneNumber
 
     [Fact]
-    public void SetPhoneNumber_WithValidPhoneNumber_ShouldUpdatePhoneNumber()
-    {
+    public void SetPhoneNumber_WithValidPhoneNumber_ShouldUpdatePhoneNumber() {
         // Arrange
         var customer = Customer.Create("John Doe", null);
         var phoneNumber = PhoneNumberValue.Create("+59112345678");
@@ -109,8 +102,7 @@ public class CustomerTest
     }
 
     [Fact]
-    public void SetPhoneNumber_WithNull_ShouldRemovePhoneNumber()
-    {
+    public void SetPhoneNumber_WithNull_ShouldRemovePhoneNumber() {
         // Arrange
         var phoneNumber = PhoneNumberValue.Create("+59112345678");
         var customer = Customer.Create("John Doe", phoneNumber);
@@ -123,8 +115,7 @@ public class CustomerTest
     }
 
     [Fact]
-    public void SetPhoneNumber_ChangingExistingPhoneNumber_ShouldUpdate()
-    {
+    public void SetPhoneNumber_ChangingExistingPhoneNumber_ShouldUpdate() {
         // Arrange
         var oldPhone = PhoneNumberValue.Create("+59112345678");
         var customer = Customer.Create("John Doe", oldPhone);

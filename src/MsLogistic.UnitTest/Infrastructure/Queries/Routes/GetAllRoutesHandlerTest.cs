@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Application.Routes.GetAllRoutes;
 using MsLogistic.Domain.Routes.Enums;
@@ -10,13 +10,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Infrastructure.Queries.Routes;
 
-public class GetAllRoutesHandlerTest : IDisposable
-{
+public class GetAllRoutesHandlerTest : IDisposable {
     private readonly PersistenceDbContext _context;
     private readonly GetAllRoutesHandler _handler;
 
-    public GetAllRoutesHandlerTest()
-    {
+    public GetAllRoutesHandlerTest() {
         var options = new DbContextOptionsBuilder<PersistenceDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -25,8 +23,7 @@ public class GetAllRoutesHandlerTest : IDisposable
         _handler = new GetAllRoutesHandler(_context);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         _context.Dispose();
     }
 
@@ -39,10 +36,8 @@ public class GetAllRoutesHandlerTest : IDisposable
         RouteStatusEnum status = RouteStatusEnum.Pending,
         DateTime? startedAt = null,
         DateTime? completedAt = null
-    )
-    {
-        return new RoutePersistenceModel
-        {
+    ) {
+        return new RoutePersistenceModel {
             Id = id ?? Guid.NewGuid(),
             BatchId = batchId ?? Guid.NewGuid(),
             DeliveryZoneId = deliveryZoneId ?? Guid.NewGuid(),
@@ -57,8 +52,7 @@ public class GetAllRoutesHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithNoRoutes_ShouldReturnEmptyList()
-    {
+    public async Task Handle_WithNoRoutes_ShouldReturnEmptyList() {
         // Arrange
         var query = new GetAllRoutesQuery();
 
@@ -72,8 +66,7 @@ public class GetAllRoutesHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithSingleRoute_ShouldReturnListWithOneRoute()
-    {
+    public async Task Handle_WithSingleRoute_ShouldReturnListWithOneRoute() {
         // Arrange
         var route = CreateRoutePersistenceModel();
 
@@ -93,8 +86,7 @@ public class GetAllRoutesHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithMultipleRoutes_ShouldReturnAllRoutes()
-    {
+    public async Task Handle_WithMultipleRoutes_ShouldReturnAllRoutes() {
         // Arrange
         var route1 = CreateRoutePersistenceModel();
         var route2 = CreateRoutePersistenceModel();

@@ -1,10 +1,9 @@
-﻿using MsLogistic.Core.Results;
+using MsLogistic.Core.Results;
 using MsLogistic.Domain.Orders.Enums;
 
 namespace MsLogistic.Domain.Orders.Errors;
 
-public static class OrderErrors
-{
+public static class OrderErrors {
     public static Error DeliverySequenceMustBeGreaterThanZero =>
         Error.Validation(
             code: "Order.DeliverySequence.MustBeGreaterThanZero",

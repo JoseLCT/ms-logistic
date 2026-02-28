@@ -1,4 +1,4 @@
-﻿using MsLogistic.Domain.Drivers.Enums;
+using MsLogistic.Domain.Drivers.Enums;
 
 namespace MsLogistic.Application.Drivers.GetAllDrivers;
 

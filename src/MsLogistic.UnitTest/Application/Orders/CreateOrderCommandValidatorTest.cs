@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using FluentValidation.TestHelper;
 using Moq;
 using MsLogistic.Application.Orders.CreateOrder;
@@ -14,14 +14,12 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Application.Orders;
 
-public class CreateOrderCommandValidatorTest
-{
+public class CreateOrderCommandValidatorTest {
     private readonly Mock<ICustomerRepository> _customerRepositoryMock;
     private readonly Mock<IProductRepository> _productRepositoryMock;
     private readonly CreateOrderCommandValidator _validator;
 
-    public CreateOrderCommandValidatorTest()
-    {
+    public CreateOrderCommandValidatorTest() {
         _customerRepositoryMock = new Mock<ICustomerRepository>();
         _productRepositoryMock = new Mock<IProductRepository>();
         _validator = new CreateOrderCommandValidator(
@@ -33,12 +31,11 @@ public class CreateOrderCommandValidatorTest
     #region CustomerId Validation
 
     [Fact]
-    public async Task Validate_WhenCustomerIdIsEmpty_ShouldHaveValidationError()
-    {
+    public async Task Validate_WhenCustomerIdIsEmpty_ShouldHaveValidationError() {
         // Arrange
         var command = CreateValidCommand();
         command = command with { CustomerId = Guid.Empty };
-        
+
         SetupValidProducts(command.Items);
 
         // Act
@@ -49,8 +46,7 @@ public class CreateOrderCommandValidatorTest
     }
 
     [Fact]
-    public async Task Validate_WhenCustomerDoesNotExist_ShouldHaveValidationError()
-    {
+    public async Task Validate_WhenCustomerDoesNotExist_ShouldHaveValidationError() {
         // Arrange
         var command = CreateValidCommand();
         _customerRepositoryMock
@@ -72,8 +68,7 @@ public class CreateOrderCommandValidatorTest
     #region Items Validation
 
     [Fact]
-    public async Task Validate_WhenItemsIsEmpty_ShouldHaveValidationError()
-    {
+    public async Task Validate_WhenItemsIsEmpty_ShouldHaveValidationError() {
         // Arrange
         var command = CreateValidCommand();
         command = command with { Items = new List<CreateOrderItemDto>() };
@@ -87,8 +82,7 @@ public class CreateOrderCommandValidatorTest
     }
 
     [Fact]
-    public async Task Validate_WhenItemsIsNull_ShouldHaveValidationError()
-    {
+    public async Task Validate_WhenItemsIsNull_ShouldHaveValidationError() {
         // Arrange
         var command = CreateValidCommand();
         command = command with { Items = null! };
@@ -101,8 +95,7 @@ public class CreateOrderCommandValidatorTest
     }
 
     [Fact]
-    public async Task Validate_WhenNotAllProductsExist_ShouldHaveValidationError()
-    {
+    public async Task Validate_WhenNotAllProductsExist_ShouldHaveValidationError() {
         // Arrange
         var command = CreateValidCommand();
         SetupValidCustomer(command.CustomerId);
@@ -121,8 +114,7 @@ public class CreateOrderCommandValidatorTest
     }
 
     [Fact]
-    public async Task Validate_WhenAllProductsExist_ShouldNotHaveValidationErrorForItems()
-    {
+    public async Task Validate_WhenAllProductsExist_ShouldNotHaveValidationErrorForItems() {
         // Arrange
         var command = CreateValidCommand();
         SetupValidCustomer(command.CustomerId);
@@ -140,14 +132,13 @@ public class CreateOrderCommandValidatorTest
     #region Item.ProductId Validation
 
     [Fact]
-    public async Task Validate_WhenItemProductIdIsEmpty_ShouldHaveValidationError()
-    {
+    public async Task Validate_WhenItemProductIdIsEmpty_ShouldHaveValidationError() {
         // Arrange
         var command = CreateValidCommand();
         var items = command.Items.ToList();
         items[0] = items[0] with { ProductId = Guid.Empty };
         command = command with { Items = items };
-        
+
         SetupValidProducts(command.Items);
 
         // Act
@@ -162,14 +153,13 @@ public class CreateOrderCommandValidatorTest
     #region Item.Quantity Validation
 
     [Fact]
-    public async Task Validate_WhenItemQuantityIsZero_ShouldHaveValidationError()
-    {
+    public async Task Validate_WhenItemQuantityIsZero_ShouldHaveValidationError() {
         // Arrange
         var command = CreateValidCommand();
         var items = command.Items.ToList();
         items[0] = items[0] with { Quantity = 0 };
         command = command with { Items = items };
-        
+
         SetupValidProducts(command.Items);
 
         // Act
@@ -181,14 +171,13 @@ public class CreateOrderCommandValidatorTest
     }
 
     [Fact]
-    public async Task Validate_WhenItemQuantityIsNegative_ShouldHaveValidationError()
-    {
+    public async Task Validate_WhenItemQuantityIsNegative_ShouldHaveValidationError() {
         // Arrange
         var command = CreateValidCommand();
         var items = command.Items.ToList();
         items[0] = items[0] with { Quantity = -5 };
         command = command with { Items = items };
-        
+
         SetupValidProducts(command.Items);
 
         // Act
@@ -200,8 +189,7 @@ public class CreateOrderCommandValidatorTest
     }
 
     [Fact]
-    public async Task Validate_WhenItemQuantityIsPositive_ShouldNotHaveValidationError()
-    {
+    public async Task Validate_WhenItemQuantityIsPositive_ShouldNotHaveValidationError() {
         // Arrange
         var command = CreateValidCommand();
         SetupValidCustomer(command.CustomerId);
@@ -219,12 +207,11 @@ public class CreateOrderCommandValidatorTest
     #region DeliveryAddress Validation
 
     [Fact]
-    public async Task Validate_WhenDeliveryAddressIsEmpty_ShouldHaveValidationError()
-    {
+    public async Task Validate_WhenDeliveryAddressIsEmpty_ShouldHaveValidationError() {
         // Arrange
         var command = CreateValidCommand();
         command = command with { DeliveryAddress = "" };
-        
+
         SetupValidProducts(command.Items);
 
         // Act
@@ -236,12 +223,11 @@ public class CreateOrderCommandValidatorTest
     }
 
     [Fact]
-    public async Task Validate_WhenDeliveryAddressIsNull_ShouldHaveValidationError()
-    {
+    public async Task Validate_WhenDeliveryAddressIsNull_ShouldHaveValidationError() {
         // Arrange
         var command = CreateValidCommand();
         command = command with { DeliveryAddress = null! };
-        
+
         SetupValidProducts(command.Items);
 
         // Act
@@ -253,12 +239,11 @@ public class CreateOrderCommandValidatorTest
     }
 
     [Fact]
-    public async Task Validate_WhenDeliveryAddressExceedsMaxLength_ShouldHaveValidationError()
-    {
+    public async Task Validate_WhenDeliveryAddressExceedsMaxLength_ShouldHaveValidationError() {
         // Arrange
         var command = CreateValidCommand();
         command = command with { DeliveryAddress = new string('A', 501) };
-        
+
         SetupValidProducts(command.Items);
 
         // Act
@@ -270,8 +255,7 @@ public class CreateOrderCommandValidatorTest
     }
 
     [Fact]
-    public async Task Validate_WhenDeliveryAddressIsAtMaxLength_ShouldNotHaveValidationError()
-    {
+    public async Task Validate_WhenDeliveryAddressIsAtMaxLength_ShouldNotHaveValidationError() {
         // Arrange
         var command = CreateValidCommand();
         command = command with { DeliveryAddress = new string('A', 500) };
@@ -291,8 +275,7 @@ public class CreateOrderCommandValidatorTest
     #region Complete Valid Command
 
     [Fact]
-    public async Task Validate_WhenCommandIsCompletelyValid_ShouldNotHaveAnyValidationErrors()
-    {
+    public async Task Validate_WhenCommandIsCompletelyValid_ShouldNotHaveAnyValidationErrors() {
         // Arrange
         var command = CreateValidCommand();
         SetupValidCustomer(command.CustomerId);
@@ -311,8 +294,7 @@ public class CreateOrderCommandValidatorTest
     #region Multiple Items Validation
 
     [Fact]
-    public async Task Validate_WhenMultipleItemsHaveInvalidQuantity_ShouldHaveMultipleValidationErrors()
-    {
+    public async Task Validate_WhenMultipleItemsHaveInvalidQuantity_ShouldHaveMultipleValidationErrors() {
         // Arrange
         var command = new CreateOrderCommand(
             CustomerId: Guid.NewGuid(),
@@ -343,8 +325,7 @@ public class CreateOrderCommandValidatorTest
 
     #region Helper Methods
 
-    private static CreateOrderCommand CreateValidCommand()
-    {
+    private static CreateOrderCommand CreateValidCommand() {
         return new CreateOrderCommand(
             CustomerId: Guid.NewGuid(),
             ScheduledDeliveryDate: DateTime.UtcNow.AddDays(3),
@@ -358,16 +339,14 @@ public class CreateOrderCommandValidatorTest
         );
     }
 
-    private void SetupValidCustomer(Guid customerId)
-    {
+    private void SetupValidCustomer(Guid customerId) {
         var customer = Customer.Create("Test Customer", PhoneNumberValue.Create("+1234567890"));
         _customerRepositoryMock
             .Setup(x => x.GetByIdAsync(customerId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(customer);
     }
 
-    private void SetupValidProducts(IReadOnlyCollection<CreateOrderItemDto> items)
-    {
+    private void SetupValidProducts(IReadOnlyCollection<CreateOrderItemDto> items) {
         var productIds = items.Select(i => i.ProductId).ToHashSet();
         var products = productIds.Select(id => Product.Create($"Product {id}", "Description")).ToList();
 

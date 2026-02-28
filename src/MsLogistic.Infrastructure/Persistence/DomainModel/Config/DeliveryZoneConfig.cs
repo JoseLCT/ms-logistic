@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MsLogistic.Domain.DeliveryZones.Entities;
 using MsLogistic.Domain.Drivers.Entities;
@@ -6,10 +6,8 @@ using MsLogistic.Infrastructure.Shared.Utils.Parsers;
 
 namespace MsLogistic.Infrastructure.Persistence.DomainModel.Config;
 
-internal class DeliveryZoneConfig : IEntityTypeConfiguration<DeliveryZone>
-{
-    public void Configure(EntityTypeBuilder<DeliveryZone> builder)
-    {
+internal class DeliveryZoneConfig : IEntityTypeConfiguration<DeliveryZone> {
+    public void Configure(EntityTypeBuilder<DeliveryZone> builder) {
         builder.ToTable("delivery_zones");
 
         builder.HasKey(x => x.Id);

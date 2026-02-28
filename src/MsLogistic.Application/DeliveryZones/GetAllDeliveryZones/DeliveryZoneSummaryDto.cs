@@ -1,4 +1,4 @@
-﻿namespace MsLogistic.Application.DeliveryZones.GetAllDeliveryZones;
+namespace MsLogistic.Application.DeliveryZones.GetAllDeliveryZones;
 
 public record DeliveryZoneSummaryDto(
     Guid Id,

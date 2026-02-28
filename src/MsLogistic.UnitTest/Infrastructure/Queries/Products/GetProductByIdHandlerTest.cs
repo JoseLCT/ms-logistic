@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Application.Products.GetProductById;
 using MsLogistic.Domain.Shared.Errors;
@@ -9,13 +9,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Infrastructure.Queries.Products;
 
-public class GetProductByIdHandlerTest : IDisposable
-{
+public class GetProductByIdHandlerTest : IDisposable {
     private readonly PersistenceDbContext _dbContext;
     private readonly GetProductByIdHandler _handler;
 
-    public GetProductByIdHandlerTest()
-    {
+    public GetProductByIdHandlerTest() {
         var options = new DbContextOptionsBuilder<PersistenceDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -24,8 +22,7 @@ public class GetProductByIdHandlerTest : IDisposable
         _handler = new GetProductByIdHandler(_dbContext);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         _dbContext.Dispose();
     }
 
@@ -33,10 +30,8 @@ public class GetProductByIdHandlerTest : IDisposable
         Guid? id = null,
         string name = "Sample Product",
         string description = "This is a sample product description."
-    )
-    {
-        return new ProductPersistenceModel
-        {
+    ) {
+        return new ProductPersistenceModel {
             Id = id ?? Guid.NewGuid(),
             Name = name,
             Description = description,
@@ -46,8 +41,7 @@ public class GetProductByIdHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithExistingProductId_ShouldReturnProduct()
-    {
+    public async Task Handle_WithExistingProductId_ShouldReturnProduct() {
         // Arrange
         var newProduct = CreateProductPersistenceModel();
 
@@ -65,8 +59,7 @@ public class GetProductByIdHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithNonExistingProductId_ShouldReturnNotFoundError()
-    {
+    public async Task Handle_WithNonExistingProductId_ShouldReturnNotFoundError() {
         // Arrange
         var nonExistingId = Guid.NewGuid();
         var query = new GetProductByIdQuery(nonExistingId);
@@ -80,8 +73,7 @@ public class GetProductByIdHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithMultipleProducts_ShouldReturnCorrectProduct()
-    {
+    public async Task Handle_WithMultipleProducts_ShouldReturnCorrectProduct() {
         // Arrange
         var product1 = CreateProductPersistenceModel();
         var product2 = CreateProductPersistenceModel();

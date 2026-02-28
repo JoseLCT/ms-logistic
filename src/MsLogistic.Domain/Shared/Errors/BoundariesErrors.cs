@@ -1,9 +1,8 @@
-﻿using MsLogistic.Core.Results;
+using MsLogistic.Core.Results;
 
 namespace MsLogistic.Domain.Shared.Errors;
 
-public static class BoundariesErrors
-{
+public static class BoundariesErrors {
     public static Error InsufficientPoints(int minimumPoints) =>
         Error.Validation(
             code: "Boundaries.InsufficientPoints",

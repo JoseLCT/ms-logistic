@@ -1,4 +1,4 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using MsLogistic.Application.Products.CreateProduct;
@@ -13,50 +13,43 @@ namespace MsLogistic.WebApi.Controllers.V1;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/products")]
-public class ProductController : ApiControllerBase
-{
+public class ProductController : ApiControllerBase {
     private readonly IMediator _mediator;
 
-    public ProductController(IMediator mediator)
-    {
+    public ProductController(IMediator mediator) {
         _mediator = mediator;
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
-    {
+    public async Task<IActionResult> GetAll() {
         var query = new GetAllProductsQuery();
         var result = await _mediator.Send(query);
         return HandleResult(result);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id)
-    {
+    public async Task<IActionResult> GetById(Guid id) {
         var query = new GetProductByIdQuery(id);
         var result = await _mediator.Send(query);
         return HandleResult(result);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateProductContract contract)
-    {
+    public async Task<IActionResult> Create([FromBody] CreateProductContract contract) {
         var command = new CreateProductCommand(contract.Name, contract.Description);
         var result = await _mediator.Send(command);
         return HandleResult(result);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProductContract contract)
-    {
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProductContract contract) {
         var command = new UpdateProductCommand(id, contract.Name, contract.Description);
         var result = await _mediator.Send(command);
         return HandleResult(result);
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Remove(Guid id)
-    {
+    public async Task<IActionResult> Remove(Guid id) {
         var command = new RemoveProductCommand(id);
         var result = await _mediator.Send(command);
         return HandleResult(result);

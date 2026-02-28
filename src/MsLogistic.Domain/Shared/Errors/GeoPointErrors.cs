@@ -1,9 +1,8 @@
-﻿using MsLogistic.Core.Results;
+using MsLogistic.Core.Results;
 
 namespace MsLogistic.Domain.Shared.Errors;
 
-public static class GeoPointErrors
-{
+public static class GeoPointErrors {
     public static Error LatitudeOutOfRange =>
         Error.Validation(
             code: "GeoPoint.LatitudeOutOfRange",

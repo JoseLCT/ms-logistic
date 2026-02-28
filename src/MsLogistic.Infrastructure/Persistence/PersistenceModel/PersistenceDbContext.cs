@@ -1,10 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MsLogistic.Infrastructure.Persistence.PersistenceModel.EFCoreEntities;
 
 namespace MsLogistic.Infrastructure.Persistence.PersistenceModel;
 
-internal class PersistenceDbContext : DbContext
-{
+internal class PersistenceDbContext : DbContext {
     public DbSet<BatchPersistenceModel> Batches { get; set; }
     public DbSet<CustomerPersistenceModel> Customers { get; set; }
     public DbSet<DeliveryZonePersistenceModel> DeliveryZones { get; set; }
@@ -16,7 +15,6 @@ internal class PersistenceDbContext : DbContext
     public DbSet<ProductPersistenceModel> Products { get; set; }
     public DbSet<RoutePersistenceModel> Routes { get; set; }
 
-    public PersistenceDbContext(DbContextOptions<PersistenceDbContext> options) : base(options)
-    {
+    public PersistenceDbContext(DbContextOptions<PersistenceDbContext> options) : base(options) {
     }
 }

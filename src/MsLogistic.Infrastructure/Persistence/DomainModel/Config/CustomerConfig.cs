@@ -1,14 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MsLogistic.Domain.Customers.Entities;
 using MsLogistic.Domain.Shared.ValueObjects;
 
 namespace MsLogistic.Infrastructure.Persistence.DomainModel.Config;
 
-internal class CustomerConfig : IEntityTypeConfiguration<Customer>
-{
-    public void Configure(EntityTypeBuilder<Customer> builder)
-    {
+internal class CustomerConfig : IEntityTypeConfiguration<Customer> {
+    public void Configure(EntityTypeBuilder<Customer> builder) {
         builder.ToTable("customers");
 
         builder.HasKey(c => c.Id);

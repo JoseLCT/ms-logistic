@@ -1,24 +1,20 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using NetTopologySuite.Geometries;
 
 #nullable disable
 
-namespace MsLogistic.Infrastructure.Migrations
-{
+namespace MsLogistic.Infrastructure.Migrations {
     /// <inheritdoc />
-    public partial class Init : Migration
-    {
+    public partial class Init : Migration {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
+        protected override void Up(MigrationBuilder migrationBuilder) {
             migrationBuilder.AlterDatabase()
                 .Annotation("Npgsql:PostgresExtension:postgis", ",,");
 
             migrationBuilder.CreateTable(
                 name: "batches",
-                columns: table => new
-                {
+                columns: table => new {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     total_orders = table.Column<int>(type: "integer", nullable: false),
                     status = table.Column<int>(type: "integer", nullable: false),
@@ -27,30 +23,26 @@ namespace MsLogistic.Infrastructure.Migrations
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_batches", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "customers",
-                columns: table => new
-                {
+                columns: table => new {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     full_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     phone_number = table.Column<string>(type: "character varying(15)", maxLength: 15, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_customers", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "drivers",
-                columns: table => new
-                {
+                columns: table => new {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     full_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
@@ -58,30 +50,26 @@ namespace MsLogistic.Infrastructure.Migrations
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_drivers", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "products",
-                columns: table => new
-                {
+                columns: table => new {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_products", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "delivery_zones",
-                columns: table => new
-                {
+                columns: table => new {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     driver_id = table.Column<Guid>(type: "uuid", nullable: true),
                     code = table.Column<string>(type: "character varying(7)", maxLength: 7, nullable: false),
@@ -90,8 +78,7 @@ namespace MsLogistic.Infrastructure.Migrations
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_delivery_zones", x => x.id);
                     table.ForeignKey(
                         name: "FK_delivery_zones_drivers_driver_id",
@@ -103,8 +90,7 @@ namespace MsLogistic.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "routes",
-                columns: table => new
-                {
+                columns: table => new {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     batch_id = table.Column<Guid>(type: "uuid", nullable: false),
                     delivery_zone_id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -116,8 +102,7 @@ namespace MsLogistic.Infrastructure.Migrations
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_routes", x => x.id);
                     table.ForeignKey(
                         name: "FK_routes_batches_batch_id",
@@ -141,8 +126,7 @@ namespace MsLogistic.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "orders",
-                columns: table => new
-                {
+                columns: table => new {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     batch_id = table.Column<Guid>(type: "uuid", nullable: false),
                     customer_id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -155,8 +139,7 @@ namespace MsLogistic.Infrastructure.Migrations
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_orders", x => x.id);
                     table.ForeignKey(
                         name: "FK_orders_batches_batch_id",
@@ -180,8 +163,7 @@ namespace MsLogistic.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "order_deliveries",
-                columns: table => new
-                {
+                columns: table => new {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     order_id = table.Column<Guid>(type: "uuid", nullable: false),
                     driver_id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -192,8 +174,7 @@ namespace MsLogistic.Infrastructure.Migrations
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_order_deliveries", x => x.id);
                     table.ForeignKey(
                         name: "FK_order_deliveries_drivers_driver_id",
@@ -211,8 +192,7 @@ namespace MsLogistic.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "order_incidents",
-                columns: table => new
-                {
+                columns: table => new {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     order_id = table.Column<Guid>(type: "uuid", nullable: false),
                     driver_id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -221,8 +201,7 @@ namespace MsLogistic.Infrastructure.Migrations
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_order_incidents", x => x.id);
                     table.ForeignKey(
                         name: "FK_order_incidents_drivers_driver_id",
@@ -240,8 +219,7 @@ namespace MsLogistic.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "order_items",
-                columns: table => new
-                {
+                columns: table => new {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     order_id = table.Column<Guid>(type: "uuid", nullable: false),
                     product_id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -249,8 +227,7 @@ namespace MsLogistic.Infrastructure.Migrations
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_order_items", x => x.id);
                     table.ForeignKey(
                         name: "FK_order_items_orders_order_id",
@@ -335,8 +312,7 @@ namespace MsLogistic.Infrastructure.Migrations
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+        protected override void Down(MigrationBuilder migrationBuilder) {
             migrationBuilder.DropTable(
                 name: "order_deliveries");
 

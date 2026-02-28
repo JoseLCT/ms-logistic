@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Domain.Batches.Entities;
 using MsLogistic.Infrastructure.Persistence.DomainModel;
@@ -7,13 +7,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Infrastructure.Persistence.Repositories;
 
-public class BatchRepositoryTest : IDisposable
-{
+public class BatchRepositoryTest : IDisposable {
     private readonly DomainDbContext _dbContext;
     private readonly BatchRepository _repository;
 
-    public BatchRepositoryTest()
-    {
+    public BatchRepositoryTest() {
         var options = new DbContextOptionsBuilder<DomainDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
@@ -22,8 +20,7 @@ public class BatchRepositoryTest : IDisposable
         _repository = new BatchRepository(_dbContext);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         _dbContext.Database.EnsureDeleted();
         _dbContext.Dispose();
     }
@@ -31,8 +28,7 @@ public class BatchRepositoryTest : IDisposable
     #region GetByIdAsync
 
     [Fact]
-    public async Task GetByIdAsync_WhenBatchExists_ShouldReturnBatch()
-    {
+    public async Task GetByIdAsync_WhenBatchExists_ShouldReturnBatch() {
         // Arrange
         var batch = Batch.Create(10);
         await _dbContext.Batches.AddAsync(batch);
@@ -48,8 +44,7 @@ public class BatchRepositoryTest : IDisposable
     }
 
     [Fact]
-    public async Task GetByIdAsync_WhenBatchDoesNotExist_ShouldReturnNull()
-    {
+    public async Task GetByIdAsync_WhenBatchDoesNotExist_ShouldReturnNull() {
         // Arrange
         var nonExistingId = Guid.NewGuid();
 
@@ -65,8 +60,7 @@ public class BatchRepositoryTest : IDisposable
     #region GetAllAsync
 
     [Fact]
-    public async Task GetAllAsync_WhenBatchesExist_ShouldReturnAllBatches()
-    {
+    public async Task GetAllAsync_WhenBatchesExist_ShouldReturnAllBatches() {
         // Arrange
         var batch1 = Batch.Create(5);
         var batch2 = Batch.Create(10);
@@ -86,8 +80,7 @@ public class BatchRepositoryTest : IDisposable
     }
 
     [Fact]
-    public async Task GetAllAsync_WhenNoBatches_ShouldReturnEmptyList()
-    {
+    public async Task GetAllAsync_WhenNoBatches_ShouldReturnEmptyList() {
         // Act
         var result = await _repository.GetAllAsync();
 
@@ -100,8 +93,7 @@ public class BatchRepositoryTest : IDisposable
     #region GetLatestBatchAsync
 
     [Fact]
-    public async Task GetLatestBatchAsync_ShouldReturnMostRecentBatch()
-    {
+    public async Task GetLatestBatchAsync_ShouldReturnMostRecentBatch() {
         // Arrange
         var batch1 = Batch.Create(5);
         await _dbContext.Batches.AddAsync(batch1);
@@ -120,8 +112,7 @@ public class BatchRepositoryTest : IDisposable
     }
 
     [Fact]
-    public async Task GetLatestBatchAsync_WhenNoBatches_ShouldReturnNull()
-    {
+    public async Task GetLatestBatchAsync_WhenNoBatches_ShouldReturnNull() {
         // Act
         var result = await _repository.GetLatestBatchAsync();
 
@@ -134,8 +125,7 @@ public class BatchRepositoryTest : IDisposable
     #region AddAsync
 
     [Fact]
-    public async Task AddAsync_ShouldAddBatchToDatabase()
-    {
+    public async Task AddAsync_ShouldAddBatchToDatabase() {
         // Arrange
         var batch = Batch.Create(10);
 
@@ -155,8 +145,7 @@ public class BatchRepositoryTest : IDisposable
     #region Update
 
     [Fact]
-    public async Task Update_ShouldUpdateBatchInDatabase()
-    {
+    public async Task Update_ShouldUpdateBatchInDatabase() {
         // Arrange
         var batch = Batch.Create(5);
         await _dbContext.Batches.AddAsync(batch);
@@ -180,8 +169,7 @@ public class BatchRepositoryTest : IDisposable
     #region Remove
 
     [Fact]
-    public async Task Remove_ShouldDeleteBatchFromDatabase()
-    {
+    public async Task Remove_ShouldDeleteBatchFromDatabase() {
         // Arrange
         var batch = Batch.Create(10);
         await _dbContext.Batches.AddAsync(batch);

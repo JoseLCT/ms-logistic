@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MsLogistic.Domain.Batches.Entities;
 using MsLogistic.Domain.DeliveryZones.Entities;
@@ -8,10 +8,8 @@ using MsLogistic.Infrastructure.Shared.Utils.Parsers;
 
 namespace MsLogistic.Infrastructure.Persistence.DomainModel.Config;
 
-internal class RouteConfig : IEntityTypeConfiguration<Route>
-{
-    public void Configure(EntityTypeBuilder<Route> builder)
-    {
+internal class RouteConfig : IEntityTypeConfiguration<Route> {
+    public void Configure(EntityTypeBuilder<Route> builder) {
         builder.ToTable("routes");
 
         builder.HasKey(x => x.Id);

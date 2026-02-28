@@ -1,9 +1,8 @@
-﻿using MsLogistic.Core.Results;
+using MsLogistic.Core.Results;
 
 namespace MsLogistic.Domain.DeliveryZones.Errors;
 
-public static class DeliveryZoneErrors
-{
+public static class DeliveryZoneErrors {
     public static Error NameIsRequired =>
         Error.Validation(
             code: "DeliveryZone.Name.Required",

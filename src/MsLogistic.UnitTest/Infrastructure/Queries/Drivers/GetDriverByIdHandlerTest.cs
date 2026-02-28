@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Application.Drivers.GetDriverById;
 using MsLogistic.Domain.Drivers.Enums;
@@ -10,13 +10,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Infrastructure.Queries.Drivers;
 
-public class GetDriverByIdHandlerTest : IDisposable
-{
+public class GetDriverByIdHandlerTest : IDisposable {
     private readonly PersistenceDbContext _dbContext;
     private readonly GetDriverByIdHandler _handler;
 
-    public GetDriverByIdHandlerTest()
-    {
+    public GetDriverByIdHandlerTest() {
         var options = new DbContextOptionsBuilder<PersistenceDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -25,8 +23,7 @@ public class GetDriverByIdHandlerTest : IDisposable
         _handler = new GetDriverByIdHandler(_dbContext);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         _dbContext.Dispose();
     }
 
@@ -35,10 +32,8 @@ public class GetDriverByIdHandlerTest : IDisposable
         string fullName = "Jane Smith",
         bool isActive = true,
         DriverStatusEnum status = DriverStatusEnum.Available
-    )
-    {
-        return new DriverPersistenceModel
-        {
+    ) {
+        return new DriverPersistenceModel {
             Id = id ?? Guid.NewGuid(),
             FullName = fullName,
             IsActive = isActive,
@@ -49,8 +44,7 @@ public class GetDriverByIdHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithExistingDriverId_ShouldReturnDriver()
-    {
+    public async Task Handle_WithExistingDriverId_ShouldReturnDriver() {
         // Arrange
         var newDriver = CreateDriverPersistenceModel();
 
@@ -68,8 +62,7 @@ public class GetDriverByIdHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithNonExistingDriverId_ShouldReturnNotFoundError()
-    {
+    public async Task Handle_WithNonExistingDriverId_ShouldReturnNotFoundError() {
         // Arrange
         var nonExistingId = Guid.NewGuid();
         var query = new GetDriverByIdQuery(nonExistingId);
@@ -83,8 +76,7 @@ public class GetDriverByIdHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithMultipleDrivers_ShouldReturnCorrectDriver()
-    {
+    public async Task Handle_WithMultipleDrivers_ShouldReturnCorrectDriver() {
         // Arrange
         var driver1 = CreateDriverPersistenceModel();
         var driver2 = CreateDriverPersistenceModel();

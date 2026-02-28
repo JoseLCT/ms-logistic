@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using MsLogistic.Core.Results;
 using MsLogistic.Domain.Shared.Errors;
 using MsLogistic.Domain.Shared.ValueObjects;
@@ -6,10 +6,8 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Domain.Shared.ValueObjects;
 
-public class BoundariesValueTest
-{
-    private static List<GeoPointValue> CreateValidTriangle()
-    {
+public class BoundariesValueTest {
+    private static List<GeoPointValue> CreateValidTriangle() {
         return new List<GeoPointValue>
         {
             GeoPointValue.Create(0, 0),
@@ -18,8 +16,7 @@ public class BoundariesValueTest
         };
     }
 
-    private static List<GeoPointValue> CreateValidSquare()
-    {
+    private static List<GeoPointValue> CreateValidSquare() {
         return new List<GeoPointValue>
         {
             GeoPointValue.Create(0, 0),
@@ -32,8 +29,7 @@ public class BoundariesValueTest
     #region Create
 
     [Fact]
-    public void Create_WithValidTriangle_ShouldSucceed()
-    {
+    public void Create_WithValidTriangle_ShouldSucceed() {
         // Arrange
         var coordinates = CreateValidTriangle();
 
@@ -47,8 +43,7 @@ public class BoundariesValueTest
     }
 
     [Fact]
-    public void Create_WithValidSquare_ShouldSucceed()
-    {
+    public void Create_WithValidSquare_ShouldSucceed() {
         // Arrange
         var coordinates = CreateValidSquare();
 
@@ -61,8 +56,7 @@ public class BoundariesValueTest
     }
 
     [Fact]
-    public void Create_WithAlreadyClosedPolygon_ShouldNotAddExtraPoint()
-    {
+    public void Create_WithAlreadyClosedPolygon_ShouldNotAddExtraPoint() {
         // Arrange
         var coordinates = new List<GeoPointValue>
         {
@@ -84,11 +78,9 @@ public class BoundariesValueTest
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    public void Create_WithInsufficientPoints_ShouldThrowDomainException(int pointCount)
-    {
+    public void Create_WithInsufficientPoints_ShouldThrowDomainException(int pointCount) {
         var coordinates = new List<GeoPointValue>();
-        for (int i = 0; i < pointCount; i++)
-        {
+        for (int i = 0; i < pointCount; i++) {
             coordinates.Add(GeoPointValue.Create(i, i));
         }
 
@@ -101,8 +93,7 @@ public class BoundariesValueTest
     }
 
     [Fact]
-    public void Create_WithConsecutiveDuplicatePoints_ShouldThrowDomainException()
-    {
+    public void Create_WithConsecutiveDuplicatePoints_ShouldThrowDomainException() {
         // Arrange
         var coordinates = new List<GeoPointValue>
         {
@@ -124,8 +115,7 @@ public class BoundariesValueTest
     #region Contains
 
     [Fact]
-    public void Contains_WithPointInside_ShouldReturnTrue()
-    {
+    public void Contains_WithPointInside_ShouldReturnTrue() {
         // Arrange
         var boundaries = BoundariesValue.Create(CreateValidSquare());
         var pointInside = GeoPointValue.Create(0.5, 0.5);
@@ -138,8 +128,7 @@ public class BoundariesValueTest
     }
 
     [Fact]
-    public void Contains_WithPointOutside_ShouldReturnFalse()
-    {
+    public void Contains_WithPointOutside_ShouldReturnFalse() {
         // Arrange
         var boundaries = BoundariesValue.Create(CreateValidSquare());
         var pointOutside = GeoPointValue.Create(2, 2);
@@ -156,8 +145,7 @@ public class BoundariesValueTest
     #region GetCenter
 
     [Fact]
-    public void GetCenter_WithSquare_ShouldReturnCenterPoint()
-    {
+    public void GetCenter_WithSquare_ShouldReturnCenterPoint() {
         // Arrange
         var boundaries = BoundariesValue.Create(CreateValidSquare());
 
@@ -170,8 +158,7 @@ public class BoundariesValueTest
     }
 
     [Fact]
-    public void GetCenter_WithTriangle_ShouldReturnCentroid()
-    {
+    public void GetCenter_WithTriangle_ShouldReturnCentroid() {
         // Arrange
         var boundaries = BoundariesValue.Create(CreateValidTriangle());
 
@@ -184,8 +171,7 @@ public class BoundariesValueTest
     }
 
     [Fact]
-    public void GetCenter_ShouldExcludeClosingPoint()
-    {
+    public void GetCenter_ShouldExcludeClosingPoint() {
         var coordinates = new List<GeoPointValue>
         {
             GeoPointValue.Create(0, 0),

@@ -1,9 +1,8 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace MsLogistic.WebApi.Contracts.V1.Orders;
 
-public record CreateOrderItemContract
-{
+public record CreateOrderItemContract {
     [property: JsonPropertyName("product_id")]
     public required Guid ProductId { get; init; }
 

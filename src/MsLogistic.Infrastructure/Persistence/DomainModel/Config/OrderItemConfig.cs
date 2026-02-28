@@ -1,14 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MsLogistic.Domain.Orders.Entities;
 using MsLogistic.Domain.Products.Entities;
 
 namespace MsLogistic.Infrastructure.Persistence.DomainModel.Config;
 
-internal class OrderItemConfig : IEntityTypeConfiguration<OrderItem>
-{
-    public void Configure(EntityTypeBuilder<OrderItem> builder)
-    {
+internal class OrderItemConfig : IEntityTypeConfiguration<OrderItem> {
+    public void Configure(EntityTypeBuilder<OrderItem> builder) {
         builder.ToTable("order_items");
 
         builder.HasKey(x => x.Id);

@@ -1,14 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MsLogistic.Domain.Drivers.Entities;
 using MsLogistic.Domain.Orders.Entities;
 
 namespace MsLogistic.Infrastructure.Persistence.DomainModel.Config;
 
-internal class OrderIncidentConfig : IEntityTypeConfiguration<OrderIncident>
-{
-    public void Configure(EntityTypeBuilder<OrderIncident> builder)
-    {
+internal class OrderIncidentConfig : IEntityTypeConfiguration<OrderIncident> {
+    public void Configure(EntityTypeBuilder<OrderIncident> builder) {
         builder.ToTable("order_incidents");
 
         builder.HasKey(x => x.Id);

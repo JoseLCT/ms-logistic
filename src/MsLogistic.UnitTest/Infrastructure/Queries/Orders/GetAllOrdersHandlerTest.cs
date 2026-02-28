@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Application.Orders.GetAllOrders;
 using MsLogistic.Domain.Orders.Enums;
@@ -10,13 +10,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Infrastructure.Queries.Orders;
 
-public class GetAllOrdersHandlerTest : IDisposable
-{
+public class GetAllOrdersHandlerTest : IDisposable {
     private readonly PersistenceDbContext _context;
     private readonly GetAllOrdersHandler _handler;
 
-    public GetAllOrdersHandlerTest()
-    {
+    public GetAllOrdersHandlerTest() {
         var options = new DbContextOptionsBuilder<PersistenceDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -25,8 +23,7 @@ public class GetAllOrdersHandlerTest : IDisposable
         _handler = new GetAllOrdersHandler(_context);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         _context.Dispose();
     }
 
@@ -40,10 +37,8 @@ public class GetAllOrdersHandlerTest : IDisposable
         DateTime? scheduledDeliveryDate = null,
         string? deliveryAddress = null,
         Point? deliveryLocation = null
-    )
-    {
-        return new OrderPersistenceModel
-        {
+    ) {
+        return new OrderPersistenceModel {
             Id = id ?? Guid.NewGuid(),
             BatchId = batchId ?? Guid.NewGuid(),
             CustomerId = customerId ?? Guid.NewGuid(),
@@ -59,8 +54,7 @@ public class GetAllOrdersHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithNoOrders_ShouldReturnEmptyList()
-    {
+    public async Task Handle_WithNoOrders_ShouldReturnEmptyList() {
         // Arrange
         var query = new GetAllOrdersQuery();
 
@@ -74,8 +68,7 @@ public class GetAllOrdersHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithSingleOrder_ShouldReturnListWithOneOrder()
-    {
+    public async Task Handle_WithSingleOrder_ShouldReturnListWithOneOrder() {
         // Arrange
         var order = CreateOrderPersistenceModel();
 
@@ -95,8 +88,7 @@ public class GetAllOrdersHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithMultipleOrders_ShouldReturnAllOrders()
-    {
+    public async Task Handle_WithMultipleOrders_ShouldReturnAllOrders() {
         // Arrange
         var order1 = CreateOrderPersistenceModel();
         var order2 = CreateOrderPersistenceModel();

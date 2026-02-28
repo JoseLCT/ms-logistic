@@ -1,30 +1,25 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MsLogistic.Core.Results;
 
 namespace MsLogistic.WebApi.Controllers;
 
 [ApiController]
-public abstract class ApiControllerBase : ControllerBase
-{
-    protected IActionResult HandleResult<T>(Result<T> result)
-    {
+public abstract class ApiControllerBase : ControllerBase {
+    protected IActionResult HandleResult<T>(Result<T> result) {
         return result.IsSuccess
             ? Ok(result.Value)
             : HandleFailure(result);
     }
 
-    protected IActionResult HandleResult(Result result)
-    {
+    protected IActionResult HandleResult(Result result) {
         return result.IsSuccess
             ? Ok()
             : HandleFailure(result);
     }
 
-    private IActionResult HandleFailure(Result result)
-    {
-        return result.Error.Type switch
-        {
+    private IActionResult HandleFailure(Result result) {
+        return result.Error.Type switch {
             ErrorType.NotFound => NotFound(CreateProblemDetails(
                 "Resource Not Found",
                 StatusCodes.Status404NotFound,
@@ -65,10 +60,8 @@ public abstract class ApiControllerBase : ControllerBase
     private ProblemDetails CreateProblemDetails(
         string title,
         int status,
-        Error error)
-    {
-        return new ProblemDetails
-        {
+        Error error) {
+        return new ProblemDetails {
             Title = title,
             Status = status,
             Detail = error.Message,

@@ -1,7 +1,6 @@
-﻿namespace MsLogistic.Domain.Batches.Enums;
+namespace MsLogistic.Domain.Batches.Enums;
 
-public enum BatchStatusEnum
-{
+public enum BatchStatusEnum {
     Open = 0,
     Closed = 1
 }

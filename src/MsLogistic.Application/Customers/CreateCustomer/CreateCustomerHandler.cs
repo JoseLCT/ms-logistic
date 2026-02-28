@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using MsLogistic.Core.Interfaces;
 using MsLogistic.Core.Results;
@@ -8,8 +8,7 @@ using MsLogistic.Domain.Shared.ValueObjects;
 
 namespace MsLogistic.Application.Customers.CreateCustomer;
 
-public class CreateCustomerHandler : IRequestHandler<CreateCustomerCommand, Result<Guid>>
-{
+public class CreateCustomerHandler : IRequestHandler<CreateCustomerCommand, Result<Guid>> {
     private readonly ICustomerRepository _customerRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<CreateCustomerHandler> _logger;
@@ -18,15 +17,13 @@ public class CreateCustomerHandler : IRequestHandler<CreateCustomerCommand, Resu
         ICustomerRepository customerRepository,
         IUnitOfWork unitOfWork,
         ILogger<CreateCustomerHandler> logger
-    )
-    {
+    ) {
         _customerRepository = customerRepository;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
-    public async Task<Result<Guid>> Handle(CreateCustomerCommand request, CancellationToken ct)
-    {
+    public async Task<Result<Guid>> Handle(CreateCustomerCommand request, CancellationToken ct) {
         var phoneNumber = request.PhoneNumber != null
             ? PhoneNumberValue.Create(request.PhoneNumber)
             : null;

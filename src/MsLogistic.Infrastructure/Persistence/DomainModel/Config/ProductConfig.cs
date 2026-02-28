@@ -1,13 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MsLogistic.Domain.Products.Entities;
 
 namespace MsLogistic.Infrastructure.Persistence.DomainModel.Config;
 
-internal class ProductConfig : IEntityTypeConfiguration<Product>
-{
-    public void Configure(EntityTypeBuilder<Product> builder)
-    {
+internal class ProductConfig : IEntityTypeConfiguration<Product> {
+    public void Configure(EntityTypeBuilder<Product> builder) {
         builder.ToTable("products");
 
         builder.HasKey(x => x.Id);

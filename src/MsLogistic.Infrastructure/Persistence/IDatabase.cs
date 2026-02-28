@@ -1,6 +1,5 @@
-﻿namespace MsLogistic.Infrastructure.Persistence;
+namespace MsLogistic.Infrastructure.Persistence;
 
-public interface IDatabase : IDisposable
-{
+public interface IDatabase : IDisposable {
     void Migrate();
 }

@@ -1,19 +1,17 @@
-﻿using MsLogistic.Core.Abstractions;
+using MsLogistic.Core.Abstractions;
 using MsLogistic.Core.Results;
 using MsLogistic.Domain.Orders.Enums;
 using MsLogistic.Domain.Orders.Errors;
 
 namespace MsLogistic.Domain.Orders.Entities;
 
-public class OrderIncident : Entity
-{
+public class OrderIncident : Entity {
     public Guid OrderId { get; private set; }
     public Guid DriverId { get; private set; }
     public OrderIncidentTypeEnum IncidentType { get; private set; }
     public string Description { get; private set; }
 
-    private OrderIncident()
-    {
+    private OrderIncident() {
     }
 
     private OrderIncident(
@@ -21,8 +19,7 @@ public class OrderIncident : Entity
         Guid driverId,
         OrderIncidentTypeEnum incidentType,
         string description
-    ) : base(Guid.NewGuid())
-    {
+    ) : base(Guid.NewGuid()) {
         OrderId = orderId;
         DriverId = driverId;
         IncidentType = incidentType;
@@ -34,10 +31,8 @@ public class OrderIncident : Entity
         Guid driverId,
         OrderIncidentTypeEnum incidentType,
         string description
-    )
-    {
-        if (string.IsNullOrWhiteSpace(description))
-        {
+    ) {
+        if (string.IsNullOrWhiteSpace(description)) {
             throw new DomainException(OrderIncidentErrors.DescriptionIsRequired);
         }
 

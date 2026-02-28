@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using MsLogistic.Core.Results;
 using MsLogistic.Domain.Routes.Entities;
 using MsLogistic.Domain.Routes.Enums;
@@ -9,13 +9,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Domain.Routes;
 
-public class RouteTest
-{
+public class RouteTest {
     private static GeoPointValue CreateValidGeoPoint()
         => GeoPointValue.Create(-17.7833, -63.1821);
 
-    private static Route CreateValidRoute(Guid? driverId = null)
-    {
+    private static Route CreateValidRoute(Guid? driverId = null) {
         return Route.Create(
             batchId: Guid.NewGuid(),
             deliveryZoneId: Guid.NewGuid(),
@@ -27,8 +25,7 @@ public class RouteTest
     #region Create
 
     [Fact]
-    public void Create_WithValidParameters_ShouldSucceed()
-    {
+    public void Create_WithValidParameters_ShouldSucceed() {
         // Arrange
         var batchId = Guid.NewGuid();
         var deliveryZoneId = Guid.NewGuid();
@@ -51,8 +48,7 @@ public class RouteTest
     }
 
     [Fact]
-    public void Create_WithoutDriver_ShouldSucceed()
-    {
+    public void Create_WithoutDriver_ShouldSucceed() {
         // Arrange
         var batchId = Guid.NewGuid();
         var deliveryZoneId = Guid.NewGuid();
@@ -72,8 +68,7 @@ public class RouteTest
     #region AssignDriver
 
     [Fact]
-    public void AssignDriver_WhenPending_ShouldAssignDriver()
-    {
+    public void AssignDriver_WhenPending_ShouldAssignDriver() {
         // Arrange
         var route = CreateValidRoute(driverId: null);
         var driverId = Guid.NewGuid();
@@ -86,8 +81,7 @@ public class RouteTest
     }
 
     [Fact]
-    public void AssignDriver_WhenAlreadyAssigned_ShouldReassignDriver()
-    {
+    public void AssignDriver_WhenAlreadyAssigned_ShouldReassignDriver() {
         // Arrange
         var route = CreateValidRoute(driverId: Guid.NewGuid());
         var newDriverId = Guid.NewGuid();
@@ -103,23 +97,17 @@ public class RouteTest
     [InlineData(RouteStatusEnum.InProgress)]
     [InlineData(RouteStatusEnum.Completed)]
     [InlineData(RouteStatusEnum.Cancelled)]
-    public void AssignDriver_WhenNotPending_ShouldThrowDomainException(RouteStatusEnum status)
-    {
+    public void AssignDriver_WhenNotPending_ShouldThrowDomainException(RouteStatusEnum status) {
         // Arrange
         var route = CreateValidRoute(driverId: Guid.NewGuid());
 
         // Change status based on the test case
-        if (status == RouteStatusEnum.InProgress)
-        {
+        if (status == RouteStatusEnum.InProgress) {
             route.Start();
-        }
-        else if (status == RouteStatusEnum.Completed)
-        {
+        } else if (status == RouteStatusEnum.Completed) {
             route.Start();
             route.Complete();
-        }
-        else if (status == RouteStatusEnum.Cancelled)
-        {
+        } else if (status == RouteStatusEnum.Cancelled) {
             route.Cancel();
         }
 
@@ -136,8 +124,7 @@ public class RouteTest
     #region UnassignDriver
 
     [Fact]
-    public void UnassignDriver_WhenPending_ShouldUnassignDriver()
-    {
+    public void UnassignDriver_WhenPending_ShouldUnassignDriver() {
         // Arrange
         var route = CreateValidRoute(driverId: Guid.NewGuid());
 
@@ -152,22 +139,16 @@ public class RouteTest
     [InlineData(RouteStatusEnum.InProgress)]
     [InlineData(RouteStatusEnum.Completed)]
     [InlineData(RouteStatusEnum.Cancelled)]
-    public void UnassignDriver_WhenNotPending_ShouldThrowDomainException(RouteStatusEnum status)
-    {
+    public void UnassignDriver_WhenNotPending_ShouldThrowDomainException(RouteStatusEnum status) {
         // Arrange
         var route = CreateValidRoute(driverId: Guid.NewGuid());
 
-        if (status == RouteStatusEnum.InProgress)
-        {
+        if (status == RouteStatusEnum.InProgress) {
             route.Start();
-        }
-        else if (status == RouteStatusEnum.Completed)
-        {
+        } else if (status == RouteStatusEnum.Completed) {
             route.Start();
             route.Complete();
-        }
-        else if (status == RouteStatusEnum.Cancelled)
-        {
+        } else if (status == RouteStatusEnum.Cancelled) {
             route.Cancel();
         }
 
@@ -184,8 +165,7 @@ public class RouteTest
     #region Start
 
     [Fact]
-    public void Start_WhenPendingWithDriver_ShouldStartAndRaiseEvent()
-    {
+    public void Start_WhenPendingWithDriver_ShouldStartAndRaiseEvent() {
         // Arrange
         var route = CreateValidRoute(driverId: Guid.NewGuid());
         var beforeStart = DateTime.UtcNow;
@@ -206,8 +186,7 @@ public class RouteTest
     }
 
     [Fact]
-    public void Start_WhenPendingWithoutDriver_ShouldThrowDomainException()
-    {
+    public void Start_WhenPendingWithoutDriver_ShouldThrowDomainException() {
         // Arrange
         var route = CreateValidRoute(driverId: null);
 
@@ -223,22 +202,16 @@ public class RouteTest
     [InlineData(RouteStatusEnum.InProgress)]
     [InlineData(RouteStatusEnum.Completed)]
     [InlineData(RouteStatusEnum.Cancelled)]
-    public void Start_WhenNotPending_ShouldThrowDomainException(RouteStatusEnum status)
-    {
+    public void Start_WhenNotPending_ShouldThrowDomainException(RouteStatusEnum status) {
         // Arrange
         var route = CreateValidRoute(driverId: Guid.NewGuid());
 
-        if (status == RouteStatusEnum.InProgress)
-        {
+        if (status == RouteStatusEnum.InProgress) {
             route.Start();
-        }
-        else if (status == RouteStatusEnum.Completed)
-        {
+        } else if (status == RouteStatusEnum.Completed) {
             route.Start();
             route.Complete();
-        }
-        else if (status == RouteStatusEnum.Cancelled)
-        {
+        } else if (status == RouteStatusEnum.Cancelled) {
             route.Cancel();
         }
 
@@ -255,8 +228,7 @@ public class RouteTest
     #region Complete
 
     [Fact]
-    public void Complete_WhenInProgress_ShouldComplete()
-    {
+    public void Complete_WhenInProgress_ShouldComplete() {
         // Arrange
         var route = CreateValidRoute(driverId: Guid.NewGuid());
         route.Start();
@@ -276,18 +248,14 @@ public class RouteTest
     [InlineData(RouteStatusEnum.Pending)]
     [InlineData(RouteStatusEnum.Completed)]
     [InlineData(RouteStatusEnum.Cancelled)]
-    public void Complete_WhenNotInProgress_ShouldThrowDomainException(RouteStatusEnum status)
-    {
+    public void Complete_WhenNotInProgress_ShouldThrowDomainException(RouteStatusEnum status) {
         // Arrange
         var route = CreateValidRoute(driverId: Guid.NewGuid());
 
-        if (status == RouteStatusEnum.Completed)
-        {
+        if (status == RouteStatusEnum.Completed) {
             route.Start();
             route.Complete();
-        }
-        else if (status == RouteStatusEnum.Cancelled)
-        {
+        } else if (status == RouteStatusEnum.Cancelled) {
             route.Cancel();
         }
 
@@ -304,8 +272,7 @@ public class RouteTest
     #region Cancel
 
     [Fact]
-    public void Cancel_WhenPending_ShouldCancelAndRaiseEvent()
-    {
+    public void Cancel_WhenPending_ShouldCancelAndRaiseEvent() {
         // Arrange
         var route = CreateValidRoute(driverId: Guid.NewGuid());
         var beforeCancel = DateTime.UtcNow;
@@ -324,8 +291,7 @@ public class RouteTest
     }
 
     [Fact]
-    public void Cancel_WhenInProgress_ShouldCancelAndRaiseEvent()
-    {
+    public void Cancel_WhenInProgress_ShouldCancelAndRaiseEvent() {
         // Arrange
         var route = CreateValidRoute(driverId: Guid.NewGuid());
         route.Start();
@@ -339,8 +305,7 @@ public class RouteTest
     }
 
     [Fact]
-    public void Cancel_WhenCompleted_ShouldThrowDomainException()
-    {
+    public void Cancel_WhenCompleted_ShouldThrowDomainException() {
         // Arrange
         var route = CreateValidRoute(driverId: Guid.NewGuid());
         route.Start();
@@ -360,8 +325,7 @@ public class RouteTest
     #region Workflow
 
     [Fact]
-    public void Route_CompleteHappyPath_ShouldSucceed()
-    {
+    public void Route_CompleteHappyPath_ShouldSucceed() {
         // Arrange
         var route = CreateValidRoute(driverId: null);
 
@@ -383,8 +347,7 @@ public class RouteTest
     }
 
     [Fact]
-    public void Route_WorkflowWithCancellation_ShouldSucceed()
-    {
+    public void Route_WorkflowWithCancellation_ShouldSucceed() {
         // Arrange
         var route = CreateValidRoute(driverId: Guid.NewGuid());
 

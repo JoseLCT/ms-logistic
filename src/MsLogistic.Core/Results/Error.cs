@@ -1,13 +1,11 @@
-﻿namespace MsLogistic.Core.Results;
+namespace MsLogistic.Core.Results;
 
-public record Error
-{
+public record Error {
     public string Code { get; }
     public string Message { get; }
     public ErrorType Type { get; }
 
-    protected Error(string code, string message, ErrorType type)
-    {
+    protected Error(string code, string message, ErrorType type) {
         Code = code;
         Message = message;
         Type = type;

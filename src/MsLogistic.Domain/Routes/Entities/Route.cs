@@ -1,4 +1,4 @@
-﻿using MsLogistic.Core.Abstractions;
+using MsLogistic.Core.Abstractions;
 using MsLogistic.Core.Results;
 using MsLogistic.Domain.Routes.Enums;
 using MsLogistic.Domain.Routes.Errors;
@@ -7,8 +7,7 @@ using MsLogistic.Domain.Shared.ValueObjects;
 
 namespace MsLogistic.Domain.Routes.Entities;
 
-public class Route : AggregateRoot
-{
+public class Route : AggregateRoot {
     public Guid BatchId { get; private set; }
     public Guid DeliveryZoneId { get; private set; }
     public Guid? DriverId { get; private set; }
@@ -17,8 +16,7 @@ public class Route : AggregateRoot
     public DateTime? StartedAt { get; private set; }
     public DateTime? CompletedAt { get; private set; }
 
-    private Route()
-    {
+    private Route() {
     }
 
     private Route(
@@ -26,8 +24,7 @@ public class Route : AggregateRoot
         Guid deliveryZoneId,
         Guid? driverId,
         GeoPointValue originLocation
-    ) : base(Guid.NewGuid())
-    {
+    ) : base(Guid.NewGuid()) {
         BatchId = batchId;
         DeliveryZoneId = deliveryZoneId;
         DriverId = driverId;
@@ -40,8 +37,7 @@ public class Route : AggregateRoot
         Guid deliveryZoneId,
         Guid? driverId,
         GeoPointValue originLocation
-    )
-    {
+    ) {
         return new Route(
             batchId,
             deliveryZoneId,
@@ -50,10 +46,8 @@ public class Route : AggregateRoot
         );
     }
 
-    public void AssignDriver(Guid driverId)
-    {
-        if (Status != RouteStatusEnum.Pending)
-        {
+    public void AssignDriver(Guid driverId) {
+        if (Status != RouteStatusEnum.Pending) {
             throw new DomainException(RouteErrors.CannotChangeDriverIfNotPending);
         }
 
@@ -61,10 +55,8 @@ public class Route : AggregateRoot
         MarkAsUpdated();
     }
 
-    public void UnassignDriver()
-    {
-        if (Status != RouteStatusEnum.Pending)
-        {
+    public void UnassignDriver() {
+        if (Status != RouteStatusEnum.Pending) {
             throw new DomainException(RouteErrors.CannotChangeDriverIfNotPending);
         }
 
@@ -72,30 +64,25 @@ public class Route : AggregateRoot
         MarkAsUpdated();
     }
 
-    public void Start()
-    {
-        if (Status != RouteStatusEnum.Pending)
-        {
+    public void Start() {
+        if (Status != RouteStatusEnum.Pending) {
             throw new DomainException(RouteErrors.CannotChangeStatusFromTo(Status, RouteStatusEnum.InProgress));
         }
 
-        if (DriverId == null)
-        {
+        if (DriverId == null) {
             throw new DomainException(RouteErrors.DriverIsRequired);
         }
 
         Status = RouteStatusEnum.InProgress;
         StartedAt = DateTime.UtcNow;
 
-        var domainEvent = new RouteStarted(Id, StartedAt.Value);
+        var domainEvent = new RouteStarted(Id, BatchId, StartedAt.Value);
         AddDomainEvent(domainEvent);
         MarkAsUpdated();
     }
 
-    public void Complete()
-    {
-        if (Status != RouteStatusEnum.InProgress)
-        {
+    public void Complete() {
+        if (Status != RouteStatusEnum.InProgress) {
             throw new DomainException(RouteErrors.CannotChangeStatusFromTo(Status, RouteStatusEnum.Completed));
         }
 
@@ -104,16 +91,14 @@ public class Route : AggregateRoot
         MarkAsUpdated();
     }
 
-    public void Cancel()
-    {
-        if (Status == RouteStatusEnum.Completed)
-        {
+    public void Cancel() {
+        if (Status == RouteStatusEnum.Completed) {
             throw new DomainException(RouteErrors.CannotChangeStatusFromTo(Status, RouteStatusEnum.Cancelled));
         }
 
         Status = RouteStatusEnum.Cancelled;
 
-        var domainEvent = new RouteCancelled(Id, DateTime.UtcNow);
+        var domainEvent = new RouteCancelled(Id, BatchId, DateTime.UtcNow);
         AddDomainEvent(domainEvent);
         MarkAsUpdated();
     }

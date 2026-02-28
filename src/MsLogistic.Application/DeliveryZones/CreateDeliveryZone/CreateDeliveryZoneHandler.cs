@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using MsLogistic.Core.Interfaces;
 using MsLogistic.Core.Results;
@@ -10,8 +10,7 @@ using MsLogistic.Domain.Shared.ValueObjects;
 
 namespace MsLogistic.Application.DeliveryZones.CreateDeliveryZone;
 
-public class CreateDeliveryZoneHandler : IRequestHandler<CreateDeliveryZoneCommand, Result<Guid>>
-{
+public class CreateDeliveryZoneHandler : IRequestHandler<CreateDeliveryZoneCommand, Result<Guid>> {
     private readonly IDeliveryZoneRepository _deliveryZoneRepository;
     private readonly IDriverRepository _driverRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -22,21 +21,17 @@ public class CreateDeliveryZoneHandler : IRequestHandler<CreateDeliveryZoneComma
         IDriverRepository driverRepository,
         IUnitOfWork unitOfWork,
         ILogger<CreateDeliveryZoneHandler> logger
-    )
-    {
+    ) {
         _deliveryZoneRepository = deliveryZoneRepository;
         _driverRepository = driverRepository;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
-    public async Task<Result<Guid>> Handle(CreateDeliveryZoneCommand request, CancellationToken ct)
-    {
-        if (request.DriverId.HasValue)
-        {
+    public async Task<Result<Guid>> Handle(CreateDeliveryZoneCommand request, CancellationToken ct) {
+        if (request.DriverId.HasValue) {
             var driverExistsResult = await DriverExists(request.DriverId.Value, ct);
-            if (driverExistsResult.IsFailure)
-            {
+            if (driverExistsResult.IsFailure) {
                 return Result.Failure<Guid>(driverExistsResult.Error);
             }
         }
@@ -62,12 +57,10 @@ public class CreateDeliveryZoneHandler : IRequestHandler<CreateDeliveryZoneComma
         return Result.Success(deliveryZone.Id);
     }
 
-    private async Task<Result> DriverExists(Guid driverId, CancellationToken ct)
-    {
+    private async Task<Result> DriverExists(Guid driverId, CancellationToken ct) {
         var driver = await _driverRepository.GetByIdAsync(driverId, ct);
 
-        if (driver is null)
-        {
+        if (driver is null) {
             return Result.Failure(
                 CommonErrors.NotFoundById("Driver", driverId)
             );

@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using MsLogistic.Domain.Customers.Repositories;
 using MsLogistic.Domain.Orders.Errors;
 using MsLogistic.Domain.Products.Repositories;
@@ -6,16 +6,14 @@ using MsLogistic.Domain.Shared.Errors;
 
 namespace MsLogistic.Application.Orders.CreateOrder;
 
-public class CreateOrderCommandValidator : AbstractValidator<CreateOrderCommand>
-{
+public class CreateOrderCommandValidator : AbstractValidator<CreateOrderCommand> {
     private const int MaxDeliveryAddressLength = 500;
     private readonly ICustomerRepository _customerRepository;
     private readonly IProductRepository _productRepository;
 
     public CreateOrderCommandValidator(
         ICustomerRepository customerRepository,
-        IProductRepository productRepository)
-    {
+        IProductRepository productRepository) {
         _customerRepository = customerRepository;
         _productRepository = productRepository;
 
@@ -31,8 +29,7 @@ public class CreateOrderCommandValidator : AbstractValidator<CreateOrderCommand>
             .NotEmpty()
             .WithMessage(OrderErrors.ItemsAreRequired.Message)
             .WithErrorCode(OrderErrors.ItemsAreRequired.Code)
-            .DependentRules(() =>
-            {
+            .DependentRules(() => {
                 RuleFor(x => x.Items)
                     .MustAsync(AllProductsExist)
                     .WithMessage(OrderErrors.ProductsNotFound.Message)
@@ -40,8 +37,7 @@ public class CreateOrderCommandValidator : AbstractValidator<CreateOrderCommand>
             });
 
         RuleForEach(x => x.Items)
-            .ChildRules(item =>
-            {
+            .ChildRules(item => {
                 item.RuleFor(i => i.ProductId)
                     .NotEmpty();
 
@@ -60,8 +56,7 @@ public class CreateOrderCommandValidator : AbstractValidator<CreateOrderCommand>
             .WithErrorCode(OrderErrors.DeliveryAddressTooLong(MaxDeliveryAddressLength).Code);
     }
 
-    private async Task<bool> CustomerExists(Guid customerId, CancellationToken ct)
-    {
+    private async Task<bool> CustomerExists(Guid customerId, CancellationToken ct) {
         var customer = await _customerRepository.GetByIdAsync(customerId, ct);
         return customer != null;
     }
@@ -69,8 +64,7 @@ public class CreateOrderCommandValidator : AbstractValidator<CreateOrderCommand>
     private async Task<bool> AllProductsExist(
         IReadOnlyCollection<CreateOrderItemDto> items,
         CancellationToken ct
-    )
-    {
+    ) {
         var productIds = items.Select(i => i.ProductId).ToHashSet();
         var existingProducts = await _productRepository.GetByIdsAsync(productIds, ct);
         return existingProducts.Count == productIds.Count;

@@ -1,20 +1,18 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using MsLogistic.Domain.Orders.Entities;
 using MsLogistic.Domain.Shared.ValueObjects;
 using Xunit;
 
 namespace MsLogistic.UnitTest.Domain.Orders;
 
-public class OrderDeliveryTest
-{
+public class OrderDeliveryTest {
     private static GeoPointValue CreateValidGeoPoint()
         => GeoPointValue.Create(-17.7833, -63.1821);
 
     #region Create
 
     [Fact]
-    public void Create_WithValidParameters_ShouldSucceed()
-    {
+    public void Create_WithValidParameters_ShouldSucceed() {
         // Arrange
         var orderId = Guid.NewGuid();
         var driverId = Guid.NewGuid();
@@ -45,8 +43,7 @@ public class OrderDeliveryTest
     }
 
     [Fact]
-    public void Create_WithNullComments_ShouldSucceed()
-    {
+    public void Create_WithNullComments_ShouldSucceed() {
         // Arrange
         var orderId = Guid.NewGuid();
         var driverId = Guid.NewGuid();
@@ -72,8 +69,7 @@ public class OrderDeliveryTest
     }
 
     [Fact]
-    public void Create_WithNullImageUrl_ShouldSucceed()
-    {
+    public void Create_WithNullImageUrl_ShouldSucceed() {
         // Arrange
         var orderId = Guid.NewGuid();
         var driverId = Guid.NewGuid();
@@ -99,8 +95,7 @@ public class OrderDeliveryTest
     }
 
     [Fact]
-    public void Create_WithNullCommentsAndImageUrl_ShouldSucceed()
-    {
+    public void Create_WithNullCommentsAndImageUrl_ShouldSucceed() {
         // Arrange
         var orderId = Guid.NewGuid();
         var driverId = Guid.NewGuid();

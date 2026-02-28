@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Application.Batches.GetBatchById;
 using MsLogistic.Domain.Batches.Enums;
@@ -10,13 +10,11 @@ using Xunit;
 
 namespace MsLogistic.UnitTest.Infrastructure.Queries.Batches;
 
-public class GetBatchByIdHandlerTest : IDisposable
-{
+public class GetBatchByIdHandlerTest : IDisposable {
     private readonly PersistenceDbContext _dbContext;
     private readonly GetBatchByIdHandler _handler;
 
-    public GetBatchByIdHandlerTest()
-    {
+    public GetBatchByIdHandlerTest() {
         var options = new DbContextOptionsBuilder<PersistenceDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -25,8 +23,7 @@ public class GetBatchByIdHandlerTest : IDisposable
         _handler = new GetBatchByIdHandler(_dbContext);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         _dbContext.Dispose();
     }
 
@@ -36,10 +33,8 @@ public class GetBatchByIdHandlerTest : IDisposable
         BatchStatusEnum status = BatchStatusEnum.Open,
         DateTime? openedAt = null,
         DateTime? closedAt = null
-    )
-    {
-        return new BatchPersistenceModel
-        {
+    ) {
+        return new BatchPersistenceModel {
             Id = id ?? Guid.NewGuid(),
             TotalOrders = totalOrders,
             Status = status,
@@ -51,8 +46,7 @@ public class GetBatchByIdHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithExistingBatchId_ShouldReturnBatch()
-    {
+    public async Task Handle_WithExistingBatchId_ShouldReturnBatch() {
         // Arrange
         var newBatch = CreateBatchPersistenceModel(totalOrders: 10);
 
@@ -73,8 +67,7 @@ public class GetBatchByIdHandlerTest : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithNonExistingBatchId_ShouldReturnNotFoundError()
-    {
+    public async Task Handle_WithNonExistingBatchId_ShouldReturnNotFoundError() {
         // Arrange
         var nonExistingId = Guid.NewGuid();
         var query = new GetBatchByIdQuery(nonExistingId);
@@ -89,8 +82,7 @@ public class GetBatchByIdHandlerTest : IDisposable
 
 
     [Fact]
-    public async Task Handle_WithMultipleBatches_ShouldReturnCorrectBatch()
-    {
+    public async Task Handle_WithMultipleBatches_ShouldReturnCorrectBatch() {
         // Arrange
         var batch1 = CreateBatchPersistenceModel();
         var batch2 = CreateBatchPersistenceModel();

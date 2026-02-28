@@ -1,13 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MsLogistic.Domain.Drivers.Entities;
 
 namespace MsLogistic.Infrastructure.Persistence.DomainModel.Config;
 
-internal class DriverConfig : IEntityTypeConfiguration<Driver>
-{
-    public void Configure(EntityTypeBuilder<Driver> builder)
-    {
+internal class DriverConfig : IEntityTypeConfiguration<Driver> {
+    public void Configure(EntityTypeBuilder<Driver> builder) {
         builder.ToTable("drivers");
 
         builder.HasKey(x => x.Id);
