@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using CloudinaryDotNet;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
