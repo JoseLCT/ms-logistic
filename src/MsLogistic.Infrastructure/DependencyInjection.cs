@@ -35,7 +35,7 @@ public static class DependencyInjection {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration) {
         services.AddApplication().AddPersistence(configuration);
 
-        services.AddOutboxEfCore<PersistenceDbContext>();
+        services.AddOutboxEfCore<DomainDbContext>();
         services.AddScoped<IOutboxDatabase, UnitOfWork>();
 
         services.AddCloudinary(configuration);
