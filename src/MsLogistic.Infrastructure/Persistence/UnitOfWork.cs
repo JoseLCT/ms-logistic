@@ -14,7 +14,7 @@ internal class UnitOfWork : IUnitOfWork {
         _mediator = mediator;
     }
 
-    public async Task SaveChangesAsync(CancellationToken ct = default) {
+    public async Task CommitAsync(CancellationToken ct = default) {
         var domainEvents = _dbContext.ChangeTracker
             .Entries<Entity>()
             .Where(x => x.Entity.DomainEvents.Any())

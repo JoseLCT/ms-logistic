@@ -45,7 +45,7 @@ public class CreateCustomerHandlerTest {
         );
 
         _unitOfWorkMock.Verify(
-            x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
+            x => x.CommitAsync(It.IsAny<CancellationToken>()),
             Times.Once
         );
     }

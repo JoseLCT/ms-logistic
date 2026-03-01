@@ -32,7 +32,7 @@ public class RemoveDeliveryZoneHandler : IRequestHandler<RemoveDeliveryZoneComma
         }
 
         _deliveryZoneRepository.Remove(deliveryZone);
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitAsync(ct);
 
         _logger.LogInformation("Delivery zone with id {DeliveryZoneId} removed successfully.", deliveryZone.Id);
 

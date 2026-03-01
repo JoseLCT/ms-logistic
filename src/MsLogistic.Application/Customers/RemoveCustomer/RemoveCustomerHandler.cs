@@ -32,7 +32,7 @@ public class RemoveCustomerHandler : IRequestHandler<RemoveCustomerCommand, Resu
         }
 
         _customerRepository.Remove(customer);
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitAsync(ct);
 
         _logger.LogInformation("Customer with id {CustomerId} removed successfully.", customer.Id);
 

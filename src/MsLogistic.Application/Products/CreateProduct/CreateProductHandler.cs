@@ -26,7 +26,7 @@ public class CreateProductHandler : IRequestHandler<CreateProductCommand, Result
         var product = Product.Create(request.Name, request.Description);
 
         await _productRepository.AddAsync(product, ct);
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitAsync(ct);
 
         _logger.LogInformation("Product with id {ProductId} created successfully.", product.Id);
 

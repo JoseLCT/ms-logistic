@@ -65,7 +65,7 @@ public class DeliverOrderHandler : IRequestHandler<DeliverOrderCommand, Result> 
             uploadResult.Value.Url
         );
 
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitAsync(ct);
 
         _logger.LogInformation($"Order with id {order.Id} delivered successfully by driver {request.DriverId}.");
 

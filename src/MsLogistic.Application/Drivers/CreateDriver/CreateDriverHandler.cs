@@ -26,7 +26,7 @@ public class CreateDriverHandler : IRequestHandler<CreateDriverCommand, Result<G
         var driver = Driver.Create(request.FullName);
 
         await _driverRepository.AddAsync(driver, ct);
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitAsync(ct);
 
         _logger.LogInformation("Driver with id {DriverId} created successfully.", driver.Id);
 

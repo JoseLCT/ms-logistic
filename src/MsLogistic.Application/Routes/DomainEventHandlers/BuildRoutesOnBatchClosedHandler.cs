@@ -111,6 +111,6 @@ internal class BuildRoutesOnBatchClosedHandler : INotificationHandler<BatchClose
             }
         }
 
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitAsync(ct);
     }
 }

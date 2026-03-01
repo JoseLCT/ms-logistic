@@ -40,7 +40,7 @@ public class UpdateCustomerHandler : IRequestHandler<UpdateCustomerCommand, Resu
         customer.SetPhoneNumber(phoneNumber);
 
         _customerRepository.Update(customer);
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitAsync(ct);
 
         _logger.LogInformation("Customer with id {CustomerId} updated successfully.", customer.Id);
 

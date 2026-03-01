@@ -50,7 +50,7 @@ public class CreateDeliveryZoneHandler : IRequestHandler<CreateDeliveryZoneComma
         );
 
         await _deliveryZoneRepository.AddAsync(deliveryZone, ct);
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitAsync(ct);
 
         _logger.LogInformation("Delivery zone with id {DeliveryZoneId} created successfully.", deliveryZone.Id);
 

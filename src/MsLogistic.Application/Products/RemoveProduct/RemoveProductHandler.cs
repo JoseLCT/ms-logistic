@@ -2,7 +2,6 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using MsLogistic.Core.Interfaces;
 using MsLogistic.Core.Results;
-using MsLogistic.Domain.Products.Entities;
 using MsLogistic.Domain.Products.Repositories;
 using MsLogistic.Domain.Shared.Errors;
 
@@ -33,7 +32,7 @@ public class RemoveProductHandler : IRequestHandler<RemoveProductCommand, Result
         }
 
         _productRepository.Remove(product);
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitAsync(ct);
 
         _logger.LogInformation("Product with id {ProductId} removed successfully.", product.Id);
 

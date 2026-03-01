@@ -35,7 +35,7 @@ public class ReportIncidentHandler : IRequestHandler<ReportIncidentCommand, Resu
             request.Description
         );
 
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitAsync(ct);
 
         _logger.LogInformation($"Report Incident {request.IncidentType} has been reported.");
 

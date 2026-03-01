@@ -20,7 +20,7 @@ public class CompleteRouteOnOrderCancelledHandler : INotificationHandler<OrderCa
     public async Task Handle(OrderCancelled notification, CancellationToken ct) {
         var completed = await _routeCompletionService.TryCompleteRouteAsync(notification.RouteId, ct);
         if (completed) {
-            await _unitOfWork.SaveChangesAsync(ct);
+            await _unitOfWork.CommitAsync(ct);
         }
     }
 }

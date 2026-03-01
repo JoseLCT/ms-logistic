@@ -55,7 +55,7 @@ public class UpdateDeliveryZoneHandler : IRequestHandler<UpdateDeliveryZoneComma
         deliveryZone.SetBoundaries(boundaries);
 
         _deliveryZoneRepository.Update(deliveryZone);
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitAsync(ct);
 
         _logger.LogInformation("Delivery zone with id {DeliveryZoneId} updated successfully.", deliveryZone.Id);
 

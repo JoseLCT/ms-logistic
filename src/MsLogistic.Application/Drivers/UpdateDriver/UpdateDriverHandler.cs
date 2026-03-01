@@ -35,7 +35,7 @@ public class UpdateDriverHandler : IRequestHandler<UpdateDriverCommand, Result<G
         driver.SetIsActive(request.IsActive);
 
         _driverRepository.Update(driver);
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitAsync(ct);
 
         _logger.LogInformation("Driver with id {DriverId} updated successfully.", driver.Id);
 

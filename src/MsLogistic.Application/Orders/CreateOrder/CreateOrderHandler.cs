@@ -53,7 +53,7 @@ public class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Result<Gui
         }
 
         await _orderRepository.AddAsync(order, ct);
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitAsync(ct);
 
         _logger.LogInformation("Order with id {OrderId} created successfully.", order.Id);
 

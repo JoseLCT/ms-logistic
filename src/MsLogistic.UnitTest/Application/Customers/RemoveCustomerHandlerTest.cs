@@ -59,7 +59,7 @@ public class RemoveCustomerHandlerTest {
         );
 
         _unitOfWorkMock.Verify(
-            x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
+            x => x.CommitAsync(It.IsAny<CancellationToken>()),
             Times.Once
         );
     }
@@ -92,7 +92,7 @@ public class RemoveCustomerHandlerTest {
         );
 
         _unitOfWorkMock.Verify(
-            x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
+            x => x.CommitAsync(It.IsAny<CancellationToken>()),
             Times.Never
         );
     }

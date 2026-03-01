@@ -32,7 +32,7 @@ public class RemoveDriverHandler : IRequestHandler<RemoveDriverCommand, Result<G
         }
 
         _driverRepository.Remove(driver);
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitAsync(ct);
 
         _logger.LogInformation("Driver with id {DriverId} removed successfully.", driver.Id);
 

@@ -31,7 +31,7 @@ public class CreateCustomerHandler : IRequestHandler<CreateCustomerCommand, Resu
         var customer = Customer.Create(request.FullName, phoneNumber);
 
         await _customerRepository.AddAsync(customer, ct);
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitAsync(ct);
 
         _logger.LogInformation("Customer with id {CustomerId} created successfully.", customer.Id);
 

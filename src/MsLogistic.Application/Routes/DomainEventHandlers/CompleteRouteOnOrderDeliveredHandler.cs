@@ -20,7 +20,7 @@ public class CompleteRouteOnOrderDeliveredHandler : INotificationHandler<OrderDe
     public async Task Handle(OrderDelivered notification, CancellationToken ct) {
         var completed = await _routeCompletionService.TryCompleteRouteAsync(notification.RouteId, ct);
         if (completed) {
-            await _unitOfWork.SaveChangesAsync(ct);
+            await _unitOfWork.CommitAsync(ct);
         }
     }
 }

@@ -25,6 +25,6 @@ public class ChangeStatusOnRouteStartedHandler : INotificationHandler<RouteStart
             _orderRepository.Update(order);
         }
 
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitAsync(ct);
     }
 }
