@@ -18,7 +18,11 @@ internal class OrderRepository : IOrderRepository {
     }
 
     public async Task<Order?> GetByIdAsync(Guid id, CancellationToken ct = default) {
-        var order = await _dbContext.Orders.FirstOrDefaultAsync(o => o.Id == id, ct);
+        var order = await _dbContext.Orders
+            .Include(o => o.Delivery)
+            .Include(o => o.Incident)
+            .Include(o => o.Items)
+            .FirstOrDefaultAsync(o => o.Id == id, ct);
         return order;
     }
 

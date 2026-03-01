@@ -85,4 +85,3 @@ public class DeliverOrderHandler : IRequestHandler<DeliverOrderCommand, Result> 
         return Result.Success();
     }
 }
-

@@ -27,10 +27,10 @@ internal class UnitOfWork : IUnitOfWork, IOutboxDatabase {
             .SelectMany(events => events)
             .ToList();
 
+        await _dbContext.SaveChangesAsync(ct);
+
         foreach (var domainEvent in domainEvents) {
             await _mediator.Publish(domainEvent, ct);
         }
-
-        await _dbContext.SaveChangesAsync(ct);
     }
 }

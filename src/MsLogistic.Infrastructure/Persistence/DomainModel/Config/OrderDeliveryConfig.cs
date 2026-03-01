@@ -13,7 +13,8 @@ internal class OrderDeliveryConfig : IEntityTypeConfiguration<OrderDelivery> {
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Id)
-            .HasColumnName("id");
+            .HasColumnName("id")
+            .ValueGeneratedNever();
 
         builder.Property(x => x.OrderId)
             .HasColumnName("order_id");
