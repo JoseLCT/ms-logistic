@@ -1,6 +1,5 @@
 using Asp.Versioning;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MsLogistic.Application.Orders.CreateOrder;
 using MsLogistic.Application.Orders.DeliverOrder;
@@ -59,8 +58,7 @@ public class OrderController : ApiControllerBase {
     [HttpPost("{id:guid}/deliver")]
     public async Task<IActionResult> Deliver(
         Guid id,
-        [FromForm] DeliverOrderContract contract,
-        [FromForm] IFormFile image
+        [FromForm] DeliverOrderContract contract
     ) {
         var location = new CoordinateDto(
             contract.Location.Latitude,
@@ -71,8 +69,8 @@ public class OrderController : ApiControllerBase {
             OrderId = id,
             DriverId = contract.DriverId,
             Location = location,
-            ImageStream = image.OpenReadStream(),
-            ImageFileName = image.FileName,
+            ImageStream = contract.Image.OpenReadStream(),
+            ImageFileName = contract.Image.FileName,
             Comments = contract.Comments
         };
 
