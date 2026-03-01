@@ -1,9 +1,14 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using MsLogistic.Infrastructure;
 using MsLogistic.WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var culture = CultureInfo.InvariantCulture;
+CultureInfo.DefaultThreadCurrentCulture = culture;
+CultureInfo.DefaultThreadCurrentUICulture = culture;
 
 builder.Host.AddLogging();
 
