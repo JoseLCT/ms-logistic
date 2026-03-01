@@ -1,40 +1,42 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFramework>net10.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <UserSecretsId>5bf7351a-8c20-4dd1-ab01-0cf7edb02095</UserSecretsId>
-    </PropertyGroup>
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>5bf7351a-8c20-4dd1-ab01-0cf7edb02095</UserSecretsId>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <None Update="appsettings.json">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Update="appsettings.Development.json">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-    </ItemGroup>
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.Development.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="Asp.Versioning.Mvc" Version="8.1.1" />
-      <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.1" />
-      <PackageReference Include="MediatR" Version="14.0.0" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Asp.Versioning.Mvc" Version="8.1.1"/>
+    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.1"/>
+    <PackageReference Include="MediatR" Version="14.0.0"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+    <PackageReference Include="Serilog.Sinks.Seq" Version="9.0.0"/>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.0"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\MsLogistic.Application\MsLogistic.Application.csproj"/>
-        <ProjectReference Include="..\MsLogistic.Infrastructure\MsLogistic.Infrastructure.csproj"/>
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MsLogistic.Application\MsLogistic.Application.csproj"/>
+    <ProjectReference Include="..\MsLogistic.Infrastructure\MsLogistic.Infrastructure.csproj"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <InternalsVisibleTo Include="MsLogistic.UnitTest" />
-    </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="MsLogistic.UnitTest"/>
+  </ItemGroup>
 
 </Project>

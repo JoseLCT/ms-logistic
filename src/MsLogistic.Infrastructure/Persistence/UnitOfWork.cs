@@ -1,3 +1,4 @@
+using Joselct.Outbox.Core.Interfaces;
 using MediatR;
 using MsLogistic.Core.Abstractions;
 using MsLogistic.Core.Interfaces;
@@ -5,7 +6,7 @@ using MsLogistic.Infrastructure.Persistence.DomainModel;
 
 namespace MsLogistic.Infrastructure.Persistence;
 
-internal class UnitOfWork : IUnitOfWork {
+internal class UnitOfWork : IUnitOfWork, IOutboxDatabase {
     private readonly DomainDbContext _dbContext;
     private readonly IMediator _mediator;
 

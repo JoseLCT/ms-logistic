@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using MsLogistic.Infrastructure;
 using MsLogistic.WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.AddLogging();
 
 builder.Services.AddControllers();
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -16,6 +17,7 @@ var app = builder.Build();
 
 app.ApplyMigrations();
 
+app.MapPrometheusScrapingEndpoint();
 app.UseSwaggerConfiguration();
 app.UseHttpsRedirection();
 app.UseAuthorization();

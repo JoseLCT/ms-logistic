@@ -8,6 +8,9 @@
 
     <ItemGroup>
       <PackageReference Include="FluentValidation" Version="12.1.1" />
+      <PackageReference Include="Joselct.Communication.Contracts" Version="1.0.1" />
+      <PackageReference Include="Joselct.Outbox.Core" Version="1.0.3" />
+      <PackageReference Include="Joselct.Outbox.MediatR" Version="1.0.3" />
       <PackageReference Include="MediatR" Version="14.0.0" />
       <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.0" />
     </ItemGroup>

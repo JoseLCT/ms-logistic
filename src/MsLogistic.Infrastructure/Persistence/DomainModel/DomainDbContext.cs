@@ -1,4 +1,5 @@
 using System.Reflection;
+using Joselct.Outbox.EFCore.Extensions;
 using Microsoft.EntityFrameworkCore;
 using MsLogistic.Core.Abstractions;
 using MsLogistic.Domain.Batches.Entities;
@@ -27,6 +28,7 @@ internal class DomainDbContext : DbContext, IDatabase {
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
+        modelBuilder.ConfigureOutbox();
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
         modelBuilder.Ignore<DomainEvent>();

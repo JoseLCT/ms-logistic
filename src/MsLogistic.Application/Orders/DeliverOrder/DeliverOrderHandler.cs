@@ -1,6 +1,9 @@
+using Joselct.Outbox.Core.Entities;
+using Joselct.Outbox.Core.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MsLogistic.Application.Abstractions.Services;
+using MsLogistic.Application.Integration.Events.Outgoing;
 using MsLogistic.Core.Interfaces;
 using MsLogistic.Core.Results;
 using MsLogistic.Domain.Orders.Errors;
@@ -14,17 +17,20 @@ public class DeliverOrderHandler : IRequestHandler<DeliverOrderCommand, Result> 
     private readonly IOrderRepository _orderRepository;
     private readonly IImageStorageService _imageStorageService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IOutboxRepository _outboxRepository;
     private readonly ILogger<DeliverOrderHandler> _logger;
 
     public DeliverOrderHandler(
         IOrderRepository orderRepository,
         IImageStorageService imageStorageService,
         IUnitOfWork unitOfWork,
+        IOutboxRepository outboxRepository,
         ILogger<DeliverOrderHandler> logger
     ) {
         _orderRepository = orderRepository;
         _imageStorageService = imageStorageService;
         _unitOfWork = unitOfWork;
+        _outboxRepository = outboxRepository;
         _logger = logger;
     }
 
@@ -65,6 +71,13 @@ public class DeliverOrderHandler : IRequestHandler<DeliverOrderCommand, Result> 
             uploadResult.Value.Url
         );
 
+        var outboxMessage = OutboxMessage.CreateWithCurrentTrace(new OrderDeliveredMessage {
+            OrderId = order.Id,
+            DriverId = request.DriverId,
+            DeliveredAt = DateTime.UtcNow
+        });
+
+        await _outboxRepository.AddAsync(outboxMessage, ct);
         await _unitOfWork.CommitAsync(ct);
 
         _logger.LogInformation($"Order with id {order.Id} delivered successfully by driver {request.DriverId}.");
@@ -72,3 +85,4 @@ public class DeliverOrderHandler : IRequestHandler<DeliverOrderCommand, Result> 
         return Result.Success();
     }
 }
+

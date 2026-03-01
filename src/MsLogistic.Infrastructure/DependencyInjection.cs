@@ -1,11 +1,16 @@
 using System.Reflection;
 using CloudinaryDotNet;
+using Joselct.Communication.RabbitMQ.Extensions;
+using Joselct.Outbox.Core.Interfaces;
+using Joselct.Outbox.EFCore.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MsLogistic.Application;
 using MsLogistic.Application.Abstractions.Services;
+using MsLogistic.Application.Integration.Events.Incoming;
+using MsLogistic.Application.Integration.Handlers;
 using MsLogistic.Core.Interfaces;
 using MsLogistic.Domain.Batches.Repositories;
 using MsLogistic.Domain.Customers.Repositories;
@@ -20,6 +25,9 @@ using MsLogistic.Infrastructure.Persistence;
 using MsLogistic.Infrastructure.Persistence.DomainModel;
 using MsLogistic.Infrastructure.Persistence.PersistenceModel;
 using MsLogistic.Infrastructure.Persistence.Repositories;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 namespace MsLogistic.Infrastructure;
 
@@ -27,8 +35,14 @@ public static class DependencyInjection {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration) {
         services.AddApplication().AddPersistence(configuration);
 
+        services.AddOutboxEfCore<PersistenceDbContext>();
+        services.AddScoped<IOutboxDatabase, UnitOfWork>();
+
         services.AddCloudinary(configuration);
         services.AddGoogleMaps(configuration);
+        services.AddRabbitMq(configuration);
+        services.AddTelemetry(configuration);
+        services.AddRabbitMqConsumers();
 
         services.AddMediatR(config =>
             config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly())
@@ -89,6 +103,39 @@ public static class DependencyInjection {
         services.AddHttpClient<IRouteCalculator, GoogleMapsRouteCalculator>(client => {
             client.Timeout = TimeSpan.FromSeconds(10);
         });
+
+        return services;
+    }
+
+    private static IServiceCollection AddTelemetry(
+        this IServiceCollection services,
+        IConfiguration configuration
+    ) {
+        var otlpEndpoint = configuration["Telemetry:OtlpEndpoint"] ?? "http://localhost:4317";
+        var serviceName = configuration["Telemetry:ServiceName"] ?? "ms-logistic";
+
+        services.AddOpenTelemetry()
+            .WithTracing(tracing => tracing
+                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName))
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddEntityFrameworkCoreInstrumentation()
+                .AddOtlpExporter(o => o.Endpoint = new Uri(otlpEndpoint)))
+            .WithMetrics(metrics => metrics
+                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName))
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddPrometheusExporter())
+            .AddRabbitMqInstrumentation();
+
+        return services;
+    }
+
+    private static IServiceCollection AddRabbitMqConsumers(this IServiceCollection services) {
+        services.AddRabbitMqConsumer<PatientCreatedMessage, OnPatientCreated>(
+            queueName: "ms-logistic.patient.created",
+            exchangeName: "patients",
+            routingKey: "patient.created");
 
         return services;
     }
