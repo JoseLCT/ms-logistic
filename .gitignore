@@ -6,6 +6,7 @@ riderModule.iml
 
 # JetBrains Rider
 .idea/
+*.user
 
 # Output directories
 **/bin/
