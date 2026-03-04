@@ -22,6 +22,38 @@ To create a new migration, use the following command:
 dotnet ef migrations add [NAME] --project src/MsLogistic.Infrastructure --startup-project src/MsLogistic.WebApi --context DomainDbContext
 ```
 
+## Docker
+
+### Build y publicación
+
+**API**
+
+```bash
+docker build -f src/MsLogistic.WebApi/Dockerfile -t joselct/ms_logistic_api:<version> .
+docker push joselct/ms_logistic_api:<version>
+```
+
+**Worker**
+
+```bash
+docker build -f src/MsLogistic.Worker/Dockerfile -t joselct/ms_logistic_worker:<version> .
+docker push joselct/ms_logistic_worker:<version>
+```
+
+### Variables de entorno
+
+Copia el archivo de ejemplo y completa los valores:
+
+```bash
+cp .env.example .env
+```
+
+### Levantar
+
+```bash
+docker-compose --env-file .env up -d
+```
+
 ## Testing
 
 ### Requirements
