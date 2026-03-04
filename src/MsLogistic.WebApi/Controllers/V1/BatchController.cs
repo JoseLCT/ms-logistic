@@ -1,11 +1,13 @@
 using Asp.Versioning;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MsLogistic.Application.Batches.GetAllBatches;
 using MsLogistic.Application.Batches.GetBatchById;
 
 namespace MsLogistic.WebApi.Controllers.V1;
 
+[Authorize]
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/batches")]

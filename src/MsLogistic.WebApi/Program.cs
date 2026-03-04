@@ -15,6 +15,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddApiVersioningConfiguration();
 builder.Services.AddSwaggerConfiguration();
+builder.Services.AddJwtAuthentication(builder.Configuration);
 
 var app = builder.Build();
 
@@ -23,8 +24,9 @@ app.ApplyMigrations();
 app.MapPrometheusScrapingEndpoint();
 app.UseSwaggerConfiguration();
 app.UseHttpsRedirection();
-app.UseAuthorization();
 app.UseCors("AllowAll");
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 app.MapGet("/", () => "MsLogistic API is running...");

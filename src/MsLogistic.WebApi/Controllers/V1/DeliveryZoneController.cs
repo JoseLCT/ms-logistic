@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MsLogistic.Application.DeliveryZones.CreateDeliveryZone;
 using MsLogistic.Application.DeliveryZones.GetAllDeliveryZones;
@@ -11,6 +12,7 @@ using MsLogistic.WebApi.Contracts.V1.DeliveryZones;
 
 namespace MsLogistic.WebApi.Controllers.V1;
 
+[Authorize]
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/delivery-zones")]

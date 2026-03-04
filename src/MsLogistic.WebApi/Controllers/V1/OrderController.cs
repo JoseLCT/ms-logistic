@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MsLogistic.Application.Orders.CreateOrder;
 using MsLogistic.Application.Orders.DeliverOrder;
@@ -11,6 +12,7 @@ using MsLogistic.WebApi.Contracts.V1.Orders;
 
 namespace MsLogistic.WebApi.Controllers.V1;
 
+[Authorize]
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/orders")]

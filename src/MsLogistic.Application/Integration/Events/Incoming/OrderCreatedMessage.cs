@@ -1,4 +1,4 @@
-﻿using Joselct.Communication.Contracts.Messages;
+using Joselct.Communication.Contracts.Messages;
 
 namespace MsLogistic.Application.Integration.Events.Incoming;
 

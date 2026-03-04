@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MsLogistic.Application.Customers.CreateCustomer;
 using MsLogistic.Application.Customers.GetAllCustomers;
@@ -10,6 +11,7 @@ using MsLogistic.WebApi.Contracts.V1.Customers;
 
 namespace MsLogistic.WebApi.Controllers.V1;
 
+[Authorize]
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/customers")]
