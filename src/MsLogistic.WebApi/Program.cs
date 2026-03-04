@@ -1,6 +1,4 @@
 using System.Globalization;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
 using MsLogistic.Infrastructure;
 using MsLogistic.WebApi.Extensions;
 

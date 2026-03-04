@@ -133,9 +133,14 @@ public static class DependencyInjection {
 
     private static IServiceCollection AddRabbitMqConsumers(this IServiceCollection services) {
         services.AddRabbitMqConsumer<PatientCreatedMessage, OnPatientCreated>(
-            queueName: "ms-logistic.patient.created",
+            queueName: "ms-logistic-queue",
             exchangeName: "patients",
             routingKey: "patient.created");
+
+        services.AddRabbitMqConsumer<OrderCreatedMessage, OnOrderCreated>(
+            queueName: "ms-logistic-queue",
+            exchangeName: "orders",
+            routingKey: "order.created");
 
         return services;
     }

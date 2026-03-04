@@ -21,11 +21,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\MsLogistic.WebApi\MsLogistic.WebApi.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\MsLogistic.Infrastructure\MsLogistic.Infrastructure.csproj"/>
+        <ProjectReference Include="..\MsLogistic.WebApi\MsLogistic.WebApi.csproj" />
     </ItemGroup>
 
 </Project>
