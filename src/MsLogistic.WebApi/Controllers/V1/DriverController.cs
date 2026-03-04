@@ -14,7 +14,7 @@ namespace MsLogistic.WebApi.Controllers.V1;
 [Authorize]
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/drivers")]
+[Route("v{version:apiVersion}/drivers")]
 public class DriverController : ApiControllerBase {
     private readonly IMediator _mediator;
 

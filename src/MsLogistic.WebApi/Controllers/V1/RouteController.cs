@@ -9,7 +9,7 @@ namespace MsLogistic.WebApi.Controllers.V1;
 [Authorize]
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/routes")]
+[Route("v{version:apiVersion}/routes")]
 public class RouteController : ApiControllerBase {
     private readonly IMediator _mediator;
 

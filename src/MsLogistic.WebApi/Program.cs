@@ -11,6 +11,7 @@ CultureInfo.DefaultThreadCurrentUICulture = culture;
 builder.Host.AddLogging();
 
 builder.Services.AddControllers();
+builder.Services.AddRoutePrefix("api/logistic");
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddApiVersioningConfiguration();

@@ -15,7 +15,7 @@ namespace MsLogistic.WebApi.Controllers.V1;
 [Authorize]
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/delivery-zones")]
+[Route("v{version:apiVersion}/delivery-zones")]
 public class DeliveryZoneController : ApiControllerBase {
     private readonly IMediator _mediator;
 
