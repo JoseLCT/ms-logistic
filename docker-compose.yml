@@ -6,8 +6,10 @@
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
+    env_file:
+      - .env
     ports:
-      - "5433:5432"
+      - "5040:5432"
     volumes:
       - ms_logistic_db_data:/var/lib/postgresql/data
     healthcheck:
@@ -15,11 +17,10 @@
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - shared-network
 
   ms_logistic_api:
-    build:
-      context: .
-      dockerfile: src/MsLogistic.WebApi/Dockerfile
     image: joselct/ms_logistic_api:1.0.0
     container_name: ms_logistic_api
     environment:
@@ -44,16 +45,17 @@
       Telemetry__ServiceName: ms-logistic
       Telemetry__OtlpEndpoint: ${OTLP_ENDPOINT}
       Seq__Url: ${SEQ_URL}
+    env_file:
+      - .env
     ports:
-      - "8080:8080"
+      - "5041:8080"
     depends_on:
       ms_logistic_db:
         condition: service_healthy
+    networks:
+      - shared-network
 
   ms_logistic_worker:
-    build:
-      context: .
-      dockerfile: src/MsLogistic.Worker/Dockerfile
     image: joselct/ms_logistic_worker:1.0.0
     container_name: ms_logistic_worker
     environment:
@@ -73,9 +75,13 @@
       Telemetry__ServiceName: ms-logistic-worker
       Telemetry__OtlpEndpoint: ${OTLP_ENDPOINT}
       Seq__Url: ${SEQ_URL}
+    env_file:
+      - .env
     depends_on:
       ms_logistic_db:
         condition: service_healthy
+    networks:
+      - shared-network
 
 volumes:
   ms_logistic_db_data:
