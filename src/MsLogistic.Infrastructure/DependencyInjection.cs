@@ -1,5 +1,7 @@
 using System.Reflection;
 using CloudinaryDotNet;
+using Joselct.Communication.Contracts.Messages;
+using Joselct.Communication.Contracts.Services;
 using Joselct.Communication.RabbitMQ.Extensions;
 using Joselct.Outbox.Core.Interfaces;
 using Joselct.Outbox.EFCore.Extensions;
@@ -9,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MsLogistic.Application;
 using MsLogistic.Application.Abstractions.Services;
+using MsLogistic.Application.Integration.Dispatcher;
 using MsLogistic.Application.Integration.Events.Incoming;
 using MsLogistic.Application.Integration.Handlers;
 using MsLogistic.Core.Interfaces;
@@ -50,6 +53,19 @@ public static class DependencyInjection {
 
         return services;
     }
+
+    public static IServiceCollection AddWorkerInfrastructure(
+        this IServiceCollection services,
+        IConfiguration configuration) {
+        services.AddApplication().AddPersistence(configuration);
+        services.AddOutboxEfCore<DomainDbContext>();
+        services.AddScoped<IOutboxDatabase, UnitOfWork>();
+        services.AddRabbitMq(configuration);
+        services.AddMediatR(config =>
+            config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+        return services;
+    }
+
 
     private static void AddPersistence(this IServiceCollection services, IConfiguration configuration) {
         var dbConnectionString = configuration.GetConnectionString("DefaultConnection");
@@ -132,15 +148,12 @@ public static class DependencyInjection {
     }
 
     private static IServiceCollection AddRabbitMqConsumers(this IServiceCollection services) {
-        services.AddRabbitMqConsumer<PatientCreatedMessage, OnPatientCreated>(
+        services.AddRabbitMqConsumer<RawMessage, IntegrationEventDispatcher>(
             queueName: "ms-logistic-queue",
-            exchangeName: "patients",
-            routingKey: "patient.created");
+            declareQueue: false);
 
-        services.AddRabbitMqConsumer<OrderCreatedMessage, OnOrderCreated>(
-            queueName: "ms-logistic-queue",
-            exchangeName: "orders",
-            routingKey: "order.created");
+        services.AddScoped<IIntegrationMessageConsumer<OrderCreatedMessage>, OnOrderCreated>();
+        services.AddScoped<IIntegrationMessageConsumer<PatientCreatedMessage>, OnPatientCreated>();
 
         return services;
     }
