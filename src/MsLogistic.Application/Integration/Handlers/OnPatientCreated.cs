@@ -13,8 +13,9 @@ public class OnPatientCreated : IIntegrationMessageConsumer<PatientCreatedMessag
     }
 
     public async Task HandleAsync(PatientCreatedMessage message, CancellationToken ct = default) {
+        var fullName = $"{message.FirstName} {message.MiddleName} {message.LastName}".Trim();
         var command = new CreateCustomerCommand(
-            FullName: message.FullName,
+            FullName: fullName,
             PhoneNumber: message.PhoneNumber
         );
 
