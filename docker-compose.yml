@@ -21,7 +21,7 @@
       - shared-network
 
   ms_logistic_api:
-    image: joselct/ms_logistic_api:1.0.0
+    image: joselct/ms_logistic_api:1.0.2
     container_name: ms_logistic_api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
