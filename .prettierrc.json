@@ -1,0 +1,14 @@
+{
+	"plugins": ["@prettier/plugin-xml"],
+	"overrides": [
+		{
+			"files": ["*.csproj", "*.props", "*.targets"],
+			"options": {
+				"parser": "xml",
+				"xmlWhitespaceSensitivity": "ignore",
+				"useTabs": true,
+				"tabWidth": 4
+			}
+		}
+	]
+}

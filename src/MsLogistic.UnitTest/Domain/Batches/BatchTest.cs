@@ -9,109 +9,109 @@ using Xunit;
 namespace MsLogistic.UnitTest.Domain.Batches;
 
 public class BatchTest {
-    #region Create
+	#region Create
 
-    [Fact]
-    public void Create_WithValidTotalOrders_ShouldSucceed() {
-        // Arrange
-        var totalOrders = 10;
+	[Fact]
+	public void Create_WithValidTotalOrders_ShouldSucceed() {
+		// Arrange
+		int totalOrders = 10;
 
-        // Act
-        var batch = Batch.Create(totalOrders);
+		// Act
+		var batch = Batch.Create(totalOrders);
 
-        // Assert
-        batch.Should().NotBeNull();
-        batch.TotalOrders.Should().Be(10);
-        batch.Status.Should().Be(BatchStatusEnum.Open);
-        batch.ClosedAt.Should().BeNull();
-    }
+		// Assert
+		batch.Should().NotBeNull();
+		batch.TotalOrders.Should().Be(10);
+		batch.Status.Should().Be(BatchStatusEnum.Open);
+		batch.ClosedAt.Should().BeNull();
+	}
 
-    [Fact]
-    public void Create_WithNegativeTotalOrders_ShouldThrowDomainException() {
-        // Arrange
-        var totalOrders = -5;
+	[Fact]
+	public void Create_WithNegativeTotalOrders_ShouldThrowDomainException() {
+		// Arrange
+		int totalOrders = -5;
 
-        // Act
-        Action act = () => Batch.Create(totalOrders);
+		// Act
+		Action act = () => Batch.Create(totalOrders);
 
-        // Assert
-        act.Should().Throw<DomainException>().Which.Error.Should().Be(BatchErrors.TotalOrdersCannotBeNegative);
-    }
+		// Assert
+		act.Should().Throw<DomainException>().Which.Error.Should().Be(BatchErrors.TotalOrdersCannotBeNegative);
+	}
 
-    #endregion
+	#endregion
 
-    #region AddOrders
+	#region AddOrders
 
-    [Fact]
-    public void AddOrders_WithValidQuantity_ShouldIncreaseTotal() {
-        // Arrange
-        var batch = Batch.Create(5);
+	[Fact]
+	public void AddOrders_WithValidQuantity_ShouldIncreaseTotal() {
+		// Arrange
+		var batch = Batch.Create(5);
 
-        // Act
-        batch.AddOrders(3);
+		// Act
+		batch.AddOrders(3);
 
-        // Assert
-        batch.TotalOrders.Should().Be(8);
-    }
+		// Assert
+		batch.TotalOrders.Should().Be(8);
+	}
 
-    [Fact]
-    public void AddOrders_WithZeroOrNegative_ShouldThrowDomainException() {
-        // Arrange
-        var batch = Batch.Create();
+	[Fact]
+	public void AddOrders_WithZeroOrNegative_ShouldThrowDomainException() {
+		// Arrange
+		var batch = Batch.Create();
 
-        // Act
-        Action act = () => batch.AddOrders(0);
+		// Act
+		Action act = () => batch.AddOrders(0);
 
-        // Assert
-        act.Should().Throw<DomainException>()
-            .Which.Error.Should().Be(BatchErrors.CannotAddNonPositiveQuantityOfOrders);
-    }
+		// Assert
+		act.Should().Throw<DomainException>()
+			.Which.Error.Should().Be(BatchErrors.CannotAddNonPositiveQuantityOfOrders);
+	}
 
-    [Fact]
-    public void AddOrders_WhenBatchIsClosed_ShouldThrowDomainException() {
-        // Arrange
-        var batch = Batch.Create();
-        batch.Close();
+	[Fact]
+	public void AddOrders_WhenBatchIsClosed_ShouldThrowDomainException() {
+		// Arrange
+		var batch = Batch.Create();
+		batch.Close();
 
-        // Act
-        Action act = () => batch.AddOrders(5);
+		// Act
+		Action act = () => batch.AddOrders(5);
 
-        // Assert
-        act.Should().Throw<DomainException>()
-            .Which.Error.Should().Be(BatchErrors.CannotAddOrdersToClosedBatch);
-    }
+		// Assert
+		act.Should().Throw<DomainException>()
+			.Which.Error.Should().Be(BatchErrors.CannotAddOrdersToClosedBatch);
+	}
 
-    #endregion
+	#endregion
 
-    #region Close
+	#region Close
 
-    [Fact]
-    public void Close_WhenOpen_ShouldCloseAndRaiseEvent() {
-        // Arrange
-        var batch = Batch.Create();
+	[Fact]
+	public void Close_WhenOpen_ShouldCloseAndRaiseEvent() {
+		// Arrange
+		var batch = Batch.Create();
 
-        // Act
-        batch.Close();
+		// Act
+		batch.Close();
 
-        // Assert
-        batch.Status.Should().Be(BatchStatusEnum.Closed);
-        batch.ClosedAt.Should().NotBeNull();
-        batch.DomainEvents.Should().ContainSingle(e => e is BatchClosed);
-    }
+		// Assert
+		batch.Status.Should().Be(BatchStatusEnum.Closed);
+		batch.ClosedAt.Should().NotBeNull();
+		batch.DomainEvents.Should().ContainSingle(e => e is BatchClosed);
+	}
 
-    [Fact]
-    public void Close_WhenAlreadyClosed_ShouldThrowDomainException() {
-        // Arrange
-        var batch = Batch.Create();
-        batch.Close();
+	[Fact]
+	public void Close_WhenAlreadyClosed_ShouldThrowDomainException() {
+		// Arrange
+		var batch = Batch.Create();
+		batch.Close();
 
-        // Act
-        Action act = () => batch.Close();
+		// Act
+		Action act = () => batch.Close();
 
-        // Assert
-        act.Should().Throw<DomainException>()
-            .Which.Error.Should().Be(BatchErrors.CannotCloseAlreadyClosedBatch);
-    }
+		// Assert
+		act.Should().Throw<DomainException>()
+			.Which.Error.Should().Be(BatchErrors.CannotCloseAlreadyClosedBatch);
+	}
 
-    #endregion
+	#endregion
 }

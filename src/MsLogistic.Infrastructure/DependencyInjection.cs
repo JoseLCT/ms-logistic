@@ -35,126 +35,126 @@ using OpenTelemetry.Trace;
 namespace MsLogistic.Infrastructure;
 
 public static class DependencyInjection {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration) {
-        services.AddApplication().AddPersistence(configuration);
+	public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration) {
+		services.AddApplication().AddPersistence(configuration);
 
-        services.AddOutboxEfCore<DomainDbContext>();
-        services.AddScoped<IOutboxDatabase, UnitOfWork>();
+		services.AddOutboxEfCore<DomainDbContext>();
+		services.AddScoped<IOutboxDatabase, UnitOfWork>();
 
-        services.AddCloudinary(configuration);
-        services.AddGoogleMaps(configuration);
-        services.AddRabbitMq(configuration);
-        services.AddTelemetry(configuration);
-        services.AddRabbitMqConsumers();
+		services.AddCloudinary(configuration);
+		services.AddGoogleMaps(configuration);
+		services.AddRabbitMq(configuration);
+		services.AddTelemetry(configuration);
+		services.AddRabbitMqConsumers();
 
-        services.AddMediatR(config =>
-            config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly())
-        );
+		services.AddMediatR(config =>
+			config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly())
+		);
 
-        return services;
-    }
+		return services;
+	}
 
-    public static IServiceCollection AddWorkerInfrastructure(
-        this IServiceCollection services,
-        IConfiguration configuration) {
-        services.AddApplication().AddPersistence(configuration);
-        services.AddOutboxEfCore<DomainDbContext>();
-        services.AddScoped<IOutboxDatabase, UnitOfWork>();
-        services.AddRabbitMq(configuration);
-        services.AddMediatR(config =>
-            config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
-        return services;
-    }
+	public static IServiceCollection AddWorkerInfrastructure(
+		this IServiceCollection services,
+		IConfiguration configuration) {
+		services.AddApplication().AddPersistence(configuration);
+		services.AddOutboxEfCore<DomainDbContext>();
+		services.AddScoped<IOutboxDatabase, UnitOfWork>();
+		services.AddRabbitMq(configuration);
+		services.AddMediatR(config =>
+			config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+		return services;
+	}
 
 
-    private static void AddPersistence(this IServiceCollection services, IConfiguration configuration) {
-        var dbConnectionString = configuration.GetConnectionString("DefaultConnection");
+	private static void AddPersistence(this IServiceCollection services, IConfiguration configuration) {
+		string? dbConnectionString = configuration.GetConnectionString("DefaultConnection");
 
-        services.AddDbContext<PersistenceDbContext>(context =>
-            context.UseNpgsql(dbConnectionString, npgsqlOptions => { npgsqlOptions.UseNetTopologySuite(); }));
+		services.AddDbContext<PersistenceDbContext>(context =>
+			context.UseNpgsql(dbConnectionString, npgsqlOptions => { npgsqlOptions.UseNetTopologySuite(); }));
 
-        services.AddDbContext<DomainDbContext>(context =>
-            context.UseNpgsql(dbConnectionString, npgsqlOptions => { npgsqlOptions.UseNetTopologySuite(); }));
+		services.AddDbContext<DomainDbContext>(context =>
+			context.UseNpgsql(dbConnectionString, npgsqlOptions => { npgsqlOptions.UseNetTopologySuite(); }));
 
-        services.AddScoped<IDatabase, DomainDbContext>();
+		services.AddScoped<IDatabase, DomainDbContext>();
 
-        services.AddScoped<IBatchRepository, BatchRepository>();
-        services.AddScoped<ICustomerRepository, CustomerRepository>();
-        services.AddScoped<IDeliveryZoneRepository, DeliveryZoneRepository>();
-        services.AddScoped<IDriverRepository, DriverRepository>();
-        services.AddScoped<IOrderRepository, OrderRepository>();
-        services.AddScoped<IProductRepository, ProductRepository>();
-        services.AddScoped<IRouteRepository, RouteRepository>();
+		services.AddScoped<IBatchRepository, BatchRepository>();
+		services.AddScoped<ICustomerRepository, CustomerRepository>();
+		services.AddScoped<IDeliveryZoneRepository, DeliveryZoneRepository>();
+		services.AddScoped<IDriverRepository, DriverRepository>();
+		services.AddScoped<IOrderRepository, OrderRepository>();
+		services.AddScoped<IProductRepository, ProductRepository>();
+		services.AddScoped<IRouteRepository, RouteRepository>();
 
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
-    }
+		services.AddScoped<IUnitOfWork, UnitOfWork>();
+	}
 
-    private static IServiceCollection AddCloudinary(
-        this IServiceCollection services,
-        IConfiguration configuration
-    ) {
-        services.Configure<CloudinaryOptions>(
-            configuration.GetSection(CloudinaryOptions.SectionName)
-        );
+	private static IServiceCollection AddCloudinary(
+		this IServiceCollection services,
+		IConfiguration configuration
+	) {
+		services.Configure<CloudinaryOptions>(
+			configuration.GetSection(CloudinaryOptions.SectionName)
+		);
 
-        services.AddSingleton(sp => {
-            var options = sp.GetRequiredService<IOptions<CloudinaryOptions>>().Value;
-            var account = new Account(options.CloudName, options.ApiKey, options.ApiSecret);
-            return new Cloudinary(account);
-        });
+		services.AddSingleton(sp => {
+			CloudinaryOptions options = sp.GetRequiredService<IOptions<CloudinaryOptions>>().Value;
+			var account = new Account(options.CloudName, options.ApiKey, options.ApiSecret);
+			return new Cloudinary(account);
+		});
 
-        services.AddScoped<IImageStorageService, CloudinaryImageStorageService>();
+		services.AddScoped<IImageStorageService, CloudinaryImageStorageService>();
 
-        return services;
-    }
+		return services;
+	}
 
-    private static IServiceCollection AddGoogleMaps(
-        this IServiceCollection services,
-        IConfiguration configuration
-    ) {
-        services.Configure<GoogleMapsOptions>(
-            configuration.GetSection(GoogleMapsOptions.SectionName)
-        );
+	private static IServiceCollection AddGoogleMaps(
+		this IServiceCollection services,
+		IConfiguration configuration
+	) {
+		services.Configure<GoogleMapsOptions>(
+			configuration.GetSection(GoogleMapsOptions.SectionName)
+		);
 
-        services.AddHttpClient<IRouteCalculator, GoogleMapsRouteCalculator>(client => {
-            client.Timeout = TimeSpan.FromSeconds(10);
-        });
+		services.AddHttpClient<IRouteCalculator, GoogleMapsRouteCalculator>(client => {
+			client.Timeout = TimeSpan.FromSeconds(10);
+		});
 
-        return services;
-    }
+		return services;
+	}
 
-    private static IServiceCollection AddTelemetry(
-        this IServiceCollection services,
-        IConfiguration configuration
-    ) {
-        var otlpEndpoint = configuration["Telemetry:OtlpEndpoint"] ?? "http://localhost:4317";
-        var serviceName = configuration["Telemetry:ServiceName"] ?? "ms-logistic";
+	private static IServiceCollection AddTelemetry(
+		this IServiceCollection services,
+		IConfiguration configuration
+	) {
+		string otlpEndpoint = configuration["Telemetry:OtlpEndpoint"] ?? "http://localhost:4317";
+		string serviceName = configuration["Telemetry:ServiceName"] ?? "ms-logistic";
 
-        services.AddOpenTelemetry()
-            .WithTracing(tracing => tracing
-                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName))
-                .AddAspNetCoreInstrumentation()
-                .AddHttpClientInstrumentation()
-                .AddEntityFrameworkCoreInstrumentation()
-                .AddOtlpExporter(o => o.Endpoint = new Uri(otlpEndpoint)))
-            .WithMetrics(metrics => metrics
-                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName))
-                .AddAspNetCoreInstrumentation()
-                .AddHttpClientInstrumentation()
-                .AddPrometheusExporter())
-            .AddRabbitMqInstrumentation();
+		services.AddOpenTelemetry()
+			.WithTracing(tracing => tracing
+				.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName))
+				.AddAspNetCoreInstrumentation()
+				.AddHttpClientInstrumentation()
+				.AddEntityFrameworkCoreInstrumentation()
+				.AddOtlpExporter(o => o.Endpoint = new Uri(otlpEndpoint)))
+			.WithMetrics(metrics => metrics
+				.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName))
+				.AddAspNetCoreInstrumentation()
+				.AddHttpClientInstrumentation()
+				.AddPrometheusExporter())
+			.AddRabbitMqInstrumentation();
 
-        return services;
-    }
+		return services;
+	}
 
-    private static IServiceCollection AddRabbitMqConsumers(this IServiceCollection services) {
-        services.AddRabbitMqConsumer<RawMessage, IntegrationEventDispatcher>(
-            queueName: "ms-logistic-queue",
-            declareQueue: false);
+	private static IServiceCollection AddRabbitMqConsumers(this IServiceCollection services) {
+		services.AddRabbitMqConsumer<RawMessage, IntegrationEventDispatcher>(
+			queueName: "ms-logistic-queue",
+			declareQueue: false);
 
-        services.AddScoped<IIntegrationMessageConsumer<OrderCreatedMessage>, OnOrderCreated>();
-        services.AddScoped<IIntegrationMessageConsumer<PatientCreatedMessage>, OnPatientCreated>();
+		services.AddScoped<IIntegrationMessageConsumer<OrderCreatedMessage>, OnOrderCreated>();
+		services.AddScoped<IIntegrationMessageConsumer<PatientCreatedMessage>, OnPatientCreated>();
 
-        return services;
-    }
+		return services;
+	}
 }

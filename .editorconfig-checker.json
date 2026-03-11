@@ -1,0 +1,8 @@
+{
+	"Exclude": [
+		"src/MsLogistic\\.Infrastructure/Migrations/.*",
+		"coveragereport/.*",
+		"src/.*/coverage\\.cobertura\\.xml",
+		"docker-compose\\.yml"
+	]
+}

@@ -2,9 +2,9 @@ using System.Globalization;
 using MsLogistic.Infrastructure;
 using MsLogistic.WebApi.Extensions;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-var culture = CultureInfo.InvariantCulture;
+CultureInfo culture = CultureInfo.InvariantCulture;
 CultureInfo.DefaultThreadCurrentCulture = culture;
 CultureInfo.DefaultThreadCurrentUICulture = culture;
 
@@ -18,7 +18,7 @@ builder.Services.AddApiVersioningConfiguration();
 builder.Services.AddSwaggerConfiguration();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 app.ApplyMigrations();
 

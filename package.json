@@ -1,0 +1,35 @@
+{
+	"name": "ms-logistic",
+	"version": "1.0.0",
+	"description": "Logistic Microservice",
+	"homepage": "https://github.com/JoseLCT/ms-logistic#readme",
+	"license": "ISC",
+	"author": "",
+	"main": "index.js",
+	"bugs": {
+		"url": "https://github.com/JoseLCT/ms-logistic/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/JoseLCT/ms-logistic.git"
+	},
+	"scripts": {
+		"prepare": "husky",
+		"ec": "editorconfig-checker",
+		"format": "dotnet format --exclude src/MsLogistic.Infrastructure/Migrations --verbosity diagnostic",
+		"format:all": "prettier --write \"src/**/*.{json,csproj,xml}\" --use-tabs"
+	},
+	"lint-staged": {
+		"src/**/*.cs": ["dotnet format --exclude src/MsLogistic.Infrastructure/Migrations"],
+		"src/**/*.{json,csproj,xml}": "prettier --write --use-tabs"
+	},
+	"devDependencies": {
+		"@commitlint/cli": "^20.4.3",
+		"@commitlint/config-conventional": "^20.4.3",
+		"@prettier/plugin-xml": "^3.4.2",
+		"editorconfig-checker": "^6.1.1",
+		"husky": "^9.1.7",
+		"lint-staged": "^16.3.3",
+		"prettier": "^3.8.1"
+	}
+}

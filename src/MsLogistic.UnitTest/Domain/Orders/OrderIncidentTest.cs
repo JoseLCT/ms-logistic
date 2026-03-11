@@ -8,78 +8,78 @@ using Xunit;
 namespace MsLogistic.UnitTest.Domain.Orders;
 
 public class OrderIncidentTest {
-    #region Create
+	#region Create
 
-    [Fact]
-    public void Create_WithValidParameters_ShouldSucceed() {
-        // Arrange
-        var orderId = Guid.NewGuid();
-        var driverId = Guid.NewGuid();
-        var incidentType = OrderIncidentTypeEnum.IncorrectAddress;
-        var description = "Wrong delivery address provided";
+	[Fact]
+	public void Create_WithValidParameters_ShouldSucceed() {
+		// Arrange
+		var orderId = Guid.NewGuid();
+		var driverId = Guid.NewGuid();
+		OrderIncidentTypeEnum incidentType = OrderIncidentTypeEnum.IncorrectAddress;
+		string description = "Wrong delivery address provided";
 
-        // Act
-        var orderIncident = OrderIncident.Create(
-            orderId,
-            driverId,
-            incidentType,
-            description
-        );
+		// Act
+		var orderIncident = OrderIncident.Create(
+			orderId,
+			driverId,
+			incidentType,
+			description
+		);
 
-        // Assert
-        orderIncident.Should().NotBeNull();
-        orderIncident.Id.Should().NotBe(Guid.Empty);
-        orderIncident.OrderId.Should().Be(orderId);
-        orderIncident.DriverId.Should().Be(driverId);
-        orderIncident.IncidentType.Should().Be(incidentType);
-        orderIncident.Description.Should().Be(description);
-    }
+		// Assert
+		orderIncident.Should().NotBeNull();
+		orderIncident.Id.Should().NotBe(Guid.Empty);
+		orderIncident.OrderId.Should().Be(orderId);
+		orderIncident.DriverId.Should().Be(driverId);
+		orderIncident.IncidentType.Should().Be(incidentType);
+		orderIncident.Description.Should().Be(description);
+	}
 
-    [Theory]
-    [InlineData(OrderIncidentTypeEnum.IncorrectAddress)]
-    [InlineData(OrderIncidentTypeEnum.AbsentRecipient)]
-    [InlineData(OrderIncidentTypeEnum.DamagedPackage)]
-    [InlineData(OrderIncidentTypeEnum.Other)]
-    public void Create_WithDifferentIncidentTypes_ShouldSucceed(OrderIncidentTypeEnum incidentType) {
-        // Arrange
-        var orderId = Guid.NewGuid();
-        var driverId = Guid.NewGuid();
-        var description = "Test incident description";
+	[Theory]
+	[InlineData(OrderIncidentTypeEnum.IncorrectAddress)]
+	[InlineData(OrderIncidentTypeEnum.AbsentRecipient)]
+	[InlineData(OrderIncidentTypeEnum.DamagedPackage)]
+	[InlineData(OrderIncidentTypeEnum.Other)]
+	public void Create_WithDifferentIncidentTypes_ShouldSucceed(OrderIncidentTypeEnum incidentType) {
+		// Arrange
+		var orderId = Guid.NewGuid();
+		var driverId = Guid.NewGuid();
+		string description = "Test incident description";
 
-        // Act
-        var orderIncident = OrderIncident.Create(
-            orderId,
-            driverId,
-            incidentType,
-            description
-        );
+		// Act
+		var orderIncident = OrderIncident.Create(
+			orderId,
+			driverId,
+			incidentType,
+			description
+		);
 
-        // Assert
-        orderIncident.Should().NotBeNull();
-        orderIncident.IncidentType.Should().Be(incidentType);
-    }
+		// Assert
+		orderIncident.Should().NotBeNull();
+		orderIncident.IncidentType.Should().Be(incidentType);
+	}
 
-    [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void Create_WithInvalidDescription_ShouldThrowDomainException(string invalidDescription) {
-        // Arrange
-        var orderId = Guid.NewGuid();
-        var driverId = Guid.NewGuid();
-        var incidentType = OrderIncidentTypeEnum.Other;
+	[Theory]
+	[InlineData("")]
+	[InlineData("   ")]
+	public void Create_WithInvalidDescription_ShouldThrowDomainException(string invalidDescription) {
+		// Arrange
+		var orderId = Guid.NewGuid();
+		var driverId = Guid.NewGuid();
+		OrderIncidentTypeEnum incidentType = OrderIncidentTypeEnum.Other;
 
-        // Act
-        Action act = () => OrderIncident.Create(
-            orderId,
-            driverId,
-            incidentType,
-            invalidDescription
-        );
+		// Act
+		Action act = () => OrderIncident.Create(
+			orderId,
+			driverId,
+			incidentType,
+			invalidDescription
+		);
 
-        // Assert
-        act.Should().Throw<DomainException>()
-            .Which.Error.Should().Be(OrderIncidentErrors.DescriptionIsRequired);
-    }
+		// Assert
+		act.Should().Throw<DomainException>()
+			.Which.Error.Should().Be(OrderIncidentErrors.DescriptionIsRequired);
+	}
 
-    #endregion
+	#endregion
 }

@@ -7,15 +7,15 @@ using MsLogistic.Application.Shared.Behaviors;
 namespace MsLogistic.Application;
 
 public static class DependencyInjection {
-    public static IServiceCollection AddApplication(this IServiceCollection services) {
-        services.AddMediatR(config =>
-            config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly())
-        );
+	public static IServiceCollection AddApplication(this IServiceCollection services) {
+		services.AddMediatR(config =>
+			config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly())
+		);
 
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(DomainExceptionBehavior<,>));
+		services.AddTransient(typeof(IPipelineBehavior<,>), typeof(DomainExceptionBehavior<,>));
 
-        services.AddScoped<RouteCompletionService>();
+		services.AddScoped<RouteCompletionService>();
 
-        return services;
-    }
+		return services;
+	}
 }

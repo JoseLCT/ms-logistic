@@ -1,27 +1,33 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-    <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="FluentValidation" Version="12.1.1" />
+		<PackageReference
+			Include="Joselct.Communication.Contracts"
+			Version="1.0.4"
+		/>
+		<PackageReference Include="Joselct.Outbox.Core" Version="1.0.3" />
+		<PackageReference Include="Joselct.Outbox.MediatR" Version="1.0.5" />
+		<PackageReference Include="MediatR" Version="14.0.0" />
+		<PackageReference
+			Include="Microsoft.Extensions.Options"
+			Version="10.0.0"
+		/>
+	</ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="FluentValidation" Version="12.1.1" />
-      <PackageReference Include="Joselct.Communication.Contracts" Version="1.0.4" />
-      <PackageReference Include="Joselct.Outbox.Core" Version="1.0.3" />
-      <PackageReference Include="Joselct.Outbox.MediatR" Version="1.0.5" />
-      <PackageReference Include="MediatR" Version="14.0.0" />
-      <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.0" />
-    </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\MsLogistic.Core\MsLogistic.Core.csproj" />
+		<ProjectReference
+			Include="..\MsLogistic.Domain\MsLogistic.Domain.csproj"
+		/>
+	</ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\MsLogistic.Core\MsLogistic.Core.csproj" />
-      <ProjectReference Include="..\MsLogistic.Domain\MsLogistic.Domain.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <InternalsVisibleTo Include="MsLogistic.UnitTest" />
-    </ItemGroup>
-
+	<ItemGroup>
+		<InternalsVisibleTo Include="MsLogistic.UnitTest" />
+	</ItemGroup>
 </Project>

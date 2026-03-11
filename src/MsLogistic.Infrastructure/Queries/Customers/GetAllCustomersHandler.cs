@@ -7,24 +7,24 @@ using MsLogistic.Infrastructure.Persistence.PersistenceModel;
 namespace MsLogistic.Infrastructure.Queries.Customers;
 
 internal class GetAllCustomersHandler : IRequestHandler<GetAllCustomersQuery, Result<IReadOnlyList<CustomerSummaryDto>>> {
-    private readonly PersistenceDbContext _dbContext;
+	private readonly PersistenceDbContext _dbContext;
 
-    public GetAllCustomersHandler(PersistenceDbContext dbContext) {
-        _dbContext = dbContext;
-    }
+	public GetAllCustomersHandler(PersistenceDbContext dbContext) {
+		_dbContext = dbContext;
+	}
 
-    public async Task<Result<IReadOnlyList<CustomerSummaryDto>>> Handle(
-        GetAllCustomersQuery request,
-        CancellationToken ct
-    ) {
-        var customers = await _dbContext.Customers
-            .AsNoTracking()
-            .Select(c => new CustomerSummaryDto(
-                c.Id,
-                c.FullName
-            ))
-            .ToListAsync(ct);
+	public async Task<Result<IReadOnlyList<CustomerSummaryDto>>> Handle(
+		GetAllCustomersQuery request,
+		CancellationToken ct
+	) {
+		List<CustomerSummaryDto> customers = await _dbContext.Customers
+			.AsNoTracking()
+			.Select(c => new CustomerSummaryDto(
+				c.Id,
+				c.FullName
+			))
+			.ToListAsync(ct);
 
-        return Result.Success<IReadOnlyList<CustomerSummaryDto>>(customers);
-    }
+		return Result.Success<IReadOnlyList<CustomerSummaryDto>>(customers);
+	}
 }

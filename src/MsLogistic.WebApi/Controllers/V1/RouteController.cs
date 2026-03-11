@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MsLogistic.Application.Routes.GetAllRoutes;
+using MsLogistic.Core.Results;
 
 namespace MsLogistic.WebApi.Controllers.V1;
 
@@ -11,16 +12,16 @@ namespace MsLogistic.WebApi.Controllers.V1;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/routes")]
 public class RouteController : ApiControllerBase {
-    private readonly IMediator _mediator;
+	private readonly IMediator _mediator;
 
-    public RouteController(IMediator mediator) {
-        _mediator = mediator;
-    }
+	public RouteController(IMediator mediator) {
+		_mediator = mediator;
+	}
 
-    [HttpGet]
-    public async Task<IActionResult> GetAll() {
-        var query = new GetAllRoutesQuery();
-        var result = await _mediator.Send(query);
-        return HandleResult(result);
-    }
+	[HttpGet]
+	public async Task<IActionResult> GetAll() {
+		var query = new GetAllRoutesQuery();
+		Result<IReadOnlyList<RouteSummaryDto>> result = await _mediator.Send(query);
+		return HandleResult(result);
+	}
 }

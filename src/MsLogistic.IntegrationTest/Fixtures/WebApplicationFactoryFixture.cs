@@ -11,63 +11,63 @@ using Testcontainers.PostgreSql;
 namespace MsLogistic.IntegrationTest.Fixtures;
 
 public class WebApplicationFactoryFixture : WebApplicationFactory<Program> {
-    private readonly PostgreSqlContainer _postgresContainer;
+	private readonly PostgreSqlContainer _postgresContainer;
 
-    public WebApplicationFactoryFixture() {
-        _postgresContainer = new PostgreSqlBuilder()
-            .WithImage("postgis/postgis:16-3.4")
-            .WithDatabase("logistic_test_db")
-            .WithUsername("test_user")
-            .WithPassword("test_password")
-            .WithCleanUp(true)
-            .WithReuse(true)
-            .Build();
+	public WebApplicationFactoryFixture() {
+		_postgresContainer = new PostgreSqlBuilder()
+			.WithImage("postgis/postgis:16-3.4")
+			.WithDatabase("logistic_test_db")
+			.WithUsername("test_user")
+			.WithPassword("test_password")
+			.WithCleanUp(true)
+			.WithReuse(true)
+			.Build();
 
-        _postgresContainer.StartAsync().GetAwaiter().GetResult();
-    }
+		_postgresContainer.StartAsync().GetAwaiter().GetResult();
+	}
 
-    protected override void ConfigureWebHost(IWebHostBuilder builder) {
-        builder.ConfigureServices(services => {
-            // Remove existing DbContext registrations
-            services.RemoveAll<DbContextOptions<PersistenceDbContext>>();
-            services.RemoveAll<DbContextOptions<DomainDbContext>>();
-            services.RemoveAll<PersistenceDbContext>();
-            services.RemoveAll<DomainDbContext>();
+	protected override void ConfigureWebHost(IWebHostBuilder builder) {
+		builder.ConfigureServices(services => {
+			// Remove existing DbContext registrations
+			services.RemoveAll<DbContextOptions<PersistenceDbContext>>();
+			services.RemoveAll<DbContextOptions<DomainDbContext>>();
+			services.RemoveAll<PersistenceDbContext>();
+			services.RemoveAll<DomainDbContext>();
 
-            var connectionString = _postgresContainer.GetConnectionString();
+			string connectionString = _postgresContainer.GetConnectionString();
 
-            services.AddDbContext<PersistenceDbContext>(options =>
-                options.UseNpgsql(connectionString, npgsqlOptions => {
-                    npgsqlOptions.UseNetTopologySuite();
-                    npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "persistence");
-                }
-                )
-            );
+			services.AddDbContext<PersistenceDbContext>(options =>
+				options.UseNpgsql(connectionString, npgsqlOptions => {
+					npgsqlOptions.UseNetTopologySuite();
+					npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "persistence");
+				}
+				)
+			);
 
-            services.AddDbContext<DomainDbContext>(options =>
-                options.UseNpgsql(connectionString, npgsqlOptions => {
-                    npgsqlOptions.UseNetTopologySuite();
-                    npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "domain");
-                }
-                )
-            );
+			services.AddDbContext<DomainDbContext>(options =>
+				options.UseNpgsql(connectionString, npgsqlOptions => {
+					npgsqlOptions.UseNetTopologySuite();
+					npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "domain");
+				}
+				)
+			);
 
-            var serviceProvider = services.BuildServiceProvider();
-            using var scope = serviceProvider.CreateScope();
-            var scopedServices = scope.ServiceProvider;
+			ServiceProvider serviceProvider = services.BuildServiceProvider();
+			using IServiceScope scope = serviceProvider.CreateScope();
+			IServiceProvider scopedServices = scope.ServiceProvider;
 
-            var persistenceDb = scopedServices.GetRequiredService<PersistenceDbContext>();
-            var domainDb = scopedServices.GetRequiredService<DomainDbContext>();
+			PersistenceDbContext persistenceDb = scopedServices.GetRequiredService<PersistenceDbContext>();
+			DomainDbContext domainDb = scopedServices.GetRequiredService<DomainDbContext>();
 
-            persistenceDb.Database.Migrate();
-            domainDb.Database.Migrate();
-        });
+			persistenceDb.Database.Migrate();
+			domainDb.Database.Migrate();
+		});
 
-        builder.UseEnvironment("Test");
-    }
+		builder.UseEnvironment("Test");
+	}
 
-    protected override void Dispose(bool disposing) {
-        base.Dispose(disposing);
-        _postgresContainer.DisposeAsync().GetAwaiter().GetResult();
-    }
+	protected override void Dispose(bool disposing) {
+		base.Dispose(disposing);
+		_postgresContainer.DisposeAsync().GetAwaiter().GetResult();
+	}
 }

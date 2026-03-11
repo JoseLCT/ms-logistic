@@ -1,4 +1,4 @@
-﻿services:
+services:
   ms_logistic_db:
     image: postgis/postgis:16-3.4
     container_name: ms_logistic_db

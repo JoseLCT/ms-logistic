@@ -5,21 +5,21 @@ namespace MsLogistic.Infrastructure.Persistence.PersistenceModel.EFCoreEntities;
 
 [Table("customers")]
 internal class CustomerPersistenceModel {
-    [Key]
-    [Column("id")]
-    public Guid Id { get; set; }
+	[Key]
+	[Column("id")]
+	public Guid Id { get; set; }
 
-    [Column("full_name")]
-    [StringLength(100)]
-    public required string FullName { get; set; }
+	[Column("full_name")]
+	[StringLength(100)]
+	public required string FullName { get; set; }
 
-    [Column("phone_number")]
-    [StringLength(15)]
-    public required string PhoneNumber { get; set; }
+	[Column("phone_number")]
+	[StringLength(15)]
+	public required string PhoneNumber { get; set; }
 
-    [Column("created_at")]
-    public DateTime CreatedAt { get; set; }
+	[Column("created_at")]
+	public DateTime CreatedAt { get; set; }
 
-    [Column("updated_at")]
-    public DateTime? UpdatedAt { get; set; }
+	[Column("updated_at")]
+	public DateTime? UpdatedAt { get; set; }
 }

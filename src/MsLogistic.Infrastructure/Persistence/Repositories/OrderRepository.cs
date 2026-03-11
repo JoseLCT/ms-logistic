@@ -6,45 +6,45 @@ using MsLogistic.Infrastructure.Persistence.DomainModel;
 namespace MsLogistic.Infrastructure.Persistence.Repositories;
 
 internal class OrderRepository : IOrderRepository {
-    private readonly DomainDbContext _dbContext;
+	private readonly DomainDbContext _dbContext;
 
-    public OrderRepository(DomainDbContext dbContext) {
-        _dbContext = dbContext;
-    }
+	public OrderRepository(DomainDbContext dbContext) {
+		_dbContext = dbContext;
+	}
 
-    public async Task<IReadOnlyList<Order>> GetAllAsync(CancellationToken ct = default) {
-        var orders = await _dbContext.Orders.ToListAsync(ct);
-        return orders;
-    }
+	public async Task<IReadOnlyList<Order>> GetAllAsync(CancellationToken ct = default) {
+		List<Order> orders = await _dbContext.Orders.ToListAsync(ct);
+		return orders;
+	}
 
-    public async Task<Order?> GetByIdAsync(Guid id, CancellationToken ct = default) {
-        var order = await _dbContext.Orders
-            .Include(o => o.Delivery)
-            .Include(o => o.Incident)
-            .Include(o => o.Items)
-            .FirstOrDefaultAsync(o => o.Id == id, ct);
-        return order;
-    }
+	public async Task<Order?> GetByIdAsync(Guid id, CancellationToken ct = default) {
+		Order? order = await _dbContext.Orders
+			.Include(o => o.Delivery)
+			.Include(o => o.Incident)
+			.Include(o => o.Items)
+			.FirstOrDefaultAsync(o => o.Id == id, ct);
+		return order;
+	}
 
-    public async Task<IReadOnlyList<Order>> GetByBatchIdAsync(Guid batchId, CancellationToken ct = default) {
-        var orders = await _dbContext.Orders.Where(o => o.BatchId == batchId).ToListAsync(ct);
-        return orders;
-    }
+	public async Task<IReadOnlyList<Order>> GetByBatchIdAsync(Guid batchId, CancellationToken ct = default) {
+		List<Order> orders = await _dbContext.Orders.Where(o => o.BatchId == batchId).ToListAsync(ct);
+		return orders;
+	}
 
-    public async Task<IReadOnlyList<Order>> GetByRouteIdAsync(Guid routeId, CancellationToken ct = default) {
-        var orders = await _dbContext.Orders.Where(o => o.RouteId == routeId).ToListAsync(ct);
-        return orders;
-    }
+	public async Task<IReadOnlyList<Order>> GetByRouteIdAsync(Guid routeId, CancellationToken ct = default) {
+		List<Order> orders = await _dbContext.Orders.Where(o => o.RouteId == routeId).ToListAsync(ct);
+		return orders;
+	}
 
-    public async Task AddAsync(Order order, CancellationToken ct = default) {
-        await _dbContext.Orders.AddAsync(order, ct);
-    }
+	public async Task AddAsync(Order order, CancellationToken ct = default) {
+		await _dbContext.Orders.AddAsync(order, ct);
+	}
 
-    public void Update(Order order) {
-        _dbContext.Orders.Update(order);
-    }
+	public void Update(Order order) {
+		_dbContext.Orders.Update(order);
+	}
 
-    public void Remove(Order order) {
-        _dbContext.Orders.Remove(order);
-    }
+	public void Remove(Order order) {
+		_dbContext.Orders.Remove(order);
+	}
 }

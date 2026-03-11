@@ -4,9 +4,9 @@ using MsLogistic.Domain.Shared.ValueObjects;
 namespace MsLogistic.Application.Abstractions.Services;
 
 public interface IImageStorageService {
-    Task<Result<ImageResourceValue>> UploadAsync(
-        Stream file,
-        string fileName,
-        CancellationToken ct
-    );
+	Task<Result<ImageResourceValue>> UploadAsync(
+		Stream file,
+		string fileName,
+		CancellationToken ct
+	);
 }

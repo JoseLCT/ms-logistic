@@ -6,21 +6,21 @@ using MsLogistic.Domain.Orders.Events;
 namespace MsLogistic.Application.Routes.DomainEventHandlers;
 
 public class CompleteRouteOnOrderCancelledHandler : INotificationHandler<OrderCancelled> {
-    private readonly RouteCompletionService _routeCompletionService;
-    private readonly IUnitOfWork _unitOfWork;
+	private readonly RouteCompletionService _routeCompletionService;
+	private readonly IUnitOfWork _unitOfWork;
 
-    public CompleteRouteOnOrderCancelledHandler(
-        RouteCompletionService routeCompletionService,
-        IUnitOfWork unitOfWork
-    ) {
-        _routeCompletionService = routeCompletionService;
-        _unitOfWork = unitOfWork;
-    }
+	public CompleteRouteOnOrderCancelledHandler(
+		RouteCompletionService routeCompletionService,
+		IUnitOfWork unitOfWork
+	) {
+		_routeCompletionService = routeCompletionService;
+		_unitOfWork = unitOfWork;
+	}
 
-    public async Task Handle(OrderCancelled notification, CancellationToken ct) {
-        var completed = await _routeCompletionService.TryCompleteRouteAsync(notification.RouteId, ct);
-        if (completed) {
-            await _unitOfWork.CommitAsync(ct);
-        }
-    }
+	public async Task Handle(OrderCancelled notification, CancellationToken ct) {
+		bool completed = await _routeCompletionService.TryCompleteRouteAsync(notification.RouteId, ct);
+		if (completed) {
+			await _unitOfWork.CommitAsync(ct);
+		}
+	}
 }

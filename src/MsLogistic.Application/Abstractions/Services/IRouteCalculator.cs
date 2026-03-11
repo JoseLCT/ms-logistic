@@ -5,9 +5,9 @@ using MsLogistic.Domain.Shared.ValueObjects;
 namespace MsLogistic.Application.Abstractions.Services;
 
 public interface IRouteCalculator {
-    Task<Result<OrderedRoute>> CalculateOrderAsync(
-        GeoPointValue origin,
-        IReadOnlyCollection<Waypoint> waypoints,
-        CancellationToken ct
-    );
+	Task<Result<OrderedRoute>> CalculateOrderAsync(
+		GeoPointValue origin,
+		IReadOnlyCollection<Waypoint> waypoints,
+		CancellationToken ct
+	);
 }

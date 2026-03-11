@@ -5,28 +5,28 @@ using MsLogistic.Domain.Products.Entities;
 namespace MsLogistic.Infrastructure.Persistence.DomainModel.Config;
 
 internal class ProductConfig : IEntityTypeConfiguration<Product> {
-    public void Configure(EntityTypeBuilder<Product> builder) {
-        builder.ToTable("products");
+	public void Configure(EntityTypeBuilder<Product> builder) {
+		builder.ToTable("products");
 
-        builder.HasKey(x => x.Id);
+		builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.Id)
-            .HasColumnName("id");
+		builder.Property(x => x.Id)
+			.HasColumnName("id");
 
-        builder.Property(x => x.Name)
-            .HasColumnName("name")
-            .HasMaxLength(100);
+		builder.Property(x => x.Name)
+			.HasColumnName("name")
+			.HasMaxLength(100);
 
-        builder.Property(x => x.Description)
-            .HasColumnName("description")
-            .HasMaxLength(500);
+		builder.Property(x => x.Description)
+			.HasColumnName("description")
+			.HasMaxLength(500);
 
-        builder.Property(c => c.CreatedAt)
-            .HasColumnName("created_at");
+		builder.Property(c => c.CreatedAt)
+			.HasColumnName("created_at");
 
-        builder.Property(c => c.UpdatedAt)
-            .HasColumnName("updated_at");
+		builder.Property(c => c.UpdatedAt)
+			.HasColumnName("updated_at");
 
-        builder.Ignore(x => x.DomainEvents);
-    }
+		builder.Ignore(x => x.DomainEvents);
+	}
 }

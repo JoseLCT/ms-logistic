@@ -24,7 +24,7 @@ dotnet ef migrations add [NAME] --project src/MsLogistic.Infrastructure --startu
 
 ## Docker
 
-### Build y publicación
+### Build y publicaciÃ³n
 
 **API**
 

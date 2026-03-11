@@ -6,34 +6,34 @@ using MsLogistic.Domain.Products.Entities;
 namespace MsLogistic.Infrastructure.Persistence.DomainModel.Config;
 
 internal class OrderItemConfig : IEntityTypeConfiguration<OrderItem> {
-    public void Configure(EntityTypeBuilder<OrderItem> builder) {
-        builder.ToTable("order_items");
+	public void Configure(EntityTypeBuilder<OrderItem> builder) {
+		builder.ToTable("order_items");
 
-        builder.HasKey(x => x.Id);
+		builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.Id)
-            .HasColumnName("id");
+		builder.Property(x => x.Id)
+			.HasColumnName("id");
 
-        builder.Property(x => x.OrderId)
-            .HasColumnName("order_id");
+		builder.Property(x => x.OrderId)
+			.HasColumnName("order_id");
 
-        builder.Property(x => x.ProductId)
-            .HasColumnName("product_id");
+		builder.Property(x => x.ProductId)
+			.HasColumnName("product_id");
 
-        builder.Property(x => x.Quantity)
-            .HasColumnName("quantity");
+		builder.Property(x => x.Quantity)
+			.HasColumnName("quantity");
 
-        builder.Property(c => c.CreatedAt)
-            .HasColumnName("created_at");
+		builder.Property(c => c.CreatedAt)
+			.HasColumnName("created_at");
 
-        builder.Property(c => c.UpdatedAt)
-            .HasColumnName("updated_at");
+		builder.Property(c => c.UpdatedAt)
+			.HasColumnName("updated_at");
 
-        builder.HasOne<Product>()
-            .WithMany()
-            .HasForeignKey(oi => oi.ProductId)
-            .OnDelete(DeleteBehavior.Restrict);
+		builder.HasOne<Product>()
+			.WithMany()
+			.HasForeignKey(oi => oi.ProductId)
+			.OnDelete(DeleteBehavior.Restrict);
 
-        builder.Ignore(x => x.DomainEvents);
-    }
+		builder.Ignore(x => x.DomainEvents);
+	}
 }

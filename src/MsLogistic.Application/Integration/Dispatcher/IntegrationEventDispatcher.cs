@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Joselct.Communication.Contracts.Messages;
 using Joselct.Communication.Contracts.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,43 +8,43 @@ using MsLogistic.Application.Integration.Events.Incoming;
 namespace MsLogistic.Application.Integration.Dispatcher;
 
 public class IntegrationEventDispatcher : IIntegrationMessageConsumer<RawMessage> {
-    private readonly IServiceProvider _sp;
-    private readonly ILogger<IntegrationEventDispatcher> _logger;
+	private readonly IServiceProvider _sp;
+	private readonly ILogger<IntegrationEventDispatcher> _logger;
 
-    private static readonly Dictionary<string, Type> _routes = new() {
-        ["order.created"] = typeof(OrderCreatedMessage), ["patient.created"] = typeof(PatientCreatedMessage)
-    };
+	private static readonly Dictionary<string, Type> _routes = new() {
+		["order.created"] = typeof(OrderCreatedMessage),
+		["patient.created"] = typeof(PatientCreatedMessage)
+	};
 
-    private static readonly JsonSerializerOptions _jsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-    };
+	private static readonly JsonSerializerOptions _jsonOptions = new() {
+		PropertyNameCaseInsensitive = true,
+		PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+	};
 
-    public IntegrationEventDispatcher(
-        IServiceProvider sp,
-        ILogger<IntegrationEventDispatcher> logger
-    ) {
-        _sp = sp;
-        _logger = logger;
-    }
+	public IntegrationEventDispatcher(
+		IServiceProvider sp,
+		ILogger<IntegrationEventDispatcher> logger
+	) {
+		_sp = sp;
+		_logger = logger;
+	}
 
-    public async Task HandleAsync(RawMessage raw, CancellationToken ct) {
-        if (!_routes.TryGetValue(raw.RoutingKey, out var messageType)) {
-            _logger.LogWarning("No handler registered for routing key {RoutingKey}", raw.RoutingKey);
-            return;
-        }
+	public async Task HandleAsync(RawMessage raw, CancellationToken ct) {
+		if (!_routes.TryGetValue(raw.RoutingKey, out Type? messageType)) {
+			_logger.LogWarning("No handler registered for routing key {RoutingKey}", raw.RoutingKey);
+			return;
+		}
 
-        var message = (IntegrationMessage)JsonSerializer
-            .Deserialize(raw.Body, messageType, _jsonOptions)!;
+		var message = (IntegrationMessage)JsonSerializer
+			.Deserialize(raw.Body, messageType, _jsonOptions)!;
 
-        var handlerType = typeof(IIntegrationMessageConsumer<>)
-            .MakeGenericType(messageType);
+		Type handlerType = typeof(IIntegrationMessageConsumer<>)
+			.MakeGenericType(messageType);
 
-        var handler = _sp.GetRequiredService(handlerType);
+		object handler = _sp.GetRequiredService(handlerType);
 
-        await (Task)handlerType
-            .GetMethod(nameof(IIntegrationMessageConsumer<>.HandleAsync))!
-            .Invoke(handler, [message, ct])!;
-    }
+		await (Task)handlerType
+			.GetMethod(nameof(IIntegrationMessageConsumer<>.HandleAsync))!
+			.Invoke(handler, [message, ct])!;
+	}
 }

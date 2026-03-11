@@ -1,0 +1,2 @@
+npm run ec
+npx lint-staged

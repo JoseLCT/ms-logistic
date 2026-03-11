@@ -5,24 +5,24 @@ using Microsoft.IdentityModel.Tokens;
 namespace MsLogistic.WebApi.Extensions;
 
 public static class AuthenticationExtension {
-    public static IServiceCollection AddJwtAuthentication(
-        this IServiceCollection services,
-        IConfiguration configuration) {
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options => {
-                options.TokenValidationParameters = new TokenValidationParameters {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration["Jwt:Issuer"],
-                    ValidAudience = configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]!))
-                };
-            });
+	public static IServiceCollection AddJwtAuthentication(
+		this IServiceCollection services,
+		IConfiguration configuration) {
+		services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+			.AddJwtBearer(options => {
+				options.TokenValidationParameters = new TokenValidationParameters {
+					ValidateIssuer = true,
+					ValidateAudience = true,
+					ValidateLifetime = true,
+					ValidateIssuerSigningKey = true,
+					ValidIssuer = configuration["Jwt:Issuer"],
+					ValidAudience = configuration["Jwt:Audience"],
+					IssuerSigningKey = new SymmetricSecurityKey(
+						Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]!))
+				};
+			});
 
-        services.AddAuthorization();
-        return services;
-    }
+		services.AddAuthorization();
+		return services;
+	}
 }

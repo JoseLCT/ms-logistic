@@ -10,159 +10,159 @@ using Xunit;
 namespace MsLogistic.UnitTest.Infrastructure.Persistence.Repositories;
 
 public class RouteRepositoryTest : IDisposable {
-    private readonly DomainDbContext _dbContext;
-    private readonly RouteRepository _repository;
+	private readonly DomainDbContext _dbContext;
+	private readonly RouteRepository _repository;
 
-    public RouteRepositoryTest() {
-        var options = new DbContextOptionsBuilder<DomainDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
+	public RouteRepositoryTest() {
+		DbContextOptions<DomainDbContext> options = new DbContextOptionsBuilder<DomainDbContext>()
+			.UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+			.Options;
 
-        _dbContext = new DomainDbContext(options);
-        _repository = new RouteRepository(_dbContext);
-    }
+		_dbContext = new DomainDbContext(options);
+		_repository = new RouteRepository(_dbContext);
+	}
 
-    public void Dispose() {
-        _dbContext.Database.EnsureDeleted();
-        _dbContext.Dispose();
-    }
+	public void Dispose() {
+		_dbContext.Database.EnsureDeleted();
+		_dbContext.Dispose();
+	}
 
-    private static Route CreateValidRoute(
-        Guid? driverId = null,
-        GeoPointValue? originLocation = null
-    ) {
-        return Route.Create(
-            batchId: Guid.NewGuid(),
-            deliveryZoneId: Guid.NewGuid(),
-            driverId: driverId,
-            originLocation: originLocation ?? GeoPointValue.Create(-17.7833, -63.1821)
-        );
-    }
+	private static Route CreateValidRoute(
+		Guid? driverId = null,
+		GeoPointValue? originLocation = null
+	) {
+		return Route.Create(
+			batchId: Guid.NewGuid(),
+			deliveryZoneId: Guid.NewGuid(),
+			driverId: driverId,
+			originLocation: originLocation ?? GeoPointValue.Create(-17.7833, -63.1821)
+		);
+	}
 
-    #region GetByIdAsync
+	#region GetByIdAsync
 
-    [Fact]
-    public async Task GetByIdAsync_WhenRouteExists_ShouldReturnRoute() {
-        // Arrange
-        var route = CreateValidRoute();
-        await _dbContext.Routes.AddAsync(route);
-        await _dbContext.SaveChangesAsync();
+	[Fact]
+	public async Task GetByIdAsync_WhenRouteExists_ShouldReturnRoute() {
+		// Arrange
+		Route route = CreateValidRoute();
+		await _dbContext.Routes.AddAsync(route);
+		await _dbContext.SaveChangesAsync();
 
-        // Act
-        var result = await _repository.GetByIdAsync(route.Id);
+		// Act
+		Route? result = await _repository.GetByIdAsync(route.Id);
 
-        // Assert
-        result.Should().NotBeNull();
-        result.Id.Should().Be(route.Id);
-    }
+		// Assert
+		result.Should().NotBeNull();
+		result.Id.Should().Be(route.Id);
+	}
 
-    [Fact]
-    public async Task GetByIdAsync_WhenRouteDoesNotExist_ShouldReturnNull() {
-        // Arrange
-        var nonExistingId = Guid.NewGuid();
+	[Fact]
+	public async Task GetByIdAsync_WhenRouteDoesNotExist_ShouldReturnNull() {
+		// Arrange
+		var nonExistingId = Guid.NewGuid();
 
-        // Act
-        var result = await _repository.GetByIdAsync(nonExistingId);
+		// Act
+		Route? result = await _repository.GetByIdAsync(nonExistingId);
 
-        // Assert
-        result.Should().BeNull();
-    }
+		// Assert
+		result.Should().BeNull();
+	}
 
-    #endregion
+	#endregion
 
-    #region GetAllAsync
+	#region GetAllAsync
 
-    [Fact]
-    public async Task GetAllAsync_WhenRoutesExist_ShouldReturnAllRoutes() {
-        // Arrange
-        var route1 = CreateValidRoute();
-        var route2 = CreateValidRoute();
-        var route3 = CreateValidRoute();
+	[Fact]
+	public async Task GetAllAsync_WhenRoutesExist_ShouldReturnAllRoutes() {
+		// Arrange
+		Route route1 = CreateValidRoute();
+		Route route2 = CreateValidRoute();
+		Route route3 = CreateValidRoute();
 
-        await _dbContext.Routes.AddRangeAsync(route1, route2, route3);
-        await _dbContext.SaveChangesAsync();
+		await _dbContext.Routes.AddRangeAsync(route1, route2, route3);
+		await _dbContext.SaveChangesAsync();
 
-        // Act
-        var result = await _repository.GetAllAsync();
+		// Act
+		IReadOnlyList<Route> result = await _repository.GetAllAsync();
 
-        // Assert
-        result.Should().HaveCount(3);
-        result.Should().Contain(r => r.Id == route1.Id);
-        result.Should().Contain(r => r.Id == route2.Id);
-        result.Should().Contain(r => r.Id == route3.Id);
-    }
+		// Assert
+		result.Should().HaveCount(3);
+		result.Should().Contain(r => r.Id == route1.Id);
+		result.Should().Contain(r => r.Id == route2.Id);
+		result.Should().Contain(r => r.Id == route3.Id);
+	}
 
-    [Fact]
-    public async Task GetAllAsync_WhenNoRoutes_ShouldReturnEmptyList() {
-        // Act
-        var result = await _repository.GetAllAsync();
+	[Fact]
+	public async Task GetAllAsync_WhenNoRoutes_ShouldReturnEmptyList() {
+		// Act
+		IReadOnlyList<Route> result = await _repository.GetAllAsync();
 
-        // Assert
-        result.Should().BeEmpty();
-    }
+		// Assert
+		result.Should().BeEmpty();
+	}
 
-    #endregion
+	#endregion
 
-    #region AddAsync
+	#region AddAsync
 
-    [Fact]
-    public async Task AddAsync_ShouldAddRouteToDatabase() {
-        // Arrange
-        var route = CreateValidRoute();
+	[Fact]
+	public async Task AddAsync_ShouldAddRouteToDatabase() {
+		// Arrange
+		Route route = CreateValidRoute();
 
-        // Act
-        await _repository.AddAsync(route);
-        await _dbContext.SaveChangesAsync();
+		// Act
+		await _repository.AddAsync(route);
+		await _dbContext.SaveChangesAsync();
 
-        // Assert
-        var savedRoute = await _dbContext.Routes.FindAsync(route.Id);
-        savedRoute.Should().NotBeNull();
-        savedRoute.Id.Should().Be(route.Id);
-    }
+		// Assert
+		Route? savedRoute = await _dbContext.Routes.FindAsync(route.Id);
+		savedRoute.Should().NotBeNull();
+		savedRoute.Id.Should().Be(route.Id);
+	}
 
-    #endregion
+	#endregion
 
-    #region Update
+	#region Update
 
-    [Fact]
-    public async Task Update_ShouldUpdateRouteInDatabase() {
-        // Arrange
-        var route = CreateValidRoute();
-        await _dbContext.Routes.AddAsync(route);
-        await _dbContext.SaveChangesAsync();
+	[Fact]
+	public async Task Update_ShouldUpdateRouteInDatabase() {
+		// Arrange
+		Route route = CreateValidRoute();
+		await _dbContext.Routes.AddAsync(route);
+		await _dbContext.SaveChangesAsync();
 
-        _dbContext.Entry(route).State = EntityState.Detached;
+		_dbContext.Entry(route).State = EntityState.Detached;
 
-        // Act
-        var routeToUpdate = await _dbContext.Routes.FindAsync(route.Id);
-        routeToUpdate!.Cancel();
-        _repository.Update(routeToUpdate);
-        await _dbContext.SaveChangesAsync();
+		// Act
+		Route? routeToUpdate = await _dbContext.Routes.FindAsync(route.Id);
+		routeToUpdate!.Cancel();
+		_repository.Update(routeToUpdate);
+		await _dbContext.SaveChangesAsync();
 
-        // Assert
-        var updatedRoute = await _dbContext.Routes.FindAsync(route.Id);
-        updatedRoute!.Status.Should().Be(RouteStatusEnum.Cancelled);
-    }
+		// Assert
+		Route? updatedRoute = await _dbContext.Routes.FindAsync(route.Id);
+		updatedRoute!.Status.Should().Be(RouteStatusEnum.Cancelled);
+	}
 
-    #endregion
+	#endregion
 
-    #region Remove
+	#region Remove
 
-    [Fact]
-    public async Task Remove_ShouldDeleteRouteFromDatabase() {
-        // Arrange
-        var route = CreateValidRoute();
-        await _dbContext.Routes.AddAsync(route);
-        await _dbContext.SaveChangesAsync();
+	[Fact]
+	public async Task Remove_ShouldDeleteRouteFromDatabase() {
+		// Arrange
+		Route route = CreateValidRoute();
+		await _dbContext.Routes.AddAsync(route);
+		await _dbContext.SaveChangesAsync();
 
-        // Act
-        _repository.Remove(route);
-        await _dbContext.SaveChangesAsync();
+		// Act
+		_repository.Remove(route);
+		await _dbContext.SaveChangesAsync();
 
-        // Assert
-        var deletedRoute = await _dbContext.Routes.FindAsync(route.Id);
-        deletedRoute.Should().BeNull();
-    }
+		// Assert
+		Route? deletedRoute = await _dbContext.Routes.FindAsync(route.Id);
+		deletedRoute.Should().BeNull();
+	}
 
-    #endregion
+	#endregion
 }
