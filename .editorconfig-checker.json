@@ -4,6 +4,7 @@
 		"coveragereport/.*",
 		"src/.*/coverage\\.cobertura\\.xml",
 		"docker-compose\\.yml",
-		".github/.*"
+		".github/.*",
+		".config/.*"
 	]
 }
