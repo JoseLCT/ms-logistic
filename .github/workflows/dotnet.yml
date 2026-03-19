@@ -23,25 +23,25 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
+      - name: Restore dotnet tools
+        run: dotnet tool restore
+
       - name: Build
         run: dotnet build --no-restore
 
       - name: Test
-        run: dotnet test --no-build src/MsLogistic.UnitTest/MsLogistic.UnitTest.csproj --verbosity normal
-
-      - name: Restore dotnet tools
-        run: dotnet tool restore
+        run: dotnet test src/MsLogistic.UnitTest/MsLogistic.UnitTest.csproj --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
 
       - name: Generate coverage report
         run: >
           dotnet tool run reportgenerator
-          -reports:"./coverage/**/coverage.cobertura.xml"
-          -targetdir:"./coverage/report"
+          -reports:"./src/MsLogistic.UnitTest/coverage.cobertura.xml"
+          -targetdir:"./coveragereport"
           -reporttypes:Html
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: ./coverage/report
+          path: ./coveragereport
           retention-days: 7
