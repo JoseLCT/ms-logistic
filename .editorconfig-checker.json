@@ -3,7 +3,7 @@
 		"src/MsLogistic\\.Infrastructure/Migrations/.*",
 		"coveragereport/.*",
 		"src/.*/coverage\\.cobertura\\.xml",
-		"docker-compose\\.yml",
+		"docker-compose.*\\.yml",
 		".github/.*",
 		".config/.*"
 	]

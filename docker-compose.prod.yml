@@ -1,0 +1,81 @@
+services:
+  ms_logistic_db:
+    image: postgis/postgis:16-3.4
+    container_name: ms_logistic_db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    env_file:
+      - .env
+    ports:
+      - "5090:5432"
+    volumes:
+      - ms_logistic_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ms_logistic_api:
+    image: joselct/ms_logistic_api:1.0.8
+    container_name: ms_logistic_api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Host=ms_logistic_db;Port=5432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD}
+      RabbitMQ__VirtualHost: /
+      RabbitMQ__DeadLetterExchange: dead-letter-exchange
+      RabbitMQ__MaxRetryCount: 3
+      RabbitMQ__ReconnectDelaySeconds: 5
+      RabbitMQ__MaxReconnectAttempts: 0
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
+      Jwt__Secret: ${JWT_SECRET}
+      Cloudinary__CloudName: ${CLOUDINARY_CLOUD_NAME}
+      Cloudinary__ApiKey: ${CLOUDINARY_API_KEY}
+      Cloudinary__ApiSecret: ${CLOUDINARY_API_SECRET}
+      GoogleMaps__ApiKey: ${GOOGLE_MAPS_API_KEY}
+      Telemetry__ServiceName: ms-logistic
+      Telemetry__OtlpEndpoint: ${OTLP_ENDPOINT}
+      Seq__Url: ${SEQ_URL}
+    env_file:
+      - .env
+    ports:
+      - "5041:8080"
+    depends_on:
+      ms_logistic_db:
+        condition: service_healthy
+
+  ms_logistic_worker:
+    image: joselct/ms_logistic_worker:1.0.1
+    container_name: ms_logistic_worker
+    environment:
+      ConnectionStrings__DefaultConnection: Host=ms_logistic_db;Port=5432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Port: 5672
+      RabbitMQ__UserName: ${RABBITMQ_USER}
+      RabbitMQ__Password: ${RABBITMQ_PASSWORD}
+      RabbitMQ__VirtualHost: /
+      RabbitMQ__DeadLetterExchange: dead-letter-exchange
+      RabbitMQ__MaxRetryCount: 3
+      RabbitMQ__ReconnectDelaySeconds: 5
+      RabbitMQ__MaxReconnectAttempts: 0
+      Outbox__PollingInterval: "00:00:10"
+      Outbox__BatchSize: 20
+      Outbox__MaxRetries: 5
+      Telemetry__ServiceName: ms-logistic-worker
+      Telemetry__OtlpEndpoint: ${OTLP_ENDPOINT}
+      Seq__Url: ${SEQ_URL}
+    env_file:
+      - .env
+    depends_on:
+      ms_logistic_db:
+        condition: service_healthy
+
+volumes:
+  ms_logistic_db_data:
