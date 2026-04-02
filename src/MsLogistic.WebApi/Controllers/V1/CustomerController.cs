@@ -12,10 +12,10 @@ using MsLogistic.WebApi.Contracts.V1.Customers;
 
 namespace MsLogistic.WebApi.Controllers.V1;
 
-// [Authorize]
+[Authorize]
 [ApiController]
 [ApiVersion("1.0")]
-[Route("v{version:apiVersion}/customers")]
+[Route("v{version:apiVersion}/customers-test")]
 public class CustomerController : ApiControllerBase {
 	private readonly IMediator _mediator;
 

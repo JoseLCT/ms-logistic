@@ -8,7 +8,7 @@ using MsLogistic.Core.Results;
 
 namespace MsLogistic.WebApi.Controllers.V1;
 
-// [Authorize]
+[Authorize]
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/batches")]
