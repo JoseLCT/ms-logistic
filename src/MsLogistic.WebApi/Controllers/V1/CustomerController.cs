@@ -15,7 +15,7 @@ namespace MsLogistic.WebApi.Controllers.V1;
 [Authorize]
 [ApiController]
 [ApiVersion("1.0")]
-[Route("v{version:apiVersion}/customers-test")]
+[Route("v{version:apiVersion}/customers")]
 public class CustomerController : ApiControllerBase {
 	private readonly IMediator _mediator;
 

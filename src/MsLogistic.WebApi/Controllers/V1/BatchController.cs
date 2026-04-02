@@ -11,7 +11,7 @@ namespace MsLogistic.WebApi.Controllers.V1;
 [Authorize]
 [ApiController]
 [ApiVersion("1.0")]
-[Route("v{version:apiVersion}/batches-test")]
+[Route("v{version:apiVersion}/batches")]
 public class BatchController : ApiControllerBase {
 	private readonly IMediator _mediator;
 
