@@ -12,7 +12,7 @@ using MsLogistic.WebApi.Contracts.V1.Customers;
 
 namespace MsLogistic.WebApi.Controllers.V1;
 
-[Authorize]
+// [Authorize]
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/customers")]
