@@ -5,6 +5,7 @@
 		"src/.*/coverage\\.cobertura\\.xml",
 		"docker-compose.*\\.yml",
 		".github/.*",
-		".config/.*"
+		".config/.*",
+		"README.md"
 	]
 }
