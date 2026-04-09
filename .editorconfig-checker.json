@@ -6,6 +6,9 @@
 		"docker-compose.*\\.yml",
 		".github/.*",
 		".config/.*",
-		"README.md"
+		"README.md",
+		"loki/.*",
+		"grafana/.*",
+		"prometheus/.*"
 	]
 }
