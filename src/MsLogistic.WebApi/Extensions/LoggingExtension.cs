@@ -1,4 +1,5 @@
 using Serilog;
+using Serilog.Enrichers.Span;
 
 namespace MsLogistic.WebApi.Extensions;
 
@@ -10,6 +11,7 @@ public static class LoggingExtension {
 				.ReadFrom.Services(services)
 				.Enrich.FromLogContext()
 				.Enrich.WithMachineName()
+				.Enrich.WithSpan()
 				.Enrich.WithProperty("Application", "MsLogistic.WebApi");
 		});
 	}
