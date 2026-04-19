@@ -55,6 +55,7 @@ jobs:
           /o:"joselct"
           /d:sonar.token="$SONAR_TOKEN"
           /d:sonar.cs.opencover.reportsPaths="coverage/**/coverage.opencover.xml"
+          /d:sonar.coverage.exclusions="**/Program.cs,**/Migrations/**,**/*Dto.cs,**/*Dtos/**,**/appsettings*.json,**/*.csproj,**/MsLogistic.UnitTest/**"
           /d:sonar.qualitygate.wait=true
 
       - name: Restore dependencies
@@ -71,9 +72,8 @@ jobs:
           dotnet test src/MsLogistic.UnitTest/MsLogistic.UnitTest.csproj
           --no-build
           --verbosity normal
-          --collect:"XPlat Code Coverage"
+          --collect:"XPlat Code Coverage;Format=opencover,cobertura"
           --results-directory ./coverage
-          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover,cobertura
 
       - name: Sonarcloud end
         env:

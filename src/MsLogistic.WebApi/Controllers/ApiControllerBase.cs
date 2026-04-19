@@ -8,7 +8,7 @@ namespace MsLogistic.WebApi.Controllers;
 public abstract class ApiControllerBase : ControllerBase {
 	protected IActionResult HandleResult<T>(Result<T> result) {
 		return result.IsSuccess
-			? Ok(result.Value)
+			? Ok(result)
 			: HandleFailure(result);
 	}
 

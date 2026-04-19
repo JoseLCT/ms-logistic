@@ -9,7 +9,7 @@ services:
     env_file:
       - .env
     ports:
-      - "5090:5432"
+      - "5442:5432"
     volumes:
       - ms_logistic_db_data:/var/lib/postgresql/data
     healthcheck:
@@ -18,11 +18,13 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - shared-network
+      - internal
 
   ms_logistic_api:
-    image: joselct/ms_logistic_api:1.0.8
     container_name: ms_logistic_api
+    build:
+        context: .
+        dockerfile: src/MsLogistic.WebApi/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: Host=ms_logistic_db;Port=5432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
@@ -44,16 +46,15 @@ services:
       GoogleMaps__ApiKey: ${GOOGLE_MAPS_API_KEY}
       Telemetry__ServiceName: ms-logistic
       Telemetry__OtlpEndpoint: ${OTLP_ENDPOINT}
-      Seq__Url: ${SEQ_URL}
     env_file:
       - .env
     ports:
-      - "5041:8080"
+      - "5000:8080"
     depends_on:
       ms_logistic_db:
         condition: service_healthy
     networks:
-      - shared-network
+      - internal
 
   ms_logistic_worker:
     image: joselct/ms_logistic_worker:1.0.1
@@ -74,14 +75,17 @@ services:
       Outbox__MaxRetries: 5
       Telemetry__ServiceName: ms-logistic-worker
       Telemetry__OtlpEndpoint: ${OTLP_ENDPOINT}
-      Seq__Url: ${SEQ_URL}
     env_file:
       - .env
     depends_on:
       ms_logistic_db:
         condition: service_healthy
     networks:
-      - shared-network
+      - internal
 
 volumes:
   ms_logistic_db_data:
+
+networks:
+    internal:
+        driver: bridge
