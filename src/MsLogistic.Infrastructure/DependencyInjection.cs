@@ -22,7 +22,9 @@ using MsLogistic.Domain.Drivers.Repositories;
 using MsLogistic.Domain.Orders.Repositories;
 using MsLogistic.Domain.Products.Repositories;
 using MsLogistic.Domain.Routes.Repositories;
+using Consul;
 using MsLogistic.Infrastructure.External.Cloudinary;
+using MsLogistic.Infrastructure.External.Consul;
 using MsLogistic.Infrastructure.External.GoogleMaps;
 using MsLogistic.Infrastructure.Persistence;
 using MsLogistic.Infrastructure.Persistence.DomainModel;
@@ -45,6 +47,7 @@ public static class DependencyInjection {
 		services.AddGoogleMaps(configuration);
 		services.AddRabbitMq(configuration);
 		services.AddTelemetry(configuration);
+		services.AddConsulServiceDiscovery(configuration);
 		services.AddRabbitMqConsumers();
 
 		services.AddMediatR(config =>
@@ -143,6 +146,22 @@ public static class DependencyInjection {
 				.AddHttpClientInstrumentation()
 				.AddPrometheusExporter())
 			.AddRabbitMqInstrumentation();
+
+		return services;
+	}
+
+	private static IServiceCollection AddConsulServiceDiscovery(
+		this IServiceCollection services,
+		IConfiguration configuration
+	) {
+		services.Configure<ConsulOptions>(configuration.GetSection(ConsulOptions.SectionName));
+
+		services.AddSingleton<IConsulClient, ConsulClient>(sp => {
+			ConsulOptions options = sp.GetRequiredService<IOptions<ConsulOptions>>().Value;
+			return new ConsulClient(config => config.Address = new Uri(options.Host));
+		});
+
+		services.AddHostedService<ConsulHostedService>();
 
 		return services;
 	}

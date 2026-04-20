@@ -9,7 +9,7 @@ services:
     env_file:
       - .env
     ports:
-      - "5090:5432"
+      - "5442:5432"
     volumes:
       - ms_logistic_db_data:/var/lib/postgresql/data
     healthcheck:
@@ -23,12 +23,12 @@ services:
   ms_logistic_api:
     container_name: ms_logistic_api
     build:
-        context: .
-        dockerfile: src/MsLogistic.WebApi/Dockerfile
+      context: .
+      dockerfile: src/MsLogistic.WebApi/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: Host=ms_logistic_db;Port=5432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
-      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Host: ${INFRA_HOST}
       RabbitMQ__Port: 5672
       RabbitMQ__UserName: ${RABBITMQ_USER}
       RabbitMQ__Password: ${RABBITMQ_PASSWORD}
@@ -45,8 +45,11 @@ services:
       Cloudinary__ApiSecret: ${CLOUDINARY_API_SECRET}
       GoogleMaps__ApiKey: ${GOOGLE_MAPS_API_KEY}
       Telemetry__ServiceName: ms-logistic
-      Telemetry__OtlpEndpoint: ${OTLP_ENDPOINT}
-      Seq__Url: ${SEQ_URL}
+      Telemetry__OtlpEndpoint: http://${INFRA_HOST}:4317
+      Serilog__WriteTo__1__Args__uri: http://${INFRA_HOST}:3100
+      Consul__Host: http://${INFRA_HOST}:8500
+      Consul__ServiceAddress: ${DROPLET_IP}
+      Consul__ServicePort: 80
     env_file:
       - .env
     ports:
@@ -62,7 +65,7 @@ services:
     container_name: ms_logistic_worker
     environment:
       ConnectionStrings__DefaultConnection: Host=ms_logistic_db;Port=5432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
-      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Host: ${INFRA_HOST}
       RabbitMQ__Port: 5672
       RabbitMQ__UserName: ${RABBITMQ_USER}
       RabbitMQ__Password: ${RABBITMQ_PASSWORD}
@@ -74,9 +77,6 @@ services:
       Outbox__PollingInterval: "00:00:10"
       Outbox__BatchSize: 20
       Outbox__MaxRetries: 5
-      Telemetry__ServiceName: ms-logistic-worker
-      Telemetry__OtlpEndpoint: ${OTLP_ENDPOINT}
-      Seq__Url: ${SEQ_URL}
     env_file:
       - .env
     depends_on:
@@ -85,52 +85,9 @@ services:
     networks:
       - internal
 
-  loki:
-    image: grafana/loki:3.0.0
-    container_name: loki
-    restart: unless-stopped
-    command: -config.file=/etc/loki/local-config.yaml
-    ports:
-      - "3100:3100"
-    volumes:
-      - ../loki/data:/loki
-      - ../loki/config.yaml:/etc/loki/local-config.yml
-    networks:
-      - internal
-
-  prometheus:
-    image: prom/prometheus:v2.52.0
-    container_name: prometheus
-    restart: unless-stopped
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus:/etc/prometheus
-      - ../prometheus/data:/prometheus
-    command:
-      - --config.file=/etc/prometheus/prometheus.yml
-      - --storage.tsdb.retention.time=30d
-    networks:
-      - internal
-
-  grafana:
-    image: grafana/grafana:11.1.0
-    container_name: grafana
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin
-    volumes:
-      - ./grafana/data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
-    networks:
-      - internal
-
 volumes:
   ms_logistic_db_data:
 
 networks:
-    internal:
-      driver: bridge
+  internal:
+    driver: bridge
