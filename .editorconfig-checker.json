@@ -7,8 +7,6 @@
 		".github/.*",
 		".config/.*",
 		"README.md",
-		"loki/.*",
-		"grafana/.*",
-		"prometheus/.*"
+		"deploy/.*"
 	]
 }
