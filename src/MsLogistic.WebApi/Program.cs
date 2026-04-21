@@ -36,7 +36,6 @@ WebApplication app = builder.Build();
 app.ApplyMigrations();
 
 app.UseSwaggerConfiguration();
-app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
