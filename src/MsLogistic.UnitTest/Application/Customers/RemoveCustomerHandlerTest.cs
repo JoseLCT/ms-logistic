@@ -14,17 +14,16 @@ namespace MsLogistic.UnitTest.Application.Customers;
 public class RemoveCustomerHandlerTest {
 	private readonly Mock<ICustomerRepository> _customerRepositoryMock;
 	private readonly Mock<IUnitOfWork> _unitOfWorkMock;
-	private readonly Mock<ILogger<RemoveCustomerHandler>> _logger;
 	private readonly RemoveCustomerHandler _handler;
 
 	public RemoveCustomerHandlerTest() {
 		_customerRepositoryMock = new Mock<ICustomerRepository>();
 		_unitOfWorkMock = new Mock<IUnitOfWork>();
-		_logger = new Mock<ILogger<RemoveCustomerHandler>>();
+		var logger = new Mock<ILogger<RemoveCustomerHandler>>();
 		_handler = new RemoveCustomerHandler(
 			_customerRepositoryMock.Object,
 			_unitOfWorkMock.Object,
-			_logger.Object
+			logger.Object
 		);
 	}
 
