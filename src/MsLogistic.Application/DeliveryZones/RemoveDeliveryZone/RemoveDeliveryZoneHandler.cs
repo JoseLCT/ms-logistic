@@ -8,7 +8,7 @@ using MsLogistic.Domain.Shared.Errors;
 
 namespace MsLogistic.Application.DeliveryZones.RemoveDeliveryZone;
 
-public class RemoveDeliveryZoneHandler : IRequestHandler<RemoveDeliveryZoneCommand, Result<Guid>> {
+public class RemoveDeliveryZoneHandler : IRequestHandler<RemoveDeliveryZoneCommand, Result> {
 	private readonly IDeliveryZoneRepository _deliveryZoneRepository;
 	private readonly IUnitOfWork _unitOfWork;
 	private readonly ILogger<RemoveDeliveryZoneHandler> _logger;
@@ -23,11 +23,11 @@ public class RemoveDeliveryZoneHandler : IRequestHandler<RemoveDeliveryZoneComma
 		_logger = logger;
 	}
 
-	public async Task<Result<Guid>> Handle(RemoveDeliveryZoneCommand request, CancellationToken ct) {
+	public async Task<Result> Handle(RemoveDeliveryZoneCommand request, CancellationToken ct) {
 		DeliveryZone? deliveryZone = await _deliveryZoneRepository.GetByIdAsync(request.Id, ct);
 
 		if (deliveryZone is null) {
-			return Result.Failure<Guid>(
+			return Result.Failure(
 				CommonErrors.NotFoundById("DeliveryZone", request.Id)
 			);
 		}
@@ -37,6 +37,6 @@ public class RemoveDeliveryZoneHandler : IRequestHandler<RemoveDeliveryZoneComma
 
 		_logger.LogInformation("Delivery zone with id {DeliveryZoneId} removed successfully.", deliveryZone.Id);
 
-		return Result.Success(deliveryZone.Id);
+		return Result.Success();
 	}
 }

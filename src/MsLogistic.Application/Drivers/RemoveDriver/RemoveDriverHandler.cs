@@ -8,7 +8,7 @@ using MsLogistic.Domain.Shared.Errors;
 
 namespace MsLogistic.Application.Drivers.RemoveDriver;
 
-public class RemoveDriverHandler : IRequestHandler<RemoveDriverCommand, Result<Guid>> {
+public class RemoveDriverHandler : IRequestHandler<RemoveDriverCommand, Result> {
 	private readonly IDriverRepository _driverRepository;
 	private readonly IUnitOfWork _unitOfWork;
 	private readonly ILogger<RemoveDriverHandler> _logger;
@@ -23,11 +23,11 @@ public class RemoveDriverHandler : IRequestHandler<RemoveDriverCommand, Result<G
 		_logger = logger;
 	}
 
-	public async Task<Result<Guid>> Handle(RemoveDriverCommand request, CancellationToken ct) {
+	public async Task<Result> Handle(RemoveDriverCommand request, CancellationToken ct) {
 		Driver? driver = await _driverRepository.GetByIdAsync(request.Id, ct);
 
 		if (driver is null) {
-			return Result.Failure<Guid>(
+			return Result.Failure(
 				CommonErrors.NotFoundById("Driver", request.Id)
 			);
 		}
@@ -37,6 +37,6 @@ public class RemoveDriverHandler : IRequestHandler<RemoveDriverCommand, Result<G
 
 		_logger.LogInformation("Driver with id {DriverId} removed successfully.", driver.Id);
 
-		return Result.Success(driver.Id);
+		return Result.Success();
 	}
 }

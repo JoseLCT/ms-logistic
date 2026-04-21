@@ -8,7 +8,7 @@ using MsLogistic.Core.Results;
 
 namespace MsLogistic.WebApi.Controllers.V1;
 
-// [Authorize]
+[Authorize]
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/batches")]
@@ -20,6 +20,7 @@ public class BatchController : ApiControllerBase {
 	}
 
 	[HttpGet]
+	[ProducesResponseType(typeof(Result<IReadOnlyList<BatchSummaryDto>>), StatusCodes.Status200OK)]
 	public async Task<IActionResult> GetAll() {
 		var query = new GetAllBatchesQuery();
 		Result<IReadOnlyList<BatchSummaryDto>> result = await _mediator.Send(query);
@@ -27,6 +28,8 @@ public class BatchController : ApiControllerBase {
 	}
 
 	[HttpGet("{id:guid}")]
+	[ProducesResponseType(typeof(Result<BatchDetailDto>), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(Result<BatchDetailDto>), StatusCodes.Status404NotFound)]
 	public async Task<IActionResult> GetById(Guid id) {
 		var query = new GetBatchByIdQuery(id);
 		Result<BatchDetailDto> result = await _mediator.Send(query);

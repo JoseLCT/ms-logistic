@@ -8,7 +8,7 @@ using MsLogistic.Domain.Shared.Errors;
 
 namespace MsLogistic.Application.Products.RemoveProduct;
 
-public class RemoveProductHandler : IRequestHandler<RemoveProductCommand, Result<Guid>> {
+public class RemoveProductHandler : IRequestHandler<RemoveProductCommand, Result> {
 	private readonly IProductRepository _productRepository;
 	private readonly IUnitOfWork _unitOfWork;
 	private readonly ILogger<RemoveProductHandler> _logger;
@@ -23,11 +23,11 @@ public class RemoveProductHandler : IRequestHandler<RemoveProductCommand, Result
 		_logger = logger;
 	}
 
-	public async Task<Result<Guid>> Handle(RemoveProductCommand request, CancellationToken ct) {
+	public async Task<Result> Handle(RemoveProductCommand request, CancellationToken ct) {
 		Product? product = await _productRepository.GetByIdAsync(request.Id, ct);
 
 		if (product is null) {
-			return Result.Failure<Guid>(
+			return Result.Failure(
 				CommonErrors.NotFoundById("Product", request.Id)
 			);
 		}
@@ -37,6 +37,6 @@ public class RemoveProductHandler : IRequestHandler<RemoveProductCommand, Result
 
 		_logger.LogInformation("Product with id {ProductId} removed successfully.", product.Id);
 
-		return Result.Success(product.Id);
+		return Result.Success();
 	}
 }

@@ -8,7 +8,7 @@ using MsLogistic.Domain.Shared.Errors;
 
 namespace MsLogistic.Application.Drivers.UpdateDriver;
 
-public class UpdateDriverHandler : IRequestHandler<UpdateDriverCommand, Result<Guid>> {
+public class UpdateDriverHandler : IRequestHandler<UpdateDriverCommand, Result> {
 	private readonly IDriverRepository _driverRepository;
 	private readonly IUnitOfWork _unitOfWork;
 	private readonly ILogger<UpdateDriverHandler> _logger;
@@ -23,11 +23,11 @@ public class UpdateDriverHandler : IRequestHandler<UpdateDriverCommand, Result<G
 		_logger = logger;
 	}
 
-	public async Task<Result<Guid>> Handle(UpdateDriverCommand request, CancellationToken ct) {
+	public async Task<Result> Handle(UpdateDriverCommand request, CancellationToken ct) {
 		Driver? driver = await _driverRepository.GetByIdAsync(request.Id, ct);
 
 		if (driver is null) {
-			return Result.Failure<Guid>(
+			return Result.Failure(
 				CommonErrors.NotFoundById("Driver", request.Id)
 			);
 		}
@@ -40,6 +40,6 @@ public class UpdateDriverHandler : IRequestHandler<UpdateDriverCommand, Result<G
 
 		_logger.LogInformation("Driver with id {DriverId} updated successfully.", driver.Id);
 
-		return Result.Success(driver.Id);
+		return Result.Success();
 	}
 }

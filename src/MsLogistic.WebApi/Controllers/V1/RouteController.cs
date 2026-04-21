@@ -19,6 +19,7 @@ public class RouteController : ApiControllerBase {
 	}
 
 	[HttpGet]
+	[ProducesResponseType(typeof(Result<IReadOnlyList<RouteSummaryDto>>), StatusCodes.Status200OK)]
 	public async Task<IActionResult> GetAll() {
 		var query = new GetAllRoutesQuery();
 		Result<IReadOnlyList<RouteSummaryDto>> result = await _mediator.Send(query);

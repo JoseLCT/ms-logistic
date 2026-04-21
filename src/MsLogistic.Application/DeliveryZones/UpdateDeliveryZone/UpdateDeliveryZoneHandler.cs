@@ -11,7 +11,7 @@ using MsLogistic.Domain.Shared.ValueObjects;
 
 namespace MsLogistic.Application.DeliveryZones.UpdateDeliveryZone;
 
-public class UpdateDeliveryZoneHandler : IRequestHandler<UpdateDeliveryZoneCommand, Result<Guid>> {
+public class UpdateDeliveryZoneHandler : IRequestHandler<UpdateDeliveryZoneCommand, Result> {
 	private readonly IDeliveryZoneRepository _deliveryZoneRepository;
 	private readonly IDriverRepository _driverRepository;
 	private readonly IUnitOfWork _unitOfWork;
@@ -29,11 +29,11 @@ public class UpdateDeliveryZoneHandler : IRequestHandler<UpdateDeliveryZoneComma
 		_logger = logger;
 	}
 
-	public async Task<Result<Guid>> Handle(UpdateDeliveryZoneCommand request, CancellationToken ct) {
+	public async Task<Result> Handle(UpdateDeliveryZoneCommand request, CancellationToken ct) {
 		DeliveryZone? deliveryZone = await _deliveryZoneRepository.GetByIdAsync(request.Id, ct);
 
 		if (deliveryZone is null) {
-			return Result.Failure<Guid>(
+			return Result.Failure(
 				CommonErrors.NotFoundById("DeliveryZone", request.Id)
 			);
 		}
@@ -41,7 +41,7 @@ public class UpdateDeliveryZoneHandler : IRequestHandler<UpdateDeliveryZoneComma
 		if (request.DriverId.HasValue && request.DriverId != deliveryZone.DriverId) {
 			Result driverExistsResult = await DriverExists(request.DriverId.Value, ct);
 			if (driverExistsResult.IsFailure) {
-				return Result.Failure<Guid>(driverExistsResult.Error);
+				return Result.Failure(driverExistsResult.Error);
 			}
 		}
 
@@ -61,7 +61,7 @@ public class UpdateDeliveryZoneHandler : IRequestHandler<UpdateDeliveryZoneComma
 
 		_logger.LogInformation("Delivery zone with id {DeliveryZoneId} updated successfully.", deliveryZone.Id);
 
-		return Result.Success(deliveryZone.Id);
+		return Result.Success();
 	}
 
 	private async Task<Result> DriverExists(Guid driverId, CancellationToken ct) {
