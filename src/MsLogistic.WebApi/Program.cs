@@ -6,7 +6,6 @@ using MsLogistic.Infrastructure;
 using MsLogistic.WebApi.Extensions;
 using MsLogistic.WebApi.Middlewares;
 using Prometheus;
-using Serilog;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -42,9 +41,7 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<CorrelationIdMiddleware>();
-app.UseSerilogRequestLogging(options => {
-	options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} -> {StatusCode} ({Elapsed:0.0} ms)";
-});
+app.UseRequestLogging();
 app.UseHttpMetrics();
 app.MapControllers();
 app.MapMetrics();
