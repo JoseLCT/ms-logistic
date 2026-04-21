@@ -3,4 +3,4 @@ using MsLogistic.Core.Results;
 
 namespace MsLogistic.Application.Products.UpdateProduct;
 
-public record UpdateProductCommand(Guid Id, string Name, string? Description) : IRequest<Result<Guid>>;
+public record UpdateProductCommand(Guid Id, string Name, string? Description) : IRequest<Result>;

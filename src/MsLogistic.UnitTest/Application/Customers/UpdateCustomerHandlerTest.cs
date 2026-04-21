@@ -45,11 +45,11 @@ public class UpdateCustomerHandlerTest {
 			.ReturnsAsync(customer);
 
 		// Act
-		Result<Guid> result = await _handler.Handle(command, CancellationToken.None);
+		Result result = await _handler.Handle(command, CancellationToken.None);
 
 		// Assert
 		result.IsSuccess.Should().BeTrue();
-		result.Value.Should().Be(customer.Id);
+		result.Error.Should().BeNull();
 		customer.FullName.Should().Be(fullName);
 		customer.PhoneNumber.Should().NotBeNull();
 		customer.PhoneNumber!.Value.Should().Be(phoneNumber);
@@ -82,11 +82,11 @@ public class UpdateCustomerHandlerTest {
 			.ReturnsAsync(customer);
 
 		// Act
-		Result<Guid> result = await _handler.Handle(command, CancellationToken.None);
+		Result result = await _handler.Handle(command, CancellationToken.None);
 
 		// Assert
 		result.IsSuccess.Should().BeTrue();
-		result.Value.Should().Be(customer.Id);
+		result.Error.Should().BeNull();
 		customer.FullName.Should().Be(fullName);
 		customer.PhoneNumber.Should().BeNull();
 
@@ -112,7 +112,7 @@ public class UpdateCustomerHandlerTest {
 			.ReturnsAsync((Customer?)null);
 
 		// Act
-		Result<Guid> result = await _handler.Handle(command, CancellationToken.None);
+		Result result = await _handler.Handle(command, CancellationToken.None);
 
 		// Assert
 		result.IsSuccess.Should().BeFalse();

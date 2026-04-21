@@ -14,17 +14,16 @@ namespace MsLogistic.UnitTest.Application.Customers;
 public class RemoveCustomerHandlerTest {
 	private readonly Mock<ICustomerRepository> _customerRepositoryMock;
 	private readonly Mock<IUnitOfWork> _unitOfWorkMock;
-	private readonly Mock<ILogger<RemoveCustomerHandler>> _logger;
 	private readonly RemoveCustomerHandler _handler;
 
 	public RemoveCustomerHandlerTest() {
 		_customerRepositoryMock = new Mock<ICustomerRepository>();
 		_unitOfWorkMock = new Mock<IUnitOfWork>();
-		_logger = new Mock<ILogger<RemoveCustomerHandler>>();
+		var logger = new Mock<ILogger<RemoveCustomerHandler>>();
 		_handler = new RemoveCustomerHandler(
 			_customerRepositoryMock.Object,
 			_unitOfWorkMock.Object,
-			_logger.Object
+			logger.Object
 		);
 	}
 
@@ -43,11 +42,11 @@ public class RemoveCustomerHandlerTest {
 			.ReturnsAsync(customer);
 
 		// Act
-		Result<Guid> result = await _handler.Handle(command, CancellationToken.None);
+		Result result = await _handler.Handle(command, CancellationToken.None);
 
 		// Assert
 		result.IsSuccess.Should().BeTrue();
-		result.Value.Should().Be(customer.Id);
+		result.Error.Should().BeNull();
 
 		_customerRepositoryMock.Verify(
 			x => x.GetByIdAsync(customer.Id, It.IsAny<CancellationToken>()),
@@ -76,7 +75,7 @@ public class RemoveCustomerHandlerTest {
 			.ReturnsAsync((Customer?)null);
 
 		// Act
-		Result<Guid> result = await _handler.Handle(command, CancellationToken.None);
+		Result result = await _handler.Handle(command, CancellationToken.None);
 
 		// Assert
 		result.IsSuccess.Should().BeFalse();

@@ -8,7 +8,7 @@ using MsLogistic.Domain.Shared.Errors;
 
 namespace MsLogistic.Application.Products.UpdateProduct;
 
-public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, Result<Guid>> {
+public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, Result> {
 	private readonly IProductRepository _productRepository;
 	private readonly IUnitOfWork _unitOfWork;
 	private readonly ILogger<UpdateProductHandler> _logger;
@@ -23,11 +23,11 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, Result
 		_logger = logger;
 	}
 
-	public async Task<Result<Guid>> Handle(UpdateProductCommand request, CancellationToken ct) {
+	public async Task<Result> Handle(UpdateProductCommand request, CancellationToken ct) {
 		Product? product = await _productRepository.GetByIdAsync(request.Id, ct);
 
 		if (product is null) {
-			return Result.Failure<Guid>(
+			return Result.Failure(
 				CommonErrors.NotFoundById("Product", request.Id)
 			);
 		}
@@ -40,6 +40,6 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, Result
 
 		_logger.LogInformation("Product with id {ProductId} updated successfully.", product.Id);
 
-		return Result.Success(product.Id);
+		return Result.Success();
 	}
 }

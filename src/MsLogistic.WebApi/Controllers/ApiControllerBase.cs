@@ -1,10 +1,10 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MsLogistic.Core.Results;
 
 namespace MsLogistic.WebApi.Controllers;
 
 [ApiController]
+[ProducesResponseType(typeof(Result), StatusCodes.Status400BadRequest)]
 public abstract class ApiControllerBase : ControllerBase {
 	protected IActionResult HandleResult<T>(Result<T> result) {
 		return result.IsSuccess
@@ -14,62 +14,36 @@ public abstract class ApiControllerBase : ControllerBase {
 
 	protected IActionResult HandleResult(Result result) {
 		return result.IsSuccess
-			? Ok()
+			? Ok(result)
+			: HandleFailure(result);
+	}
+
+	protected IActionResult HandleCreatedResult<T>(
+		Result<T> result,
+		string actionName,
+		object? routeValues = null
+	) {
+		return result.IsSuccess
+			? CreatedAtAction(actionName, routeValues, result)
+			: HandleFailure(result);
+	}
+
+	protected IActionResult HandleNoContentResult(Result result) {
+		return result.IsSuccess
+			? NoContent()
 			: HandleFailure(result);
 	}
 
 	private IActionResult HandleFailure(Result result) {
-		return result.Error.Type switch {
-			ErrorType.NotFound => NotFound(CreateProblemDetails(
-				"Resource Not Found",
-				StatusCodes.Status404NotFound,
-				result.Error)),
-
-			ErrorType.Validation => BadRequest(CreateProblemDetails(
-				"Validation Failed",
-				StatusCodes.Status400BadRequest,
-				result.Error)),
-
-			ErrorType.Conflict => Conflict(CreateProblemDetails(
-				"Conflict Occurred",
-				StatusCodes.Status409Conflict,
-				result.Error)),
-
-			ErrorType.Unauthorized => Unauthorized(CreateProblemDetails(
-				"Unauthorized Access",
-				StatusCodes.Status401Unauthorized,
-				result.Error)),
-
-			ErrorType.Forbidden => StatusCode(
-				StatusCodes.Status403Forbidden,
-				CreateProblemDetails(
-					"Forbidden",
-					StatusCodes.Status403Forbidden,
-					result.Error)),
-
-			_ => StatusCode(
-				StatusCodes.Status500InternalServerError,
-				CreateProblemDetails(
-					"Internal Server Error",
-					StatusCodes.Status500InternalServerError,
-					result.Error))
+		int statusCode = result.Error.Type switch {
+			ErrorType.NotFound => StatusCodes.Status404NotFound,
+			ErrorType.Validation => StatusCodes.Status400BadRequest,
+			ErrorType.Conflict => StatusCodes.Status409Conflict,
+			ErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
+			ErrorType.Forbidden => StatusCodes.Status403Forbidden,
+			_ => StatusCodes.Status500InternalServerError
 		};
-	}
 
-
-	private ProblemDetails CreateProblemDetails(
-		string title,
-		int status,
-		Error error) {
-		return new ProblemDetails {
-			Title = title,
-			Status = status,
-			Detail = error.Message,
-			Extensions =
-			{
-				["errorCode"] = error.Code,
-				["timestamp"] = DateTime.UtcNow
-			}
-		};
+		return StatusCode(statusCode, result);
 	}
 }

@@ -9,7 +9,7 @@ using MsLogistic.Domain.Shared.ValueObjects;
 
 namespace MsLogistic.Application.Customers.UpdateCustomer;
 
-public class UpdateCustomerHandler : IRequestHandler<UpdateCustomerCommand, Result<Guid>> {
+public class UpdateCustomerHandler : IRequestHandler<UpdateCustomerCommand, Result> {
 	private readonly ICustomerRepository _customerRepository;
 	private readonly IUnitOfWork _unitOfWork;
 	private readonly ILogger<UpdateCustomerHandler> _logger;
@@ -24,11 +24,11 @@ public class UpdateCustomerHandler : IRequestHandler<UpdateCustomerCommand, Resu
 		_logger = logger;
 	}
 
-	public async Task<Result<Guid>> Handle(UpdateCustomerCommand request, CancellationToken ct) {
+	public async Task<Result> Handle(UpdateCustomerCommand request, CancellationToken ct) {
 		Customer? customer = await _customerRepository.GetByIdAsync(request.Id, ct);
 
 		if (customer is null) {
-			return Result.Failure<Guid>(
+			return Result.Failure(
 				CommonErrors.NotFoundById("Customer", request.Id)
 			);
 		}
@@ -45,6 +45,6 @@ public class UpdateCustomerHandler : IRequestHandler<UpdateCustomerCommand, Resu
 
 		_logger.LogInformation("Customer with id {CustomerId} updated successfully.", customer.Id);
 
-		return Result.Success(customer.Id);
+		return Result.Success();
 	}
 }

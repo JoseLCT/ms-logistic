@@ -10,4 +10,4 @@ public record UpdateDeliveryZoneCommand(
 	string Code,
 	string Name,
 	IEnumerable<CoordinateDto> Boundaries
-) : IRequest<Result<Guid>>;
+) : IRequest<Result>;
