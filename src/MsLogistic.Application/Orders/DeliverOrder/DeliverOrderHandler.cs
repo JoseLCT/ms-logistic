@@ -69,7 +69,7 @@ public class DeliverOrderHandler : IRequestHandler<DeliverOrderCommand, Result> 
 			request.DriverId,
 			location,
 			request.Comments,
-			uploadResult.Value.Url
+			uploadResult.Value?.Url
 		);
 
 		var outboxMessage = OutboxMessage.CreateWithCurrentTrace(new OrderDeliveredMessage {

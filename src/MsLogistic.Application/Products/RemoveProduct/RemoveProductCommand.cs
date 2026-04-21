@@ -3,4 +3,4 @@ using MsLogistic.Core.Results;
 
 namespace MsLogistic.Application.Products.RemoveProduct;
 
-public record RemoveProductCommand(Guid Id) : IRequest<Result<Guid>>;
+public record RemoveProductCommand(Guid Id) : IRequest<Result>;

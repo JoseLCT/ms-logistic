@@ -25,6 +25,7 @@ public class DeliveryZoneController : ApiControllerBase {
 	}
 
 	[HttpGet]
+	[ProducesResponseType(typeof(Result<IReadOnlyList<DeliveryZoneSummaryDto>>), StatusCodes.Status200OK)]
 	public async Task<IActionResult> GetAll() {
 		var query = new GetAllDeliveryZonesQuery();
 		Result<IReadOnlyList<DeliveryZoneSummaryDto>> result = await _mediator.Send(query);
@@ -32,6 +33,8 @@ public class DeliveryZoneController : ApiControllerBase {
 	}
 
 	[HttpGet("{id:guid}")]
+	[ProducesResponseType(typeof(Result<DeliveryZoneDetailDto>), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(Result<DeliveryZoneDetailDto>), StatusCodes.Status404NotFound)]
 	public async Task<IActionResult> GetById(Guid id) {
 		var query = new GetDeliveryZoneByIdQuery(id);
 		Result<DeliveryZoneDetailDto> result = await _mediator.Send(query);
@@ -39,29 +42,38 @@ public class DeliveryZoneController : ApiControllerBase {
 	}
 
 	[HttpPost]
+	[ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status201Created)]
 	public async Task<IActionResult> Create([FromBody] CreateDeliveryZoneContract contract) {
 		var boundaries = contract.Boundaries
 			.Select(c => new CoordinateDto(c.Latitude, c.Longitude))
 			.ToList();
 		var command = new CreateDeliveryZoneCommand(contract.DriverId, contract.Code, contract.Name, boundaries);
 		Result<Guid> result = await _mediator.Send(command);
-		return HandleResult(result);
+		return HandleCreatedResult(
+			result,
+			nameof(GetById),
+			new { id = result.IsSuccess ? result.Value : Guid.Empty }
+		);
 	}
 
 	[HttpPut("{id:guid}")]
+	[ProducesResponseType(StatusCodes.Status204NoContent)]
+	[ProducesResponseType(typeof(Result), StatusCodes.Status404NotFound)]
 	public async Task<IActionResult> Update(Guid id, [FromBody] UpdateDeliveryZoneContract contract) {
 		var boundaries = contract.Boundaries
 			.Select(c => new CoordinateDto(c.Latitude, c.Longitude))
 			.ToList();
 		var command = new UpdateDeliveryZoneCommand(id, contract.DriverId, contract.Code, contract.Name, boundaries);
-		Result<Guid> result = await _mediator.Send(command);
-		return HandleResult(result);
+		Result result = await _mediator.Send(command);
+		return HandleNoContentResult(result);
 	}
 
 	[HttpDelete("{id:guid}")]
+	[ProducesResponseType(StatusCodes.Status204NoContent)]
+	[ProducesResponseType(typeof(Result), StatusCodes.Status404NotFound)]
 	public async Task<IActionResult> Remove(Guid id) {
 		var command = new RemoveDeliveryZoneCommand(id);
-		Result<Guid> result = await _mediator.Send(command);
-		return HandleResult(result);
+		Result result = await _mediator.Send(command);
+		return HandleNoContentResult(result);
 	}
 }
