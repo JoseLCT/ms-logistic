@@ -43,11 +43,11 @@ public class RemoveCustomerHandlerTest {
 			.ReturnsAsync(customer);
 
 		// Act
-		Result<Guid> result = await _handler.Handle(command, CancellationToken.None);
+		Result result = await _handler.Handle(command, CancellationToken.None);
 
 		// Assert
 		result.IsSuccess.Should().BeTrue();
-		result.Value.Should().Be(customer.Id);
+		result.Error.Should().BeNull();
 
 		_customerRepositoryMock.Verify(
 			x => x.GetByIdAsync(customer.Id, It.IsAny<CancellationToken>()),
@@ -76,7 +76,7 @@ public class RemoveCustomerHandlerTest {
 			.ReturnsAsync((Customer?)null);
 
 		// Act
-		Result<Guid> result = await _handler.Handle(command, CancellationToken.None);
+		Result result = await _handler.Handle(command, CancellationToken.None);
 
 		// Assert
 		result.IsSuccess.Should().BeFalse();
