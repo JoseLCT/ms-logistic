@@ -9,17 +9,23 @@ public static class SwaggerExtension {
 		services.AddSwaggerGen(options => {
 			options.AddSecurityDefinition("Bearer",
 				new OpenApiSecurityScheme {
-					Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+					Description =
+						"JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
 					Name = "Authorization",
 					In = ParameterLocation.Header,
 					Type = SecuritySchemeType.Http,
-					Scheme = "Bearer"
+					Scheme = "bearer",
+					BearerFormat = "JWT"
 				});
 
-			options.AddSecurityRequirement(doc =>
-				new OpenApiSecurityRequirement {
-					{ new OpenApiSecuritySchemeReference("Bearer"), new List<string>() }
-				});
+			options.AddSecurityRequirement(doc => {
+				var requirement = new OpenApiSecurityRequirement();
+				requirement.Add(
+					new OpenApiSecuritySchemeReference("Bearer", doc),
+					new List<string>()
+				);
+				return requirement;
+			});
 		});
 
 		services.ConfigureOptions<ConfigureSwaggerOptions>();
@@ -29,7 +35,8 @@ public static class SwaggerExtension {
 	public static IApplicationBuilder UseSwaggerConfiguration(this IApplicationBuilder app) {
 		app.UseSwagger();
 		app.UseSwaggerUI(options => {
-			IApiVersionDescriptionProvider provider = app.ApplicationServices.GetRequiredService<IApiVersionDescriptionProvider>();
+			IApiVersionDescriptionProvider provider =
+				app.ApplicationServices.GetRequiredService<IApiVersionDescriptionProvider>();
 
 			foreach (ApiVersionDescription? description in provider.ApiVersionDescriptions.Reverse()) {
 				options.SwaggerEndpoint(
