@@ -13,6 +13,9 @@ internal class ProductConfig : IEntityTypeConfiguration<Product> {
 		builder.Property(x => x.Id)
 			.HasColumnName("id");
 
+		builder.Property(x => x.ExternalId)
+			.HasColumnName("external_id");
+
 		builder.Property(x => x.Name)
 			.HasColumnName("name")
 			.HasMaxLength(100);

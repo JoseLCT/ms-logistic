@@ -14,6 +14,9 @@ internal class CustomerConfig : IEntityTypeConfiguration<Customer> {
 		builder.Property(x => x.Id)
 			.HasColumnName("id");
 
+		builder.Property(x => x.ExternalId)
+			.HasColumnName("external_id");
+
 		builder.Property(c => c.FullName)
 			.HasColumnName("full_name")
 			.HasMaxLength(100);
