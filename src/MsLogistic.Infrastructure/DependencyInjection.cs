@@ -179,6 +179,7 @@ public static class DependencyInjection {
 		services.AddScoped<IIntegrationMessageConsumer<OrderCreatedMessage>, OnOrderCreated>();
 		services.AddScoped<IIntegrationMessageConsumer<PatientCreatedMessage>, OnPatientCreated>();
 		services.AddScoped<IIntegrationMessageConsumer<OrderBatchCompletedMessage>, OnOrderBatchCompleted>();
+		services.AddScoped<IIntegrationMessageConsumer<RecipeCreatedMessage>, OnRecipeCreated>();
 
 		return services;
 	}
