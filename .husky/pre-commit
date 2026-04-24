@@ -1,2 +1,1 @@
-npm run ec
-npx lint-staged
+npx lint-staged && npm run ec

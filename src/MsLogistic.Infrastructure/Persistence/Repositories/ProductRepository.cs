@@ -22,6 +22,22 @@ internal class ProductRepository : IProductRepository {
 		return product;
 	}
 
+	public async Task<Product?> GetByExternalIdAsync(Guid externalId, CancellationToken ct = default) {
+		Product? product = await _dbContext.Products.FirstOrDefaultAsync(p => p.ExternalId == externalId, ct);
+		return product;
+	}
+
+	public async Task<IReadOnlyList<Product>> GetByExternalIdsAsync(
+		IReadOnlyCollection<Guid> externalIds,
+		CancellationToken ct = default
+	) {
+		var ids = externalIds.ToList();
+		List<Product> products = await _dbContext.Products
+			.Where(p => p.ExternalId.HasValue && ids.Contains(p.ExternalId.Value))
+			.ToListAsync(ct);
+		return products;
+	}
+
 	public async Task<IReadOnlyList<Product>> GetByIdsAsync(
 		IReadOnlyCollection<Guid> ids,
 		CancellationToken ct = default

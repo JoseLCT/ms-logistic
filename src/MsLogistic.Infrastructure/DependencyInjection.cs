@@ -23,6 +23,7 @@ using MsLogistic.Domain.Orders.Repositories;
 using MsLogistic.Domain.Products.Repositories;
 using MsLogistic.Domain.Routes.Repositories;
 using Consul;
+using MsLogistic.Application.Abstractions.Options;
 using MsLogistic.Infrastructure.External.Cloudinary;
 using MsLogistic.Infrastructure.External.Consul;
 using MsLogistic.Infrastructure.External.GoogleMaps;
@@ -42,6 +43,10 @@ public static class DependencyInjection {
 
 		services.AddOutboxEfCore<DomainDbContext>();
 		services.AddScoped<IOutboxDatabase, UnitOfWork>();
+
+		services.Configure<LogisticsOptions>(
+			configuration.GetSection(LogisticsOptions.SectionName)
+		);
 
 		services.AddCloudinary(configuration);
 		services.AddGoogleMaps(configuration);
@@ -173,6 +178,7 @@ public static class DependencyInjection {
 
 		services.AddScoped<IIntegrationMessageConsumer<OrderCreatedMessage>, OnOrderCreated>();
 		services.AddScoped<IIntegrationMessageConsumer<PatientCreatedMessage>, OnPatientCreated>();
+		services.AddScoped<IIntegrationMessageConsumer<OrderBatchCompletedMessage>, OnOrderBatchCompleted>();
 
 		return services;
 	}

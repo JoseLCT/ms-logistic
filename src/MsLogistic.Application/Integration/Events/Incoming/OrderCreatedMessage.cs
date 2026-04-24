@@ -1,4 +1,6 @@
+using System.Text.Json.Serialization;
 using Joselct.Communication.Contracts.Messages;
+using MsLogistic.Application.Integration.Serialization;
 
 namespace MsLogistic.Application.Integration.Events.Incoming;
 
@@ -16,6 +18,9 @@ public record OrderItemMessage {
 }
 
 public record DeliveryLocationMessage {
+	[JsonConverter(typeof(StringOrDoubleConverter))]
 	public double Latitude { get; init; }
+
+	[JsonConverter(typeof(StringOrDoubleConverter))]
 	public double Longitude { get; init; }
 }

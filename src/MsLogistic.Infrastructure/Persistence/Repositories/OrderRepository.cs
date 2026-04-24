@@ -27,7 +27,11 @@ internal class OrderRepository : IOrderRepository {
 	}
 
 	public async Task<IReadOnlyList<Order>> GetByBatchIdAsync(Guid batchId, CancellationToken ct = default) {
-		List<Order> orders = await _dbContext.Orders.Where(o => o.BatchId == batchId).ToListAsync(ct);
+		List<Order> orders = await _dbContext.Orders
+			.Include(o => o.Items)
+			.Where(o => o.BatchId == batchId)
+			.AsSplitQuery()
+			.ToListAsync(ct);
 		return orders;
 	}
 
