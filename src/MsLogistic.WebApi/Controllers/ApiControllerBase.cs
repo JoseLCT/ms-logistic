@@ -30,12 +30,13 @@ public abstract class ApiControllerBase : ControllerBase {
 
 	protected IActionResult HandleNoContentResult(Result result) {
 		return result.IsSuccess
-			? NoContent()
+			// ? NoContent()
+			? Ok(result)
 			: HandleFailure(result);
 	}
 
 	private IActionResult HandleFailure(Result result) {
-		int statusCode = result.Error.Type switch {
+		int statusCode = result.Error?.Type switch {
 			ErrorType.NotFound => StatusCodes.Status404NotFound,
 			ErrorType.Validation => StatusCodes.Status400BadRequest,
 			ErrorType.Conflict => StatusCodes.Status409Conflict,
