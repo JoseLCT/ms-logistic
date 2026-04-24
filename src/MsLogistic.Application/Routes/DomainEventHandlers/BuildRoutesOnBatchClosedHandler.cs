@@ -23,7 +23,7 @@ internal class BuildRoutesOnBatchClosedHandler : INotificationHandler<BatchClose
 	private readonly IRouteRepository _routeRepository;
 	private readonly IRouteCalculator _routeCalculator;
 	private readonly IUnitOfWork _unitOfWork;
-	private readonly IOptions<DepotOptions> _depotOptions;
+	private readonly IOptions<LogisticsOptions> _logisticsOptions;
 	private readonly ILogger<BuildRoutesOnBatchClosedHandler> _logger;
 
 	public BuildRoutesOnBatchClosedHandler(
@@ -32,7 +32,7 @@ internal class BuildRoutesOnBatchClosedHandler : INotificationHandler<BatchClose
 		IRouteRepository routeRepository,
 		IRouteCalculator routeCalculator,
 		IUnitOfWork unitOfWork,
-		IOptions<DepotOptions> depotOptions,
+		IOptions<LogisticsOptions> logisticsOptions,
 		ILogger<BuildRoutesOnBatchClosedHandler> logger
 	) {
 		_orderRepository = orderRepository;
@@ -40,7 +40,7 @@ internal class BuildRoutesOnBatchClosedHandler : INotificationHandler<BatchClose
 		_routeRepository = routeRepository;
 		_routeCalculator = routeCalculator;
 		_unitOfWork = unitOfWork;
-		_depotOptions = depotOptions;
+		_logisticsOptions = logisticsOptions;
 		_logger = logger;
 	}
 
@@ -55,8 +55,8 @@ internal class BuildRoutesOnBatchClosedHandler : INotificationHandler<BatchClose
 		IReadOnlyList<DeliveryZone> deliveryZones = await _deliveryZoneRepository.GetAllAsync(ct);
 
 		var origin = GeoPointValue.Create(
-			_depotOptions.Value.Latitude,
-			_depotOptions.Value.Longitude
+			_logisticsOptions.Value.Depot.Latitude,
+			_logisticsOptions.Value.Depot.Longitude
 		);
 
 		var ordersByZone = orders
@@ -82,18 +82,25 @@ internal class BuildRoutesOnBatchClosedHandler : INotificationHandler<BatchClose
 			var zoneOrders = zoneGroup.Select(x => x.Order).ToList();
 			DeliveryZone zone = deliveryZones.First(z => z.Id == zoneId);
 
+			if (zoneOrders.Count == 1) {
+				var singleRoute = Route.Create(notification.BatchId, zoneId, zone.DriverId, origin);
+				await _routeRepository.AddAsync(singleRoute, ct);
+				zoneOrders[0].AssignToRoute(singleRoute.Id, deliverySequence: 1);
+				continue;
+			}
+
 			var waypoints = zoneOrders
 				.Select(o => new Waypoint(o.Id, o.DeliveryLocation))
 				.ToList();
 
 			Result<OrderedRoute> routeResult = await _routeCalculator.CalculateOrderAsync(origin, waypoints, ct);
 
-			if (routeResult.IsFailure) {
+			if (routeResult.IsFailure || routeResult.Value is null) {
 				_logger.LogError(
 					"Failed to calculate route for zone {ZoneId} in batch {BatchId}: {Error}",
 					zoneId,
 					notification.BatchId,
-					routeResult.Error.Message
+					routeResult.Error?.Message
 				);
 				continue;
 			}
@@ -110,7 +117,6 @@ internal class BuildRoutesOnBatchClosedHandler : INotificationHandler<BatchClose
 			foreach (OrderedWaypoint orderedWaypoint in routeResult.Value.Waypoints) {
 				Order order = zoneOrders.First(o => o.Id == orderedWaypoint.WaypointId);
 				order.AssignToRoute(route.Id, orderedWaypoint.Sequence);
-				_orderRepository.Update(order);
 			}
 		}
 

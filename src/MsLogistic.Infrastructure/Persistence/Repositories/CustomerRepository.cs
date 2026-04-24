@@ -23,6 +23,11 @@ internal class CustomerRepository : ICustomerRepository {
 		return customer;
 	}
 
+	public async Task<Customer?> GetByExternalIdAsync(Guid externalId, CancellationToken ct = default) {
+		Customer? customer = await _dbContext.Customers.FirstOrDefaultAsync(c => c.ExternalId == externalId, ct);
+		return customer;
+	}
+
 	public async Task AddAsync(Customer customer, CancellationToken ct = default) {
 		await _dbContext.Customers.AddAsync(customer, ct);
 	}

@@ -12,8 +12,9 @@ public class IntegrationEventDispatcher : IIntegrationMessageConsumer<RawMessage
 	private readonly ILogger<IntegrationEventDispatcher> _logger;
 
 	private static readonly Dictionary<string, Type> _routes = new() {
+		["patient.created"] = typeof(PatientCreatedMessage),
 		["order.created"] = typeof(OrderCreatedMessage),
-		["patient.created"] = typeof(PatientCreatedMessage)
+		["order.completed"] = typeof(OrderBatchCompletedMessage)
 	};
 
 	private static readonly JsonSerializerOptions _jsonOptions = new() {
