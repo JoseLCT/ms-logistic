@@ -33,7 +33,7 @@ internal class GetDeliveryZoneByIdHandler : IRequestHandler<GetDeliveryZoneByIdQ
 			deliveryZone.DriverId,
 			deliveryZone.Code,
 			deliveryZone.Name,
-			deliveryZone.Boundaries.Coordinates.Select(c => new CoordinateDto(c.X, c.Y)).ToList()
+			deliveryZone.Boundaries.Coordinates.Select(c => new CoordinateDto(c.Y, c.X)).ToList()
 		);
 
 		return Result.Success(dto);
