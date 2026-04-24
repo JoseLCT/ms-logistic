@@ -9,6 +9,9 @@ internal class CustomerPersistenceModel {
 	[Column("id")]
 	public Guid Id { get; set; }
 
+	[Column("external_id")]
+	public Guid ExternalId { get; set; }
+
 	[Column("full_name")]
 	[StringLength(100)]
 	public required string FullName { get; set; }

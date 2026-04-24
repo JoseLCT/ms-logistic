@@ -1,6 +1,6 @@
 using Joselct.Communication.Contracts.Services;
 using MediatR;
-using MsLogistic.Application.Customers.CreateCustomer;
+using MsLogistic.Application.Customers.SyncCustomerFromExternal;
 using MsLogistic.Application.Integration.Events.Incoming;
 
 namespace MsLogistic.Application.Integration.Handlers;
@@ -14,7 +14,8 @@ public class OnPatientCreated : IIntegrationMessageConsumer<PatientCreatedMessag
 
 	public async Task HandleAsync(PatientCreatedMessage message, CancellationToken ct = default) {
 		string fullName = $"{message.FirstName} {message.MiddleName} {message.LastName}".Trim();
-		var command = new CreateCustomerCommand(
+		var command = new SyncCustomerFromExternalCommand(
+			ExternalId: message.PatientId,
 			FullName: fullName,
 			PhoneNumber: message.PhoneNumber
 		);
