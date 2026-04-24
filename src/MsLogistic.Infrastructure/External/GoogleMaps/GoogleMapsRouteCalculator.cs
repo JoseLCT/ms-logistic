@@ -36,9 +36,7 @@ public class GoogleMapsRouteCalculator : IRouteCalculator {
 		}
 
 		var waypointsList = waypoints.ToList();
-		var middleWaypoints = waypointsList.SkipLast(1).ToList();
-
-		string waypointsParam = string.Join("|", middleWaypoints
+		string waypointsParam = string.Join("|", waypointsList
 			.Select(w => $"{w.Location.Latitude},{w.Location.Longitude}"));
 
 		string baseRequestUrl =

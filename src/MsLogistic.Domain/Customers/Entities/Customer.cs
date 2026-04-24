@@ -8,19 +8,21 @@ namespace MsLogistic.Domain.Customers.Entities;
 public class Customer : AggregateRoot {
 	public string FullName { get; private set; }
 	public PhoneNumberValue? PhoneNumber { get; private set; }
+	public Guid? ExternalId { get; private set; }
 
 	private Customer() {
 	}
 
-	private Customer(string fullName, PhoneNumberValue? phoneNumber)
+	private Customer(string fullName, PhoneNumberValue? phoneNumber, Guid? externalId)
 		: base(Guid.NewGuid()) {
 		FullName = fullName;
 		PhoneNumber = phoneNumber;
+		ExternalId = externalId;
 	}
 
-	public static Customer Create(string fullName, PhoneNumberValue? phoneNumber) {
+	public static Customer Create(string fullName, PhoneNumberValue? phoneNumber, Guid? externalId = null) {
 		ValidateFullName(fullName);
-		return new Customer(fullName, phoneNumber);
+		return new Customer(fullName, phoneNumber, externalId);
 	}
 
 	public void SetFullName(string fullName) {

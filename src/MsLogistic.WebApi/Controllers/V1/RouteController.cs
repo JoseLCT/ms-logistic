@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MsLogistic.Application.Routes.GetAllRoutes;
+using MsLogistic.Application.Routes.GetRouteById;
 using MsLogistic.Core.Results;
 
 namespace MsLogistic.WebApi.Controllers.V1;
@@ -23,6 +24,15 @@ public class RouteController : ApiControllerBase {
 	public async Task<IActionResult> GetAll() {
 		var query = new GetAllRoutesQuery();
 		Result<IReadOnlyList<RouteSummaryDto>> result = await _mediator.Send(query);
+		return HandleResult(result);
+	}
+
+	[HttpGet("{id:guid}")]
+	[ProducesResponseType(typeof(Result<RouteDetailDto>), StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<IActionResult> GetById(Guid id) {
+		var query = new GetRouteByIdQuery(id);
+		Result<RouteDetailDto> result = await _mediator.Send(query);
 		return HandleResult(result);
 	}
 }
