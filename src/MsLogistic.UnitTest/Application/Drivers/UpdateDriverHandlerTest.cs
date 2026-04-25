@@ -47,6 +47,7 @@ public class UpdateDriverHandlerTest {
 
 		// Assert
 		result.IsSuccess.Should().BeTrue();
+		capturedDriver.Should().NotBeNull();
 		capturedDriver.FullName.Should().Be(command.FullName);
 		capturedDriver.IsActive.Should().Be(command.IsActive);
 		_driverRepositoryMock.Verify(x => x.Update(driver), Times.Once);
