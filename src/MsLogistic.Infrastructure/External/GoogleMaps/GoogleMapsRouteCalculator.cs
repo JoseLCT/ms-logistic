@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net.Http.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -37,12 +38,14 @@ public class GoogleMapsRouteCalculator : IRouteCalculator {
 
 		var waypointsList = waypoints.ToList();
 		string waypointsParam = string.Join("|", waypointsList
-			.Select(w => $"{w.Location.Latitude},{w.Location.Longitude}"));
+			.Select(w => FormatCoord(w.Location)));
+
+		string originStr = FormatCoord(origin);
 
 		string baseRequestUrl =
 			$"{_options.Value.BaseUrl}/directions/json" +
-			$"?origin={origin.Latitude},{origin.Longitude}" +
-			$"&destination={origin.Latitude},{origin.Longitude}" +
+			$"?origin={originStr}" +
+			$"&destination={originStr}" +
 			$"&waypoints=optimize:true|{waypointsParam}";
 
 		string requestUrl = $"{baseRequestUrl}&key={_options.Value.ApiKey}";
@@ -93,5 +96,11 @@ public class GoogleMapsRouteCalculator : IRouteCalculator {
 				message: "An exception occurred while retrieving route from Google Maps."
 			));
 		}
+	}
+
+	private static string FormatCoord(GeoPointValue p) {
+		string lat = p.Latitude.ToString(CultureInfo.InvariantCulture);
+		string lng = p.Longitude.ToString(CultureInfo.InvariantCulture);
+		return $"{lat},{lng}";
 	}
 }
