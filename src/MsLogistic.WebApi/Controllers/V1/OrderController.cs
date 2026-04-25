@@ -81,7 +81,6 @@ public class OrderController : ApiControllerBase {
 
 		var command = new DeliverOrderCommand {
 			OrderId = id,
-			DriverId = contract.DriverId,
 			Location = location,
 			ImageStream = contract.Image.OpenReadStream(),
 			ImageFileName = contract.Image.FileName,
