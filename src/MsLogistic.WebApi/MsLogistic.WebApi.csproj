@@ -74,5 +74,6 @@
 
 	<ItemGroup>
 		<InternalsVisibleTo Include="MsLogistic.UnitTest" />
+		<InternalsVisibleTo Include="MsLogistic.IntegrationTest" />
 	</ItemGroup>
 </Project>

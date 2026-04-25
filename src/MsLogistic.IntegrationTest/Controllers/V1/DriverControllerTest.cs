@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MsLogistic.Application.Drivers.GetAllDrivers;
@@ -9,12 +8,14 @@ using MsLogistic.Application.Drivers.GetDriverById;
 using MsLogistic.Infrastructure.Persistence.PersistenceModel;
 using MsLogistic.Infrastructure.Persistence.PersistenceModel.EFCoreEntities;
 using MsLogistic.IntegrationTest.Fixtures;
+using MsLogistic.IntegrationTest.Helpers;
 using MsLogistic.WebApi.Contracts.V1.Drivers;
 using Xunit;
 
 namespace MsLogistic.IntegrationTest.Controllers.V1;
 
 public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>, IAsyncLifetime {
+	private const string BaseUrl = "/api/logistic/v1/drivers";
 	private readonly HttpClient _client;
 	private readonly WebApplicationFactoryFixture _factory;
 	private readonly List<Guid> _createdDriverIds = [];
@@ -27,7 +28,7 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
 	public Task InitializeAsync() => Task.CompletedTask;
 
 	public async Task DisposeAsync() {
-		if (!_createdDriverIds.Any()) {
+		if (_createdDriverIds.Count == 0) {
 			return;
 		}
 
@@ -38,7 +39,7 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
 			.Where(d => _createdDriverIds.Contains(d.Id))
 			.ToListAsync();
 
-		if (driversToDelete.Any()) {
+		if (driversToDelete.Count != 0) {
 			persistenceDb.Drivers.RemoveRange(driversToDelete);
 			await persistenceDb.SaveChangesAsync();
 		}
@@ -50,20 +51,22 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
 	public async Task CreateDriver_WithValidData_ShouldCreateDriverSuccessfully() {
 		// Arrange
 		var contract = new CreateDriverContract {
-			FullName = "Juan PÃ©rez GarcÃ­a"
+			FullName = "Juan Perez"
 		};
 
 		// Act
-		HttpResponseMessage response = await _client.PostAsJsonAsync("/api/v1/drivers", contract);
+		HttpResponseMessage response = await _client.PostAsJsonAsync(BaseUrl, contract);
 
 		// Assert
-		response.StatusCode.Should().Be(HttpStatusCode.OK);
+		response.StatusCode.Should().Be(HttpStatusCode.Created);
 
-		Guid driverId = await response.Content.ReadFromJsonAsync<Guid>();
-		driverId.Should().NotBeEmpty();
-		_createdDriverIds.Add(driverId);
+		ApiResponse<Guid>? result = await response.Content.ReadFromJsonAsync<ApiResponse<Guid>>();
+		result.Should().NotBeNull();
+		result!.IsSuccess.Should().BeTrue();
+		result.Value.Should().NotBeEmpty();
+		_createdDriverIds.Add(result.Value);
 
-		await VerifyDriverInPersistenceDb(driverId, contract.FullName);
+		await VerifyDriverInPersistenceDb(result.Value, contract.FullName);
 	}
 
 	[Fact]
@@ -74,13 +77,10 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
 		};
 
 		// Act
-		HttpResponseMessage response = await _client.PostAsJsonAsync("/api/v1/drivers", contract);
+		HttpResponseMessage response = await _client.PostAsJsonAsync(BaseUrl, contract);
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-		ValidationProblemDetails? problemDetails = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
-		problemDetails.Should().NotBeNull();
 	}
 
 	[Fact]
@@ -91,7 +91,7 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
 		};
 
 		// Act
-		HttpResponseMessage response = await _client.PostAsJsonAsync("/api/v1/drivers", contract);
+		HttpResponseMessage response = await _client.PostAsJsonAsync(BaseUrl, contract);
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -104,23 +104,20 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
 	[Fact]
 	public async Task UpdateDriver_WithValidData_ShouldUpdateDriverSuccessfully() {
 		// Arrange
-		var createContract = new CreateDriverContract { FullName = "MarÃ­a LÃ³pez" };
-		HttpResponseMessage createResponse = await _client.PostAsJsonAsync("/api/v1/drivers", createContract);
-		Guid driverId = await createResponse.Content.ReadFromJsonAsync<Guid>();
-		_createdDriverIds.Add(driverId);
+		Guid driverId = await CreateDriverAndTrack("Maria Lopez");
 
 		var updateContract = new UpdateDriverContract {
-			FullName = "MarÃ­a LÃ³pez RodrÃ­guez",
+			FullName = "Maria Lopez Rodriguez",
 			IsActive = false
 		};
 
 		// Act
-		HttpResponseMessage response = await _client.PutAsJsonAsync($"/api/v1/drivers/{driverId}", updateContract);
+		HttpResponseMessage response = await _client.PutAsJsonAsync($"{BaseUrl}/{driverId}", updateContract);
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-		await VerifyDriverInPersistenceDb(driverId, "MarÃ­a LÃ³pez RodrÃ­guez", isActive: false);
+		await VerifyDriverInPersistenceDb(driverId, "Maria Lopez Rodriguez", isActive: false);
 	}
 
 	[Fact]
@@ -133,7 +130,7 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
 		};
 
 		// Act
-		HttpResponseMessage response = await _client.PutAsJsonAsync($"/api/v1/drivers/{nonExistingId}", updateContract);
+		HttpResponseMessage response = await _client.PutAsJsonAsync($"{BaseUrl}/{nonExistingId}", updateContract);
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -146,13 +143,10 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
 	[Fact]
 	public async Task RemoveDriver_WithExistingId_ShouldDeleteDriverSuccessfully() {
 		// Arrange
-		var createContract = new CreateDriverContract { FullName = "Pedro SÃ¡nchez" };
-		HttpResponseMessage createResponse = await _client.PostAsJsonAsync("/api/v1/drivers", createContract);
-		Guid driverId = await createResponse.Content.ReadFromJsonAsync<Guid>();
-		_createdDriverIds.Add(driverId);
+		Guid driverId = await CreateDriverAndTrack("Pedro Sanchez");
 
 		// Act
-		HttpResponseMessage response = await _client.DeleteAsync($"/api/v1/drivers/{driverId}");
+		HttpResponseMessage response = await _client.DeleteAsync($"{BaseUrl}/{driverId}");
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -166,7 +160,7 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
 		var nonExistingId = Guid.NewGuid();
 
 		// Act
-		HttpResponseMessage response = await _client.DeleteAsync($"/api/v1/drivers/{nonExistingId}");
+		HttpResponseMessage response = await _client.DeleteAsync($"{BaseUrl}/{nonExistingId}");
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -179,21 +173,20 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
 	[Fact]
 	public async Task GetDriverById_WithExistingId_ShouldReturnDriver() {
 		// Arrange
-		var createContract = new CreateDriverContract { FullName = "Ana MartÃ­nez" };
-		HttpResponseMessage createResponse = await _client.PostAsJsonAsync("/api/v1/drivers", createContract);
-		Guid driverId = await createResponse.Content.ReadFromJsonAsync<Guid>();
-		_createdDriverIds.Add(driverId);
+		Guid driverId = await CreateDriverAndTrack("Ana Martinez");
 
 		// Act
-		HttpResponseMessage response = await _client.GetAsync($"/api/v1/drivers/{driverId}");
+		HttpResponseMessage response = await _client.GetAsync($"{BaseUrl}/{driverId}");
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-		DriverDetailDto? driver = await response.Content.ReadFromJsonAsync<DriverDetailDto>();
-		driver.Should().NotBeNull();
-		driver.Id.Should().Be(driverId);
-		driver.FullName.Should().Be("Ana MartÃ­nez");
+		ApiResponse<DriverDetailDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<DriverDetailDto>>();
+		result.Should().NotBeNull();
+		result!.IsSuccess.Should().BeTrue();
+		result.Value.Should().NotBeNull();
+		result.Value!.Id.Should().Be(driverId);
+		result.Value.FullName.Should().Be("Ana Martinez");
 	}
 
 	[Fact]
@@ -202,7 +195,7 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
 		var nonExistingId = Guid.NewGuid();
 
 		// Act
-		HttpResponseMessage response = await _client.GetAsync($"/api/v1/drivers/{nonExistingId}");
+		HttpResponseMessage response = await _client.GetAsync($"{BaseUrl}/{nonExistingId}");
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -211,27 +204,22 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
 	[Fact]
 	public async Task GetAllDrivers_ShouldReturnListOfDrivers() {
 		// Arrange
-		var driver1 = new CreateDriverContract { FullName = "Conductor 1" };
-		var driver2 = new CreateDriverContract { FullName = "Conductor 2" };
-		var driver3 = new CreateDriverContract { FullName = "Conductor 3" };
-
-		HttpResponseMessage response1 = await _client.PostAsJsonAsync("/api/v1/drivers", driver1);
-		HttpResponseMessage response2 = await _client.PostAsJsonAsync("/api/v1/drivers", driver2);
-		HttpResponseMessage response3 = await _client.PostAsJsonAsync("/api/v1/drivers", driver3);
-
-		_createdDriverIds.Add(await response1.Content.ReadFromJsonAsync<Guid>());
-		_createdDriverIds.Add(await response2.Content.ReadFromJsonAsync<Guid>());
-		_createdDriverIds.Add(await response3.Content.ReadFromJsonAsync<Guid>());
+		await CreateDriverAndTrack("Conductor 1");
+		await CreateDriverAndTrack("Conductor 2");
+		await CreateDriverAndTrack("Conductor 3");
 
 		// Act
-		HttpResponseMessage response = await _client.GetAsync("/api/v1/drivers");
+		HttpResponseMessage response = await _client.GetAsync(BaseUrl);
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-		List<DriverSummaryDto>? drivers = await response.Content.ReadFromJsonAsync<List<DriverSummaryDto>>();
-		drivers.Should().NotBeNull();
-		drivers.Should().HaveCountGreaterThanOrEqualTo(3);
+		ApiResponse<List<DriverSummaryDto>>? result =
+			await response.Content.ReadFromJsonAsync<ApiResponse<List<DriverSummaryDto>>>();
+		result.Should().NotBeNull();
+		result!.IsSuccess.Should().BeTrue();
+		result.Value.Should().NotBeNull();
+		result.Value.Should().HaveCountGreaterThanOrEqualTo(3);
 	}
 
 	#endregion
@@ -241,46 +229,55 @@ public class DriverControllerTest : IClassFixture<WebApplicationFactoryFixture>,
 	[Fact]
 	public async Task CompleteDriverCRUDFlow_ShouldWorkEndToEnd() {
 		// CREATE
-		var createContract = new CreateDriverContract { FullName = "Test Driver CRUD" };
-		HttpResponseMessage createResponse = await _client.PostAsJsonAsync("/api/v1/drivers", createContract);
-		createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-		Guid driverId = await createResponse.Content.ReadFromJsonAsync<Guid>();
-		_createdDriverIds.Add(driverId);
+		Guid driverId = await CreateDriverAndTrack("Test Driver CRUD");
 
 		// READ
-		HttpResponseMessage getResponse = await _client.GetAsync($"/api/v1/drivers/{driverId}");
+		HttpResponseMessage getResponse = await _client.GetAsync($"{BaseUrl}/{driverId}");
 		getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-		DriverDetailDto? driver = await getResponse.Content.ReadFromJsonAsync<DriverDetailDto>();
+		ApiResponse<DriverDetailDto>? driver = await getResponse.Content.ReadFromJsonAsync<ApiResponse<DriverDetailDto>>();
 		driver.Should().NotBeNull();
-		driver!.FullName.Should().Be("Test Driver CRUD");
+		driver!.Value!.FullName.Should().Be("Test Driver CRUD");
 
 		// UPDATE
 		var updateContract = new UpdateDriverContract {
 			FullName = "Test Driver Updated",
 			IsActive = false
 		};
-		HttpResponseMessage updateResponse = await _client.PutAsJsonAsync($"/api/v1/drivers/{driverId}", updateContract);
+		HttpResponseMessage updateResponse = await _client.PutAsJsonAsync($"{BaseUrl}/{driverId}", updateContract);
 		updateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
 		// VERIFY UPDATE
-		HttpResponseMessage getUpdatedResponse = await _client.GetAsync($"/api/v1/drivers/{driverId}");
-		DriverDetailDto? updatedDriver = await getUpdatedResponse.Content.ReadFromJsonAsync<DriverDetailDto>();
+		HttpResponseMessage getUpdatedResponse = await _client.GetAsync($"{BaseUrl}/{driverId}");
+		ApiResponse<DriverDetailDto>? updatedDriver =
+			await getUpdatedResponse.Content.ReadFromJsonAsync<ApiResponse<DriverDetailDto>>();
 		updatedDriver.Should().NotBeNull();
-		updatedDriver!.FullName.Should().Be("Test Driver Updated");
-		updatedDriver.IsActive.Should().BeFalse();
+		updatedDriver!.Value!.FullName.Should().Be("Test Driver Updated");
+		updatedDriver.Value.IsActive.Should().BeFalse();
 
 		// DELETE
-		HttpResponseMessage deleteResponse = await _client.DeleteAsync($"/api/v1/drivers/{driverId}");
+		HttpResponseMessage deleteResponse = await _client.DeleteAsync($"{BaseUrl}/{driverId}");
 		deleteResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
 		// VERIFY DELETION
-		HttpResponseMessage getDeletedResponse = await _client.GetAsync($"/api/v1/drivers/{driverId}");
+		HttpResponseMessage getDeletedResponse = await _client.GetAsync($"{BaseUrl}/{driverId}");
 		getDeletedResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
 	}
 
 	#endregion
 
 	#region Helper Methods
+
+	private async Task<Guid> CreateDriverAndTrack(string fullName) {
+		var contract = new CreateDriverContract { FullName = fullName };
+		HttpResponseMessage response = await _client.PostAsJsonAsync(BaseUrl, contract);
+		response.StatusCode.Should().Be(HttpStatusCode.Created);
+
+		ApiResponse<Guid>? result = await response.Content.ReadFromJsonAsync<ApiResponse<Guid>>();
+		result.Should().NotBeNull();
+		result!.Value.Should().NotBeEmpty();
+		_createdDriverIds.Add(result.Value);
+		return result.Value;
+	}
 
 	private async Task VerifyDriverInPersistenceDb(Guid driverId, string expectedFullName, bool? isActive = null) {
 		using IServiceScope scope = _factory.Services.CreateScope();

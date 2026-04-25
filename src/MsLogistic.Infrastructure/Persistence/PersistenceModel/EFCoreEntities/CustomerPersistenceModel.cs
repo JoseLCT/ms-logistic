@@ -10,7 +10,7 @@ internal class CustomerPersistenceModel {
 	public Guid Id { get; set; }
 
 	[Column("external_id")]
-	public Guid ExternalId { get; set; }
+	public Guid? ExternalId { get; set; }
 
 	[Column("full_name")]
 	[StringLength(100)]
