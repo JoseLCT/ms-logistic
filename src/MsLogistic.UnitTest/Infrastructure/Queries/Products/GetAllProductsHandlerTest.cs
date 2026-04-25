@@ -28,11 +28,13 @@ public class GetAllProductsHandlerTest : IDisposable {
 
 	private static ProductPersistenceModel CreateProductPersistenceModel(
 		Guid? id = null,
+		Guid? externalId = null,
 		string name = "Sample Product",
-		string description = "This is a sample product description."
+		string? description = "This is a sample product description."
 	) {
 		return new ProductPersistenceModel {
 			Id = id ?? Guid.NewGuid(),
+			ExternalId = externalId ?? Guid.NewGuid(),
 			Name = name,
 			Description = description,
 			CreatedAt = DateTime.UtcNow,
@@ -57,7 +59,9 @@ public class GetAllProductsHandlerTest : IDisposable {
 	[Fact]
 	public async Task Handle_WithSingleProduct_ShouldReturnListWithOneProduct() {
 		// Arrange
-		ProductPersistenceModel product = CreateProductPersistenceModel();
+		ProductPersistenceModel product = CreateProductPersistenceModel(
+			name: "Wireless Mouse"
+		);
 
 		await _dbContext.Products.AddAsync(product);
 		await _dbContext.SaveChangesAsync();
@@ -72,16 +76,23 @@ public class GetAllProductsHandlerTest : IDisposable {
 		result.Value.Should().NotBeNull();
 		result.Value.Should().HaveCount(1);
 		result.Value[0].Id.Should().Be(product.Id);
-		result.Value[0].Name.Should().Be(product.Name);
+		result.Value[0].Name.Should().Be("Wireless Mouse");
 	}
 
 	[Fact]
 	public async Task Handle_WithMultipleProducts_ShouldReturnAllProducts() {
 		// Arrange
-		ProductPersistenceModel product1 = CreateProductPersistenceModel();
-		ProductPersistenceModel product2 = CreateProductPersistenceModel();
+		ProductPersistenceModel product1 = CreateProductPersistenceModel(
+			name: "Wireless Mouse"
+		);
+		ProductPersistenceModel product2 = CreateProductPersistenceModel(
+			name: "Mechanical Keyboard"
+		);
+		ProductPersistenceModel product3 = CreateProductPersistenceModel(
+			name: "USB-C Hub"
+		);
 
-		await _dbContext.Products.AddRangeAsync(product1, product2);
+		await _dbContext.Products.AddRangeAsync(product1, product2, product3);
 		await _dbContext.SaveChangesAsync();
 
 		var query = new GetAllProductsQuery();
@@ -92,6 +103,11 @@ public class GetAllProductsHandlerTest : IDisposable {
 		// Assert
 		result.IsSuccess.Should().BeTrue();
 		result.Value.Should().NotBeNull();
-		result.Value.Should().HaveCount(2);
+		result.Value.Should().HaveCount(3);
+		result.Value.Should().BeEquivalentTo([
+			new ProductSummaryDto(product1.Id, "Wireless Mouse"),
+			new ProductSummaryDto(product2.Id, "Mechanical Keyboard"),
+			new ProductSummaryDto(product3.Id, "USB-C Hub")
+		]);
 	}
 }

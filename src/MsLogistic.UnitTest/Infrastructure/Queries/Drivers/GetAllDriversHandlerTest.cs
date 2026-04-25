@@ -60,7 +60,11 @@ public class GetAllDriversHandlerTest : IDisposable {
 	[Fact]
 	public async Task Handle_WithSingleDriver_ShouldReturnListWithOneDriver() {
 		// Arrange
-		DriverPersistenceModel driver = CreateDriverPersistenceModel();
+		DriverPersistenceModel driver = CreateDriverPersistenceModel(
+			fullName: "Alice Smith",
+			isActive: true,
+			status: DriverStatusEnum.Available
+		);
 
 		await _dbContext.Drivers.AddAsync(driver);
 		await _dbContext.SaveChangesAsync();
@@ -75,16 +79,31 @@ public class GetAllDriversHandlerTest : IDisposable {
 		result.Value.Should().NotBeNull();
 		result.Value.Should().HaveCount(1);
 		result.Value[0].Id.Should().Be(driver.Id);
-		result.Value[0].FullName.Should().Be(driver.FullName);
+		result.Value[0].FullName.Should().Be("Alice Smith");
+		result.Value[0].IsActive.Should().BeTrue();
+		result.Value[0].Status.Should().Be(DriverStatusEnum.Available);
 	}
 
 	[Fact]
 	public async Task Handle_WithMultipleDrivers_ShouldReturnAllDrivers() {
 		// Arrange
-		DriverPersistenceModel driver1 = CreateDriverPersistenceModel();
-		DriverPersistenceModel driver2 = CreateDriverPersistenceModel();
+		DriverPersistenceModel driver1 = CreateDriverPersistenceModel(
+			fullName: "Alice Smith",
+			isActive: true,
+			status: DriverStatusEnum.Available
+		);
+		DriverPersistenceModel driver2 = CreateDriverPersistenceModel(
+			fullName: "Bob Johnson",
+			isActive: false,
+			status: DriverStatusEnum.Available
+		);
+		DriverPersistenceModel driver3 = CreateDriverPersistenceModel(
+			fullName: "Charlie Brown",
+			isActive: true,
+			status: DriverStatusEnum.Unavailable
+		);
 
-		await _dbContext.Drivers.AddRangeAsync(driver1, driver2);
+		await _dbContext.Drivers.AddRangeAsync(driver1, driver2, driver3);
 		await _dbContext.SaveChangesAsync();
 
 		var query = new GetAllDriversQuery();
@@ -95,6 +114,11 @@ public class GetAllDriversHandlerTest : IDisposable {
 		// Assert
 		result.IsSuccess.Should().BeTrue();
 		result.Value.Should().NotBeNull();
-		result.Value.Should().HaveCount(2);
+		result.Value.Should().HaveCount(3);
+		result.Value.Should().BeEquivalentTo(new[] {
+			new DriverSummaryDto(driver1.Id, "Alice Smith", true, DriverStatusEnum.Available),
+			new DriverSummaryDto(driver2.Id, "Bob Johnson", false, DriverStatusEnum.Available),
+			new DriverSummaryDto(driver3.Id, "Charlie Brown", true, DriverStatusEnum.Unavailable)
+		});
 	}
 }

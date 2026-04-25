@@ -39,8 +39,7 @@ public class GetAllDeliveryZonesHandlerTest : IDisposable {
 			DriverId = driverId,
 			Code = code,
 			Name = name,
-			Boundaries = boundaries ?? new Polygon(new LinearRing(new[]
-			{
+			Boundaries = boundaries ?? new Polygon(new LinearRing(new[] {
 				new Coordinate(0, 0),
 				new Coordinate(0, 1),
 				new Coordinate(1, 1),
@@ -69,7 +68,10 @@ public class GetAllDeliveryZonesHandlerTest : IDisposable {
 	[Fact]
 	public async Task Handle_WithSingleDeliveryZone_ShouldReturnListWithOneDeliveryZone() {
 		// Arrange
-		DeliveryZonePersistenceModel deliveryZone = CreateDeliveryZonePersistenceModel();
+		DeliveryZonePersistenceModel deliveryZone = CreateDeliveryZonePersistenceModel(
+			code: "NORTH-001",
+			name: "Northern Zone"
+		);
 
 		await _dbContext.DeliveryZones.AddAsync(deliveryZone);
 		await _dbContext.SaveChangesAsync();
@@ -84,16 +86,27 @@ public class GetAllDeliveryZonesHandlerTest : IDisposable {
 		result.Value.Should().NotBeNull();
 		result.Value.Should().HaveCount(1);
 		result.Value[0].Id.Should().Be(deliveryZone.Id);
-		result.Value[0].Code.Should().Be(deliveryZone.Code);
+		result.Value[0].Code.Should().Be("NORTH-001");
+		result.Value[0].Name.Should().Be("Northern Zone");
 	}
 
 	[Fact]
 	public async Task Handle_WithMultipleDeliveryZones_ShouldReturnAllDeliveryZones() {
 		// Arrange
-		DeliveryZonePersistenceModel deliveryZone1 = CreateDeliveryZonePersistenceModel();
-		DeliveryZonePersistenceModel deliveryZone2 = CreateDeliveryZonePersistenceModel();
+		DeliveryZonePersistenceModel deliveryZone1 = CreateDeliveryZonePersistenceModel(
+			code: "NORTH-001",
+			name: "Northern Zone"
+		);
+		DeliveryZonePersistenceModel deliveryZone2 = CreateDeliveryZonePersistenceModel(
+			code: "SOUTH-002",
+			name: "Southern Zone"
+		);
+		DeliveryZonePersistenceModel deliveryZone3 = CreateDeliveryZonePersistenceModel(
+			code: "EAST-003",
+			name: "Eastern Zone"
+		);
 
-		await _dbContext.DeliveryZones.AddRangeAsync(deliveryZone1, deliveryZone2);
+		await _dbContext.DeliveryZones.AddRangeAsync(deliveryZone1, deliveryZone2, deliveryZone3);
 		await _dbContext.SaveChangesAsync();
 
 		var query = new GetAllDeliveryZonesQuery();
@@ -103,6 +116,11 @@ public class GetAllDeliveryZonesHandlerTest : IDisposable {
 
 		// Assert
 		result.IsSuccess.Should().BeTrue();
-		result.Value.Should().HaveCount(2);
+		result.Value.Should().HaveCount(3);
+		result.Value.Should().BeEquivalentTo([
+			new DeliveryZoneSummaryDto(deliveryZone1.Id, "NORTH-001", "Northern Zone"),
+			new DeliveryZoneSummaryDto(deliveryZone2.Id, "SOUTH-002", "Southern Zone"),
+			new DeliveryZoneSummaryDto(deliveryZone3.Id, "EAST-003", "Eastern Zone")
+		]);
 	}
 }

@@ -28,13 +28,15 @@ public class OrderRepositoryTest : IDisposable {
 	}
 
 	private static Order CreateValidOrder(
+		Guid? batchId = null,
+		Guid? customerId = null,
 		DateTime? scheduledDeliveryDate = null,
 		string deliveryAddress = "123 Main St",
 		GeoPointValue? deliveryLocation = null
 	) {
 		return Order.Create(
-			batchId: Guid.NewGuid(),
-			customerId: Guid.NewGuid(),
+			batchId: batchId ?? Guid.NewGuid(),
+			customerId: customerId ?? Guid.NewGuid(),
 			scheduledDeliveryDate: scheduledDeliveryDate ?? DateTime.UtcNow.AddDays(2),
 			deliveryAddress: deliveryAddress,
 			deliveryLocation: deliveryLocation ?? GeoPointValue.Create(-17.7833, -63.1821)
@@ -44,11 +46,15 @@ public class OrderRepositoryTest : IDisposable {
 	#region GetByIdAsync
 
 	[Fact]
-	public async Task GetByIdAsync_WhenOrderExists_ShouldReturnOrder() {
+	public async Task GetByIdAsync_WhenOrderExists_ShouldReturnOrderWithRelatedData() {
 		// Arrange
 		Order order = CreateValidOrder();
+		order.AddItem(Guid.NewGuid(), 2);
+		order.AddItem(Guid.NewGuid(), 3);
 		await _dbContext.Orders.AddAsync(order);
 		await _dbContext.SaveChangesAsync();
+
+		_dbContext.ChangeTracker.Clear();
 
 		// Act
 		Order? result = await _repository.GetByIdAsync(order.Id);
@@ -56,6 +62,7 @@ public class OrderRepositoryTest : IDisposable {
 		// Assert
 		result.Should().NotBeNull();
 		result.Id.Should().Be(order.Id);
+		result.Items.Should().HaveCount(2);
 	}
 
 	[Fact]
@@ -68,6 +75,86 @@ public class OrderRepositoryTest : IDisposable {
 
 		// Assert
 		result.Should().BeNull();
+	}
+
+	#endregion
+
+	#region GetByBatchIdAsync
+
+	[Fact]
+	public async Task GetByBatchIdAsync_WhenOrdersExist_ShouldReturnOrdersForBatch() {
+		// Arrange
+		var batchId = Guid.NewGuid();
+		var otherBatchId = Guid.NewGuid();
+
+		Order order1 = CreateValidOrder(batchId: batchId);
+		Order order2 = CreateValidOrder(batchId: batchId);
+		Order orderFromOtherBatch = CreateValidOrder(batchId: otherBatchId);
+
+		await _dbContext.Orders.AddRangeAsync(order1, order2, orderFromOtherBatch);
+		await _dbContext.SaveChangesAsync();
+
+		// Act
+		IReadOnlyList<Order> result = await _repository.GetByBatchIdAsync(batchId);
+
+		// Assert
+		result.Should().HaveCount(2);
+		result.Should().Contain(o => o.Id == order1.Id);
+		result.Should().Contain(o => o.Id == order2.Id);
+		result.Should().NotContain(o => o.Id == orderFromOtherBatch.Id);
+	}
+
+	[Fact]
+	public async Task GetByBatchIdAsync_WhenNoOrdersForBatch_ShouldReturnEmptyList() {
+		// Act
+		IReadOnlyList<Order> result = await _repository.GetByBatchIdAsync(Guid.NewGuid());
+
+		// Assert
+		result.Should().BeEmpty();
+	}
+
+	#endregion
+
+	#region GetByRouteIdAsync
+
+	[Fact]
+	public async Task GetByRouteIdAsync_WhenOrdersExist_ShouldReturnOrdersForRoute() {
+		// Arrange
+		var routeId = Guid.NewGuid();
+		var otherRouteId = Guid.NewGuid();
+
+		Order order1 = CreateValidOrder();
+		order1.AddItem(Guid.NewGuid(), 1);
+		order1.AssignToRoute(routeId, 1);
+
+		Order order2 = CreateValidOrder();
+		order2.AddItem(Guid.NewGuid(), 1);
+		order2.AssignToRoute(routeId, 2);
+
+		Order orderFromOtherRoute = CreateValidOrder();
+		orderFromOtherRoute.AddItem(Guid.NewGuid(), 1);
+		orderFromOtherRoute.AssignToRoute(otherRouteId, 1);
+
+		await _dbContext.Orders.AddRangeAsync(order1, order2, orderFromOtherRoute);
+		await _dbContext.SaveChangesAsync();
+
+		// Act
+		IReadOnlyList<Order> result = await _repository.GetByRouteIdAsync(routeId);
+
+		// Assert
+		result.Should().HaveCount(2);
+		result.Should().Contain(o => o.Id == order1.Id);
+		result.Should().Contain(o => o.Id == order2.Id);
+		result.Should().NotContain(o => o.Id == orderFromOtherRoute.Id);
+	}
+
+	[Fact]
+	public async Task GetByRouteIdAsync_WhenNoOrdersForRoute_ShouldReturnEmptyList() {
+		// Act
+		IReadOnlyList<Order> result = await _repository.GetByRouteIdAsync(Guid.NewGuid());
+
+		// Assert
+		result.Should().BeEmpty();
 	}
 
 	#endregion

@@ -14,4 +14,7 @@ public static class CommonErrors {
 			code: $"{entityName}.NotFound",
 			message: $"{entityName} with ID '{id}' was not found."
 		);
+
+	public static Error UnknownError =>
+		Error.UnknownError;
 }

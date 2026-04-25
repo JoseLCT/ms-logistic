@@ -5,7 +5,6 @@ using MsLogistic.Application.Customers.CreateCustomer;
 using MsLogistic.Core.Interfaces;
 using MsLogistic.Core.Results;
 using MsLogistic.Domain.Customers.Entities;
-using MsLogistic.Domain.Customers.Errors;
 using MsLogistic.Domain.Customers.Repositories;
 using Xunit;
 
@@ -25,11 +24,17 @@ public class CreateCustomerHandlerTest {
 	}
 
 	[Fact]
-	public async Task Handle_WithValidCommand_ShouldCreateCustomerAndReturnSuccessResult() {
+	public async Task Handle_WithValidCommandIncludingPhoneNumber_ShouldCreateCustomerAndCommit() {
 		// Arrange
 		const string fullName = "Juan Perez";
 		const string phoneNumber = "+591 12345678";
 		var command = new CreateCustomerCommand(fullName, phoneNumber);
+
+		Customer? addedCustomer = null;
+		_customerRepositoryMock
+			.Setup(r => r.AddAsync(It.IsAny<Customer>(), It.IsAny<CancellationToken>()))
+			.Callback<Customer, CancellationToken>((c, _) => addedCustomer = c)
+			.Returns(Task.CompletedTask);
 
 		// Act
 		Result<Guid> result = await _handler.Handle(command, CancellationToken.None);
@@ -38,11 +43,15 @@ public class CreateCustomerHandlerTest {
 		result.IsSuccess.Should().BeTrue();
 		result.Value.Should().NotBeEmpty();
 
+		addedCustomer.Should().NotBeNull();
+		addedCustomer.FullName.Should().Be(fullName);
+		addedCustomer.PhoneNumber.Should().NotBeNull();
+		result.Value.Should().Be(addedCustomer.Id);
+
 		_customerRepositoryMock.Verify(
 			x => x.AddAsync(It.IsAny<Customer>(), It.IsAny<CancellationToken>()),
 			Times.Once
 		);
-
 		_unitOfWorkMock.Verify(
 			x => x.CommitAsync(It.IsAny<CancellationToken>()),
 			Times.Once
@@ -50,17 +59,34 @@ public class CreateCustomerHandlerTest {
 	}
 
 	[Fact]
-	public async Task Handle_WithEmptyFullName_ShouldReturnFailureResult() {
+	public async Task Handle_WithNullPhoneNumber_ShouldCreateCustomerWithoutPhone() {
 		// Arrange
-		const string fullName = "";
-		const string phoneNumber = "+591 12345678";
-		var command = new CreateCustomerCommand(fullName, phoneNumber);
+		const string fullName = "Jane Smith";
+		var command = new CreateCustomerCommand(fullName, null);
+
+		Customer? addedCustomer = null;
+		_customerRepositoryMock
+			.Setup(r => r.AddAsync(It.IsAny<Customer>(), It.IsAny<CancellationToken>()))
+			.Callback<Customer, CancellationToken>((c, _) => addedCustomer = c)
+			.Returns(Task.CompletedTask);
 
 		// Act
-		Func<Task> act = async () => await _handler.Handle(command, CancellationToken.None);
+		Result<Guid> result = await _handler.Handle(command, CancellationToken.None);
 
 		// Assert
-		await act.Should().ThrowAsync<DomainException>()
-			.Where(e => e.Error == CustomerErrors.FullNameIsRequired);
+		result.IsSuccess.Should().BeTrue();
+
+		addedCustomer.Should().NotBeNull();
+		addedCustomer.FullName.Should().Be(fullName);
+		addedCustomer.PhoneNumber.Should().BeNull();
+
+		_customerRepositoryMock.Verify(
+			x => x.AddAsync(It.IsAny<Customer>(), It.IsAny<CancellationToken>()),
+			Times.Once
+		);
+		_unitOfWorkMock.Verify(
+			x => x.CommitAsync(It.IsAny<CancellationToken>()),
+			Times.Once
+		);
 	}
 }
