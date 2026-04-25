@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -261,5 +262,62 @@ public class GoogleMapsRouteCalculatorTest {
 		// Assert
 		result.IsFailure.Should().BeTrue();
 		result.Error.Should().NotBeNull();
+	}
+
+	[Theory]
+	[InlineData(-16.50, -68.15, "-16.5", "-68.15")]
+	[InlineData(0.0, 0.0, "0", "0")]
+	[InlineData(45.123456, -120.987654, "45.123456", "-120.987654")]
+	public async Task CalculateOrderAsync_ShouldFormatCoordinatesWithDotDecimalSeparator(
+		double lat, double lng, string expectedLat, string expectedLng
+	) {
+		// Arrange
+		var origin = GeoPointValue.Create(lat, lng);
+		List<Waypoint> waypoints = CreateWaypoints(2);
+
+		var response = new GoogleMapsDirectionsResponse {
+			Status = "OK",
+			Routes = new List<Route> {
+				new() { WaypointOrder = new List<int> { 0, 1 } }
+			}
+		};
+		_handler.RespondWith(HttpStatusCode.OK, SerializeResponse(response));
+
+		// Act
+		await _calculator.CalculateOrderAsync(origin, waypoints, CancellationToken.None);
+
+		// Assert
+		string url = _handler.LastRequest!.RequestUri!.ToString();
+		url.Should().Contain($"origin={expectedLat},{expectedLng}");
+	}
+
+	[Fact]
+	public async Task CalculateOrderAsync_WithNonInvariantCulture_ShouldStillUseDotDecimalSeparator() {
+		// Arrange
+		CultureInfo originalCulture = CultureInfo.CurrentCulture;
+		CultureInfo.CurrentCulture = new CultureInfo("es-BO");
+
+		try {
+			var origin = GeoPointValue.Create(-16.50, -68.15);
+			List<Waypoint> waypoints = CreateWaypoints(2);
+
+			var response = new GoogleMapsDirectionsResponse {
+				Status = "OK",
+				Routes = new List<Route> {
+					new() { WaypointOrder = new List<int> { 0, 1 } }
+				}
+			};
+			_handler.RespondWith(HttpStatusCode.OK, SerializeResponse(response));
+
+			// Act
+			await _calculator.CalculateOrderAsync(origin, waypoints, CancellationToken.None);
+
+			// Assert
+			string url = _handler.LastRequest!.RequestUri!.ToString();
+			url.Should().Contain("origin=-16.5,-68.15");
+			url.Should().NotContain("-16,5");
+		} finally {
+			CultureInfo.CurrentCulture = originalCulture;
+		}
 	}
 }
