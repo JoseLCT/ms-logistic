@@ -35,8 +35,10 @@
           <!-- Don't count auto-generated source generator output -->
           <SkipAutoProps>true</SkipAutoProps>
 
-          <!-- Use deterministic source paths -->
-          <UseSourceLink>true</UseSourceLink>
+          <!-- UseSourceLink generates URI-based paths instead of filesystem paths.
+               SonarCloud cannot correlate coverage when paths don't match source files.
+               Keep this disabled for CI coverage reporting. -->
+          <UseSourceLink>false</UseSourceLink>
         </Configuration>
       </DataCollector>
     </DataCollectors>
