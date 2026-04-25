@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+
+          <!-- Exclude assemblies entirely -->
+          <Exclude>
+            [*]*.Migrations.*,
+            [*.Migrations]*,
+            [MsLogistic.UnitTest]*,
+            [MsLogistic.IntegrationTest]*
+          </Exclude>
+
+          <!-- Exclude specific namespaces / classes -->
+          <ExcludeByFile>
+            **/Migrations/**/*.cs,
+            **/PersistenceModel/**/*.cs,
+            **/Configurations/*Configuration.cs,
+            **/Program.cs,
+            **/DependencyInjection.cs,
+            **/*Extensions.cs
+          </ExcludeByFile>
+
+          <!-- Exclude code marked with attributes -->
+          <ExcludeByAttribute>
+            Obsolete,
+            GeneratedCodeAttribute,
+            CompilerGeneratedAttribute,
+            ExcludeFromCodeCoverageAttribute
+          </ExcludeByAttribute>
+
+          <!-- Don't count auto-generated source generator output -->
+          <SkipAutoProps>true</SkipAutoProps>
+
+          <!-- Use deterministic source paths -->
+          <UseSourceLink>true</UseSourceLink>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

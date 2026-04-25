@@ -73,6 +73,7 @@ jobs:
           --no-build
           --verbosity normal
           --collect:"XPlat Code Coverage;Format=opencover,cobertura"
+          --settings coverlet.runsettings
           --results-directory ./coverage
 
       - name: Sonarcloud end
