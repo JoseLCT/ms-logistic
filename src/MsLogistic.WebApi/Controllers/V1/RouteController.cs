@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MsLogistic.Application.Routes.GetAllRoutes;
 using MsLogistic.Application.Routes.GetRouteById;
+using MsLogistic.Application.Routes.StartRoute;
 using MsLogistic.Core.Results;
 
 namespace MsLogistic.WebApi.Controllers.V1;
@@ -33,6 +34,13 @@ public class RouteController : ApiControllerBase {
 	public async Task<IActionResult> GetById(Guid id) {
 		var query = new GetRouteByIdQuery(id);
 		Result<RouteDetailDto> result = await _mediator.Send(query);
+		return HandleResult(result);
+	}
+
+	[HttpPost("{id:guid}")]
+	public async Task<IActionResult> StartRoute(Guid id) {
+		var command = new StartRouteCommand(id);
+		Result result = await _mediator.Send(command);
 		return HandleResult(result);
 	}
 }
