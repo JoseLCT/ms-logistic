@@ -12,7 +12,6 @@ internal class CustomerRepository : ICustomerRepository {
 		_dbContext = dbContext;
 	}
 
-
 	public async Task<IReadOnlyList<Customer>> GetAllAsync(CancellationToken ct = default) {
 		List<Customer> customers = await _dbContext.Customers.ToListAsync(ct);
 		return customers;

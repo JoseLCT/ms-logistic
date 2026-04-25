@@ -197,14 +197,17 @@ public class OrderTest {
 			.Which.Error.Should().Be(OrderErrors.CannotAssignOrderThatIsNotPending);
 	}
 
-	[Fact]
-	public void AssignToRoute_WithInvalidSequence_ShouldThrowDomainException() {
+	[Theory]
+	[InlineData(0)]
+	[InlineData(-1)]
+	[InlineData(-10)]
+	public void AssignToRoute_WithInvalidSequence_ShouldThrowDomainException(int invalidSequence) {
 		// Arrange
 		Order order = CreateValidOrder();
 		order.AddItem(Guid.NewGuid(), 1);
 
 		// Act
-		Action act = () => order.AssignToRoute(Guid.NewGuid(), 0);
+		Action act = () => order.AssignToRoute(Guid.NewGuid(), invalidSequence);
 
 		// Assert
 		act.Should().Throw<DomainException>()
@@ -255,6 +258,35 @@ public class OrderTest {
 
 	#endregion
 
+	#region CanDeliver
+
+	[Fact]
+	public void CanDeliver_WhenInTransit_ShouldReturnTrue() {
+		// Arrange
+		Order order = CreateValidOrder();
+		order.MarkAsInTransit();
+
+		// Act
+		bool result = order.CanDeliver();
+
+		// Assert
+		result.Should().BeTrue();
+	}
+
+	[Fact]
+	public void CanDeliver_WhenPending_ShouldReturnFalse() {
+		// Arrange
+		Order order = CreateValidOrder();
+
+		// Act
+		bool result = order.CanDeliver();
+
+		// Assert
+		result.Should().BeFalse();
+	}
+
+	#endregion
+
 	#region Cancel
 
 	[Fact]
@@ -296,6 +328,22 @@ public class OrderTest {
 
 		// Assert
 		act.Should().Throw<DomainException>();
+	}
+
+	[Fact]
+	public void Cancel_WhenFailed_ShouldThrowDomainException() {
+		// Arrange
+		Order order = CreateValidOrder();
+		order.MarkAsInTransit();
+		order.ReportIncident(Guid.NewGuid(), OrderIncidentTypeEnum.Other, "Failure");
+
+		// Act
+		Action act = order.Cancel;
+
+		// Assert
+		act.Should().Throw<DomainException>()
+			.Which.Error.Should()
+			.Be(OrderErrors.CannotChangeStatusFromTo(OrderStatusEnum.Failed, OrderStatusEnum.Cancelled));
 	}
 
 	#endregion

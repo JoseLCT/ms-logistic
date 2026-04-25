@@ -101,7 +101,6 @@ public class RouteTest {
 		// Arrange
 		Route route = CreateValidRoute(driverId: Guid.NewGuid());
 
-		// Change status based on the test case
 		if (status == RouteStatusEnum.InProgress) {
 			route.Start();
 		} else if (status == RouteStatusEnum.Completed) {

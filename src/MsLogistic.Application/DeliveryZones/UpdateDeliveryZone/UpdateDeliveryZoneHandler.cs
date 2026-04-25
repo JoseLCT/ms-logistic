@@ -41,7 +41,7 @@ public class UpdateDeliveryZoneHandler : IRequestHandler<UpdateDeliveryZoneComma
 		if (request.DriverId.HasValue && request.DriverId != deliveryZone.DriverId) {
 			Result driverExistsResult = await DriverExists(request.DriverId.Value, ct);
 			if (driverExistsResult.IsFailure) {
-				return Result.Failure(driverExistsResult.Error);
+				return Result.Failure(driverExistsResult.Error ?? CommonErrors.UnknownError);
 			}
 		}
 

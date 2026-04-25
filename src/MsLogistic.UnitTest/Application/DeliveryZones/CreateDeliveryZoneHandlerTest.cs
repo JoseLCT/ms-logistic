@@ -18,19 +18,18 @@ public class CreateDeliveryZoneHandlerTest {
 	private readonly Mock<IDeliveryZoneRepository> _deliveryZoneRepositoryMock;
 	private readonly Mock<IDriverRepository> _driverRepositoryMock;
 	private readonly Mock<IUnitOfWork> _unitOfWorkMock;
-	private readonly Mock<ILogger<CreateDeliveryZoneHandler>> _logger;
 	private readonly CreateDeliveryZoneHandler _handler;
 
 	public CreateDeliveryZoneHandlerTest() {
 		_deliveryZoneRepositoryMock = new Mock<IDeliveryZoneRepository>();
 		_driverRepositoryMock = new Mock<IDriverRepository>();
 		_unitOfWorkMock = new Mock<IUnitOfWork>();
-		_logger = new Mock<ILogger<CreateDeliveryZoneHandler>>();
+		var logger = new Mock<ILogger<CreateDeliveryZoneHandler>>();
 		_handler = new CreateDeliveryZoneHandler(
 			_deliveryZoneRepositoryMock.Object,
 			_driverRepositoryMock.Object,
 			_unitOfWorkMock.Object,
-			_logger.Object
+			logger.Object
 		);
 	}
 
@@ -39,8 +38,7 @@ public class CreateDeliveryZoneHandlerTest {
 	}
 
 	private static List<CoordinateDto> CreateValidBoundaries() {
-		return new List<CoordinateDto>
-		{
+		return new List<CoordinateDto> {
 			new(-17.7833, -63.1821),
 			new(-17.7833, -63.1621),
 			new(-17.7633, -63.1621),
@@ -49,121 +47,104 @@ public class CreateDeliveryZoneHandlerTest {
 	}
 
 	[Fact]
-	public async Task Handle_WithValidCommandAndNoDriver_ShouldCreateDeliveryZoneAndReturnSuccessResult() {
-		// Arrange
-		List<CoordinateDto> boundaries = CreateValidBoundaries();
-		var command = new CreateDeliveryZoneCommand(null, "ZON-001", "North Zone", boundaries);
-
-		// Act
-		Result<Guid> result = await _handler.Handle(command, CancellationToken.None);
-
-		// Assert
-		result.IsSuccess.Should().BeTrue();
-		result.Value.Should().NotBeEmpty();
-
-		_driverRepositoryMock.Verify(
-			x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
-			Times.Never
-		);
-
-		_deliveryZoneRepositoryMock.Verify(
-			x => x.AddAsync(It.IsAny<DeliveryZone>(), It.IsAny<CancellationToken>()),
-			Times.Once
-		);
-
-		_unitOfWorkMock.Verify(
-			x => x.CommitAsync(It.IsAny<CancellationToken>()),
-			Times.Once
-		);
-	}
-
-	[Fact]
-	public async Task Handle_WithValidCommandAndExistingDriver_ShouldCreateDeliveryZoneAndReturnSuccessResult() {
+	public async Task Handle_WithValidDriver_ShouldCreateDeliveryZoneAndCommit() {
 		// Arrange
 		Driver driver = CreateValidDriver();
-		List<CoordinateDto> boundaries = CreateValidBoundaries();
-		var command = new CreateDeliveryZoneCommand(driver.Id, "ZON-002", "South Zone", boundaries);
+
+		var command = new CreateDeliveryZoneCommand(
+			DriverId: driver.Id,
+			Code: "ZON-001",
+			Name: "Zona Norte",
+			Boundaries: CreateValidBoundaries()
+		);
 
 		_driverRepositoryMock
-			.Setup(x => x.GetByIdAsync(driver.Id, It.IsAny<CancellationToken>()))
+			.Setup(r => r.GetByIdAsync(driver.Id, It.IsAny<CancellationToken>()))
 			.ReturnsAsync(driver);
+
+		DeliveryZone? addedZone = null;
+		_deliveryZoneRepositoryMock
+			.Setup(r => r.AddAsync(It.IsAny<DeliveryZone>(), It.IsAny<CancellationToken>()))
+			.Callback<DeliveryZone, CancellationToken>((z, _) => addedZone = z)
+			.Returns(Task.CompletedTask);
 
 		// Act
 		Result<Guid> result = await _handler.Handle(command, CancellationToken.None);
 
 		// Assert
 		result.IsSuccess.Should().BeTrue();
-		result.Value.Should().NotBeEmpty();
 
-		_driverRepositoryMock.Verify(
-			x => x.GetByIdAsync(driver.Id, It.IsAny<CancellationToken>()),
-			Times.Once
-		);
+		addedZone.Should().NotBeNull();
+		addedZone.Code.Should().Be("ZON-001");
+		addedZone.Name.Should().Be("Zona Norte");
+		addedZone.DriverId.Should().Be(driver.Id);
+		result.Value.Should().Be(addedZone.Id);
 
 		_deliveryZoneRepositoryMock.Verify(
-			x => x.AddAsync(It.IsAny<DeliveryZone>(), It.IsAny<CancellationToken>()),
-			Times.Once
-		);
-
-		_unitOfWorkMock.Verify(
-			x => x.CommitAsync(It.IsAny<CancellationToken>()),
-			Times.Once
-		);
+			r => r.AddAsync(It.IsAny<DeliveryZone>(), It.IsAny<CancellationToken>()),
+			Times.Once);
+		_unitOfWorkMock.Verify(u => u.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
 	}
 
 	[Fact]
-	public async Task Handle_WithNonExistingDriver_ShouldReturnFailureResult() {
+	public async Task Handle_WithoutDriver_ShouldCreateDeliveryZoneWithoutDriverAndCommit() {
+		// Arrange
+		var command = new CreateDeliveryZoneCommand(
+			DriverId: null,
+			Code: "ZON-002",
+			Name: "Zona Sur",
+			Boundaries: CreateValidBoundaries()
+		);
+
+		DeliveryZone? addedZone = null;
+		_deliveryZoneRepositoryMock
+			.Setup(r => r.AddAsync(It.IsAny<DeliveryZone>(), It.IsAny<CancellationToken>()))
+			.Callback<DeliveryZone, CancellationToken>((z, _) => addedZone = z)
+			.Returns(Task.CompletedTask);
+
+		// Act
+		Result<Guid> result = await _handler.Handle(command, CancellationToken.None);
+
+		// Assert
+		result.IsSuccess.Should().BeTrue();
+
+		addedZone.Should().NotBeNull();
+		addedZone.DriverId.Should().BeNull();
+
+		_driverRepositoryMock.Verify(
+			r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+			Times.Never);
+		_deliveryZoneRepositoryMock.Verify(
+			r => r.AddAsync(It.IsAny<DeliveryZone>(), It.IsAny<CancellationToken>()),
+			Times.Once);
+		_unitOfWorkMock.Verify(u => u.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
+	}
+
+	[Fact]
+	public async Task Handle_WhenDriverDoesNotExist_ShouldReturnFailure() {
 		// Arrange
 		var driverId = Guid.NewGuid();
-		List<CoordinateDto> boundaries = CreateValidBoundaries();
-		var command = new CreateDeliveryZoneCommand(driverId, "ZON-003", "East Zone", boundaries);
+		var command = new CreateDeliveryZoneCommand(
+			DriverId: driverId,
+			Code: "ZON-003",
+			Name: "Zona Este",
+			Boundaries: CreateValidBoundaries()
+		);
 
 		_driverRepositoryMock
-			.Setup(x => x.GetByIdAsync(driverId, It.IsAny<CancellationToken>()))
+			.Setup(r => r.GetByIdAsync(driverId, It.IsAny<CancellationToken>()))
 			.ReturnsAsync((Driver?)null);
 
 		// Act
 		Result<Guid> result = await _handler.Handle(command, CancellationToken.None);
 
 		// Assert
-		result.IsSuccess.Should().BeFalse();
+		result.IsFailure.Should().BeTrue();
 		result.Error.Should().Be(CommonErrors.NotFoundById("Driver", driverId));
 
-		_driverRepositoryMock.Verify(
-			x => x.GetByIdAsync(driverId, It.IsAny<CancellationToken>()),
-			Times.Once
-		);
-
 		_deliveryZoneRepositoryMock.Verify(
-			x => x.AddAsync(It.IsAny<DeliveryZone>(), It.IsAny<CancellationToken>()),
-			Times.Never
-		);
-
-		_unitOfWorkMock.Verify(
-			x => x.CommitAsync(It.IsAny<CancellationToken>()),
-			Times.Never
-		);
-	}
-
-	[Fact]
-	public async Task Handle_ShouldCreateDeliveryZoneWithCorrectBoundaries() {
-		// Arrange
-		List<CoordinateDto> boundaries = CreateValidBoundaries();
-		var command = new CreateDeliveryZoneCommand(null, "ZON-004", "West Zone", boundaries);
-		DeliveryZone? capturedDeliveryZone = null;
-
-		_deliveryZoneRepositoryMock
-			.Setup(x => x.AddAsync(It.IsAny<DeliveryZone>(), It.IsAny<CancellationToken>()))
-			.Callback<DeliveryZone, CancellationToken>((zone, ct) => capturedDeliveryZone = zone);
-
-		// Act
-		Result<Guid> result = await _handler.Handle(command, CancellationToken.None);
-
-		// Assert
-		result.IsSuccess.Should().BeTrue();
-		capturedDeliveryZone.Should().NotBeNull();
-		capturedDeliveryZone.Code.Should().Be("ZON-004");
-		capturedDeliveryZone.Name.Should().Be("West Zone");
-		capturedDeliveryZone.Boundaries.Coordinates.Should().HaveCount(5);
+			r => r.AddAsync(It.IsAny<DeliveryZone>(), It.IsAny<CancellationToken>()),
+			Times.Never);
+		_unitOfWorkMock.Verify(u => u.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
 	}
 }

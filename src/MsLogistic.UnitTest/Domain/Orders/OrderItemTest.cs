@@ -114,5 +114,25 @@ public class OrderItemTest {
 		orderItem.Quantity.Should().Be(15);
 	}
 
+	[Theory]
+	[InlineData(0)]
+	[InlineData(-1)]
+	[InlineData(-10)]
+	[InlineData(-100)]
+	public void IncreaseQuantity_WithInvalidQuantity_ShouldThrowDomainException(int invalidQuantity) {
+		// Arrange
+		var orderItem = OrderItem.Create(Guid.NewGuid(), Guid.NewGuid(), 5);
+		int quantityBeforeAct = orderItem.Quantity;
+
+		// Act
+		Action act = () => orderItem.IncreaseQuantity(invalidQuantity);
+
+		// Assert
+		act.Should().Throw<DomainException>()
+			.Which.Error.Should().Be(OrderItemErrors.QuantityMustBeGreaterThanZero);
+
+		orderItem.Quantity.Should().Be(quantityBeforeAct);
+	}
+
 	#endregion
 }

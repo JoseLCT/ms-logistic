@@ -40,8 +40,7 @@ public class GetDeliveryZoneByIdHandlerTest : IDisposable {
 			DriverId = driverId,
 			Code = code,
 			Name = name,
-			Boundaries = boundaries ?? new Polygon(new LinearRing(new[]
-			{
+			Boundaries = boundaries ?? new Polygon(new LinearRing(new[] {
 				new Coordinate(0, 0),
 				new Coordinate(0, 1),
 				new Coordinate(1, 1),
@@ -54,9 +53,14 @@ public class GetDeliveryZoneByIdHandlerTest : IDisposable {
 	}
 
 	[Fact]
-	public async Task Handle_WithExistingDeliveryZoneId_ShouldReturnDeliveryZone() {
+	public async Task Handle_WithExistingDeliveryZoneId_ShouldReturnDeliveryZoneWithAllFieldsMapped() {
 		// Arrange
-		DeliveryZonePersistenceModel newDeliveryZone = CreateDeliveryZonePersistenceModel();
+		var driverId = Guid.NewGuid();
+		DeliveryZonePersistenceModel newDeliveryZone = CreateDeliveryZonePersistenceModel(
+			driverId: driverId,
+			code: "NORTH-001",
+			name: "Northern Zone"
+		);
 
 		await _dbContext.DeliveryZones.AddAsync(newDeliveryZone);
 		await _dbContext.SaveChangesAsync();
@@ -68,7 +72,68 @@ public class GetDeliveryZoneByIdHandlerTest : IDisposable {
 
 		// Assert
 		result.IsSuccess.Should().BeTrue();
+		result.Value.Should().NotBeNull();
 		result.Value.Id.Should().Be(newDeliveryZone.Id);
+		result.Value.DriverId.Should().Be(driverId);
+		result.Value.Code.Should().Be("NORTH-001");
+		result.Value.Name.Should().Be("Northern Zone");
+		result.Value.Boundaries.Should().HaveCount(5);
+	}
+
+	[Fact]
+	public async Task Handle_WithExistingDeliveryZoneWithoutDriver_ShouldReturnDeliveryZoneWithNullDriverId() {
+		// Arrange
+		DeliveryZonePersistenceModel newDeliveryZone = CreateDeliveryZonePersistenceModel(
+			driverId: null
+		);
+
+		await _dbContext.DeliveryZones.AddAsync(newDeliveryZone);
+		await _dbContext.SaveChangesAsync();
+
+		var query = new GetDeliveryZoneByIdQuery(newDeliveryZone.Id);
+
+		// Act
+		Result<DeliveryZoneDetailDto> result = await _handler.Handle(query, CancellationToken.None);
+
+		// Assert
+		result.IsSuccess.Should().BeTrue();
+		result.Value.Should().NotBeNull();
+		result.Value.DriverId.Should().BeNull();
+	}
+
+	[Fact]
+	public async Task Handle_WithExistingDeliveryZone_ShouldMapCoordinatesSwappingXAndY() {
+		// Arrange
+		var polygon = new Polygon(new LinearRing([
+			new Coordinate(-68.15, -16.50),
+			new Coordinate(-68.10, -16.50),
+			new Coordinate(-68.10, -16.45),
+			new Coordinate(-68.15, -16.45),
+			new Coordinate(-68.15, -16.50)
+		]));
+
+		DeliveryZonePersistenceModel newDeliveryZone = CreateDeliveryZonePersistenceModel(
+			boundaries: polygon
+		);
+
+		await _dbContext.DeliveryZones.AddAsync(newDeliveryZone);
+		await _dbContext.SaveChangesAsync();
+
+		var query = new GetDeliveryZoneByIdQuery(newDeliveryZone.Id);
+
+		// Act
+		Result<DeliveryZoneDetailDto> result = await _handler.Handle(query, CancellationToken.None);
+
+		// Assert
+		result.IsSuccess.Should().BeTrue();
+		result.Value.Should().NotBeNull();
+		result.Value.Boundaries.Should().HaveCount(5);
+
+		result.Value.Boundaries[0].Latitude.Should().Be(-16.50);
+		result.Value.Boundaries[0].Longitude.Should().Be(-68.15);
+
+		result.Value.Boundaries[2].Latitude.Should().Be(-16.45);
+		result.Value.Boundaries[2].Longitude.Should().Be(-68.10);
 	}
 
 	[Fact]
@@ -86,21 +151,54 @@ public class GetDeliveryZoneByIdHandlerTest : IDisposable {
 	}
 
 	[Fact]
-	public async Task Handle_WithMultipleDeliveryZones_ShouldReturnCorrectDeliveryZone() {
+	public async Task Handle_WithNonExistingIdAndOtherZonesInDb_ShouldReturnNotFoundError() {
 		// Arrange
-		DeliveryZonePersistenceModel deliveryZone1 = CreateDeliveryZonePersistenceModel();
-		DeliveryZonePersistenceModel deliveryZone2 = CreateDeliveryZonePersistenceModel();
+		DeliveryZonePersistenceModel zone1 = CreateDeliveryZonePersistenceModel();
+		DeliveryZonePersistenceModel zone2 = CreateDeliveryZonePersistenceModel();
 
-		await _dbContext.DeliveryZones.AddRangeAsync(deliveryZone1, deliveryZone2);
+		await _dbContext.DeliveryZones.AddRangeAsync(zone1, zone2);
 		await _dbContext.SaveChangesAsync();
 
-		var query = new GetDeliveryZoneByIdQuery(deliveryZone2.Id);
+		var nonExistingId = Guid.NewGuid();
+		var query = new GetDeliveryZoneByIdQuery(nonExistingId);
+
+		// Act
+		Result<DeliveryZoneDetailDto> result = await _handler.Handle(query, CancellationToken.None);
+
+		// Assert
+		result.IsFailure.Should().BeTrue();
+		result.Error.Should().Be(CommonErrors.NotFoundById("DeliveryZone", nonExistingId));
+	}
+
+	[Fact]
+	public async Task Handle_WithMultipleDeliveryZones_ShouldReturnCorrectDeliveryZone() {
+		// Arrange
+		DeliveryZonePersistenceModel zone1 = CreateDeliveryZonePersistenceModel(
+			code: "NORTH-001",
+			name: "Northern Zone"
+		);
+		DeliveryZonePersistenceModel zone2 = CreateDeliveryZonePersistenceModel(
+			code: "SOUTH-002",
+			name: "Southern Zone"
+		);
+		DeliveryZonePersistenceModel zone3 = CreateDeliveryZonePersistenceModel(
+			code: "EAST-003",
+			name: "Eastern Zone"
+		);
+
+		await _dbContext.DeliveryZones.AddRangeAsync(zone1, zone2, zone3);
+		await _dbContext.SaveChangesAsync();
+
+		var query = new GetDeliveryZoneByIdQuery(zone2.Id);
 
 		// Act
 		Result<DeliveryZoneDetailDto> result = await _handler.Handle(query, CancellationToken.None);
 
 		// Assert
 		result.IsSuccess.Should().BeTrue();
-		result.Value.Id.Should().Be(deliveryZone2.Id);
+		result.Value.Should().NotBeNull();
+		result.Value.Id.Should().Be(zone2.Id);
+		result.Value.Code.Should().Be("SOUTH-002");
+		result.Value.Name.Should().Be("Southern Zone");
 	}
 }

@@ -24,6 +24,21 @@ public class CustomerTest {
 		customer.Id.Should().NotBe(Guid.Empty);
 		customer.FullName.Should().Be(fullName);
 		customer.PhoneNumber.Should().Be(phoneNumber);
+		customer.ExternalId.Should().BeNull();
+		customer.UpdatedAt.Should().BeNull();
+	}
+
+	[Fact]
+	public void Create_WithExternalId_ShouldSetExternalId() {
+		// Arrange
+		string fullName = "John Doe";
+		var externalId = Guid.NewGuid();
+
+		// Act
+		var customer = Customer.Create(fullName, null, externalId);
+
+		// Assert
+		customer.ExternalId.Should().Be(externalId);
 	}
 
 	[Fact]
@@ -41,11 +56,12 @@ public class CustomerTest {
 	}
 
 	[Theory]
+	[InlineData(null)]
 	[InlineData("")]
 	[InlineData("   ")]
-	public void Create_WithInvalidFullName_ShouldThrowDomainException(string invalidFullName) {
+	public void Create_WithInvalidFullName_ShouldThrowDomainException(string? invalidFullName) {
 		// Act
-		Action act = () => Customer.Create(invalidFullName, null);
+		Action act = () => Customer.Create(invalidFullName!, null);
 
 		// Assert
 		act.Should().Throw<DomainException>()
@@ -69,19 +85,46 @@ public class CustomerTest {
 		customer.FullName.Should().Be(newFullName);
 	}
 
-	[Theory]
-	[InlineData("")]
-	[InlineData("   ")]
-	public void SetFullName_WithInvalidName_ShouldThrowDomainException(string invalidFullName) {
+	[Fact]
+	public void SetFullName_WithValidName_ShouldMarkAsUpdated() {
 		// Arrange
 		var customer = Customer.Create("John Doe", null);
 
 		// Act
-		Action act = () => customer.SetFullName(invalidFullName);
+		customer.SetFullName("Jane Smith");
+
+		// Assert
+		customer.UpdatedAt.Should().NotBeNull();
+	}
+
+	[Theory]
+	[InlineData(null)]
+	[InlineData("")]
+	[InlineData("   ")]
+	public void SetFullName_WithInvalidName_ShouldThrowDomainException(string? invalidFullName) {
+		// Arrange
+		var customer = Customer.Create("John Doe", null);
+
+		// Act
+		Action act = () => customer.SetFullName(invalidFullName!);
 
 		// Assert
 		act.Should().Throw<DomainException>()
 			.Which.Error.Should().Be(CustomerErrors.FullNameIsRequired);
+	}
+
+	[Fact]
+	public void SetFullName_WithInvalidName_ShouldNotChangeNameOrMarkAsUpdated() {
+		// Arrange
+		var customer = Customer.Create("John Doe", null);
+
+		// Act
+		Action act = () => customer.SetFullName("");
+
+		// Assert
+		act.Should().Throw<DomainException>();
+		customer.FullName.Should().Be("John Doe");
+		customer.UpdatedAt.Should().BeNull();
 	}
 
 	#endregion
@@ -99,6 +142,19 @@ public class CustomerTest {
 
 		// Assert
 		customer.PhoneNumber.Should().Be(phoneNumber);
+	}
+
+	[Fact]
+	public void SetPhoneNumber_WithValidPhoneNumber_ShouldMarkAsUpdated() {
+		// Arrange
+		var customer = Customer.Create("John Doe", null);
+		var phoneNumber = PhoneNumberValue.Create("+59112345678");
+
+		// Act
+		customer.SetPhoneNumber(phoneNumber);
+
+		// Assert
+		customer.UpdatedAt.Should().NotBeNull();
 	}
 
 	[Fact]

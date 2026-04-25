@@ -28,10 +28,11 @@ public class CustomerRepositoryTest : IDisposable {
 
 	private static Customer CreateValidCustomer(
 		string fullName = "John Doe",
-		string phoneNumber = "+59112345678"
+		string phoneNumber = "+59112345678",
+		Guid? externalId = null
 	) {
 		var phone = PhoneNumberValue.Create(phoneNumber);
-		return Customer.Create(fullName, phone);
+		return Customer.Create(fullName, phone, externalId);
 	}
 
 	#region GetByIdAsync
@@ -59,6 +60,39 @@ public class CustomerRepositoryTest : IDisposable {
 
 		// Act
 		Customer? result = await _repository.GetByIdAsync(nonExistingId);
+
+		// Assert
+		result.Should().BeNull();
+	}
+
+	#endregion
+
+	#region GetByExternalIdAsync
+
+	[Fact]
+	public async Task GetByExternalIdAsync_WhenCustomerExists_ShouldReturnCustomer() {
+		// Arrange
+		var externalId = Guid.NewGuid();
+		Customer customer = CreateValidCustomer(externalId: externalId);
+		await _dbContext.Customers.AddAsync(customer);
+		await _dbContext.SaveChangesAsync();
+
+		// Act
+		Customer? result = await _repository.GetByExternalIdAsync(externalId);
+
+		// Assert
+		result.Should().NotBeNull();
+		result.Id.Should().Be(customer.Id);
+		result.ExternalId.Should().Be(externalId);
+	}
+
+	[Fact]
+	public async Task GetByExternalIdAsync_WhenCustomerDoesNotExist_ShouldReturnNull() {
+		// Arrange
+		var nonExistingExternalId = Guid.NewGuid();
+
+		// Act
+		Customer? result = await _repository.GetByExternalIdAsync(nonExistingExternalId);
 
 		// Assert
 		result.Should().BeNull();

@@ -62,7 +62,8 @@ public class OrderIncidentTest {
 	[Theory]
 	[InlineData("")]
 	[InlineData("   ")]
-	public void Create_WithInvalidDescription_ShouldThrowDomainException(string invalidDescription) {
+	[InlineData(null)]
+	public void Create_WithInvalidDescription_ShouldThrowDomainException(string? invalidDescription) {
 		// Arrange
 		var orderId = Guid.NewGuid();
 		var driverId = Guid.NewGuid();
@@ -73,7 +74,7 @@ public class OrderIncidentTest {
 			orderId,
 			driverId,
 			incidentType,
-			invalidDescription
+			invalidDescription!
 		);
 
 		// Assert

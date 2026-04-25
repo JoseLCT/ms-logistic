@@ -44,7 +44,10 @@ public class GetCustomerByIdHandlerTest : IDisposable {
 	[Fact]
 	public async Task Handle_WithExistingCustomerId_ShouldReturnCustomer() {
 		// Arrange
-		CustomerPersistenceModel newCustomer = CreateCustomerPersistenceModel();
+		CustomerPersistenceModel newCustomer = CreateCustomerPersistenceModel(
+			fullName: "Alice Smith",
+			phoneNumber: "5551234567"
+		);
 
 		await _dbContext.Customers.AddAsync(newCustomer);
 		await _dbContext.SaveChangesAsync();
@@ -56,7 +59,10 @@ public class GetCustomerByIdHandlerTest : IDisposable {
 
 		// Assert
 		result.IsSuccess.Should().BeTrue();
+		result.Value.Should().NotBeNull();
 		result.Value.Id.Should().Be(newCustomer.Id);
+		result.Value.FullName.Should().Be("Alice Smith");
+		result.Value.PhoneNumber.Should().Be("5551234567");
 	}
 
 	[Fact]
@@ -73,14 +79,43 @@ public class GetCustomerByIdHandlerTest : IDisposable {
 		result.Error.Should().Be(CommonErrors.NotFoundById("Customer", nonExistingId));
 	}
 
-
 	[Fact]
-	public async Task Handle_WithMultipleCustomers_ShouldReturnCorrectCustomer() {
+	public async Task Handle_WithNonExistingCustomerIdAndOtherCustomersInDb_ShouldReturnNotFoundError() {
 		// Arrange
 		CustomerPersistenceModel customer1 = CreateCustomerPersistenceModel();
 		CustomerPersistenceModel customer2 = CreateCustomerPersistenceModel();
 
 		await _dbContext.Customers.AddRangeAsync(customer1, customer2);
+		await _dbContext.SaveChangesAsync();
+
+		var nonExistingId = Guid.NewGuid();
+		var query = new GetCustomerByIdQuery(nonExistingId);
+
+		// Act
+		Result<CustomerDetailDto> result = await _handler.Handle(query, CancellationToken.None);
+
+		// Assert
+		result.IsFailure.Should().BeTrue();
+		result.Error.Should().Be(CommonErrors.NotFoundById("Customer", nonExistingId));
+	}
+
+	[Fact]
+	public async Task Handle_WithMultipleCustomers_ShouldReturnCorrectCustomer() {
+		// Arrange
+		CustomerPersistenceModel customer1 = CreateCustomerPersistenceModel(
+			fullName: "Alice Smith",
+			phoneNumber: "1111111111"
+		);
+		CustomerPersistenceModel customer2 = CreateCustomerPersistenceModel(
+			fullName: "Bob Johnson",
+			phoneNumber: "2222222222"
+		);
+		CustomerPersistenceModel customer3 = CreateCustomerPersistenceModel(
+			fullName: "Charlie Brown",
+			phoneNumber: "3333333333"
+		);
+
+		await _dbContext.Customers.AddRangeAsync(customer1, customer2, customer3);
 		await _dbContext.SaveChangesAsync();
 
 		var query = new GetCustomerByIdQuery(customer2.Id);
@@ -90,6 +125,9 @@ public class GetCustomerByIdHandlerTest : IDisposable {
 
 		// Assert
 		result.IsSuccess.Should().BeTrue();
+		result.Value.Should().NotBeNull();
 		result.Value.Id.Should().Be(customer2.Id);
+		result.Value.FullName.Should().Be("Bob Johnson");
+		result.Value.PhoneNumber.Should().Be("2222222222");
 	}
 }

@@ -57,7 +57,9 @@ public class GetAllCustomersHandlerTest : IDisposable {
 	[Fact]
 	public async Task Handle_WithSingleCustomer_ShouldReturnListWithOneCustomer() {
 		// Arrange
-		CustomerPersistenceModel customer = CreateCustomerPersistenceModel();
+		CustomerPersistenceModel customer = CreateCustomerPersistenceModel(
+			fullName: "Alice Smith"
+		);
 
 		await _dbContext.Customers.AddAsync(customer);
 		await _dbContext.SaveChangesAsync();
@@ -72,16 +74,23 @@ public class GetAllCustomersHandlerTest : IDisposable {
 		result.Value.Should().NotBeNull();
 		result.Value.Should().HaveCount(1);
 		result.Value[0].Id.Should().Be(customer.Id);
-		result.Value[0].FullName.Should().Be(customer.FullName);
+		result.Value[0].FullName.Should().Be("Alice Smith");
 	}
 
 	[Fact]
 	public async Task Handle_WithMultipleCustomers_ShouldReturnAllCustomers() {
 		// Arrange
-		CustomerPersistenceModel customer1 = CreateCustomerPersistenceModel();
-		CustomerPersistenceModel customer2 = CreateCustomerPersistenceModel();
+		CustomerPersistenceModel customer1 = CreateCustomerPersistenceModel(
+			fullName: "Alice Smith"
+		);
+		CustomerPersistenceModel customer2 = CreateCustomerPersistenceModel(
+			fullName: "Bob Johnson"
+		);
+		CustomerPersistenceModel customer3 = CreateCustomerPersistenceModel(
+			fullName: "Charlie Brown"
+		);
 
-		await _dbContext.Customers.AddRangeAsync(customer1, customer2);
+		await _dbContext.Customers.AddRangeAsync(customer1, customer2, customer3);
 		await _dbContext.SaveChangesAsync();
 
 		var query = new GetAllCustomersQuery();
@@ -91,6 +100,11 @@ public class GetAllCustomersHandlerTest : IDisposable {
 
 		// Assert
 		result.IsSuccess.Should().BeTrue();
-		result.Value.Should().HaveCount(2);
+		result.Value.Should().HaveCount(3);
+		result.Value.Should().BeEquivalentTo([
+			new CustomerSummaryDto(customer1.Id, "Alice Smith"),
+			new CustomerSummaryDto(customer2.Id, "Bob Johnson"),
+			new CustomerSummaryDto(customer3.Id, "Charlie Brown")
+		]);
 	}
 }

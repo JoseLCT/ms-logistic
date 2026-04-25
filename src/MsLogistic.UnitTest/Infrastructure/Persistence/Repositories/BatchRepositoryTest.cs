@@ -99,6 +99,8 @@ public class BatchRepositoryTest : IDisposable {
 		await _dbContext.Batches.AddAsync(batch1);
 		await _dbContext.SaveChangesAsync();
 
+		await Task.Delay(1);
+
 		var batch2 = Batch.Create(10);
 		await _dbContext.Batches.AddAsync(batch2);
 		await _dbContext.SaveChangesAsync();
