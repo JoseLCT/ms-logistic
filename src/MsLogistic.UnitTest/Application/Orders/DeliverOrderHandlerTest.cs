@@ -10,6 +10,8 @@ using MsLogistic.Core.Interfaces;
 using MsLogistic.Core.Results;
 using MsLogistic.Domain.Orders.Entities;
 using MsLogistic.Domain.Orders.Repositories;
+using MsLogistic.Domain.Routes.Entities;
+using MsLogistic.Domain.Routes.Repositories;
 using MsLogistic.Domain.Shared.ValueObjects;
 using Xunit;
 
@@ -17,6 +19,7 @@ namespace MsLogistic.UnitTest.Application.Orders;
 
 public class DeliverOrderHandlerTest {
 	private readonly Mock<IOrderRepository> _orderRepositoryMock;
+	private readonly Mock<IRouteRepository> _routeRepositoryMock;
 	private readonly Mock<IImageStorageService> _imageStorageServiceMock;
 	private readonly Mock<IUnitOfWork> _unitOfWorkMock;
 	private readonly Mock<IOutboxRepository> _outboxRepositoryMock;
@@ -24,6 +27,7 @@ public class DeliverOrderHandlerTest {
 
 	public DeliverOrderHandlerTest() {
 		_orderRepositoryMock = new Mock<IOrderRepository>();
+		_routeRepositoryMock = new Mock<IRouteRepository>();
 		_imageStorageServiceMock = new Mock<IImageStorageService>();
 		_unitOfWorkMock = new Mock<IUnitOfWork>();
 		_outboxRepositoryMock = new Mock<IOutboxRepository>();
@@ -31,6 +35,7 @@ public class DeliverOrderHandlerTest {
 
 		_handler = new DeliverOrderHandler(
 			_orderRepositoryMock.Object,
+			_routeRepositoryMock.Object,
 			_imageStorageServiceMock.Object,
 			_unitOfWorkMock.Object,
 			_outboxRepositoryMock.Object,
@@ -48,6 +53,17 @@ public class DeliverOrderHandlerTest {
 		_orderRepositoryMock
 			.Setup(x => x.GetByIdAsync(order.Id, It.IsAny<CancellationToken>()))
 			.ReturnsAsync(order);
+
+		_routeRepositoryMock
+			.Setup(x => x.GetByIdAsync(order.RouteId!.Value, It.IsAny<CancellationToken>()))
+			.ReturnsAsync(
+				Route.Create(
+					batchId: Guid.NewGuid(),
+					deliveryZoneId: Guid.NewGuid(),
+					driverId: Guid.NewGuid(),
+					originLocation: GeoPointValue.Create(-17.78, -63.18)
+				)
+			);
 
 		_imageStorageServiceMock
 			.Setup(x => x.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -169,7 +185,6 @@ public class DeliverOrderHandlerTest {
 	private static DeliverOrderCommand CreateValidCommand(Guid orderId) {
 		return new DeliverOrderCommand {
 			OrderId = orderId,
-			DriverId = Guid.NewGuid(),
 			Location = new CoordinateDto(Latitude: -17.78, Longitude: -63.18),
 			Comments = "Entregado en puerta",
 			ImageStream = new MemoryStream([1, 2, 3]),

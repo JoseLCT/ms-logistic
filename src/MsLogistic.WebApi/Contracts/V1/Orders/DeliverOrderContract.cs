@@ -1,13 +1,9 @@
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Http;
 using MsLogistic.WebApi.Contracts.Shared;
 
 namespace MsLogistic.WebApi.Contracts.V1.Orders;
 
 public record DeliverOrderContract {
-	[property: JsonPropertyName("driver_id")]
-	public required Guid DriverId { get; init; }
-
 	[property: JsonPropertyName("location")]
 	public required CoordinateContract Location { get; init; }
 
