@@ -98,7 +98,9 @@ public class GoogleMapsRouteCalculator : IRouteCalculator {
 		}
 	}
 
-	private static string FormatCoord(GeoPointValue p) =>
-		$"{p.Latitude.ToString(CultureInfo.InvariantCulture)}," +
-		$"{p.Longitude.ToString(CultureInfo.InvariantCulture)}";
+	private static string FormatCoord(GeoPointValue p) {
+		string lat = p.Latitude.ToString(CultureInfo.InvariantCulture);
+		string lng = p.Longitude.ToString(CultureInfo.InvariantCulture);
+		return $"{lat},{lng}";
+	}
 }
