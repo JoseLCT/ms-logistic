@@ -15,7 +15,7 @@ public class IntegrationEventDispatcher : IIntegrationMessageConsumer<RawMessage
 		["patient.created"] = typeof(PatientCreatedMessage),
 		["order.created"] = typeof(OrderCreatedMessage),
 		["order.completed"] = typeof(OrderBatchCompletedMessage),
-		["recipe.created"] = typeof(RecipeCreatedMessage)
+		["meal-plan.receta"] = typeof(RecipeCreatedMessage)
 	};
 
 	private static readonly JsonSerializerOptions _jsonOptions = new() {
