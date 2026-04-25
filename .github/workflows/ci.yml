@@ -1,12 +1,8 @@
 name: CI
 
 on:
-  push:
-    branches: ["main", "dev"]
   pull_request:
     branches: ["main", "dev"]
-  pull_request_review:
-    types: [ submitted ]
 
 jobs:
   build:
@@ -36,18 +32,13 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      - name: Cache SonarQube Cloud scanner
-        id: cache-sonar-scanner
-        uses: actions/cache@v4
-        with:
-          path: ${{ runner.temp }}/scanner
-          key: ${{ runner.os }}-sonar-scanner
-          restore-keys: ${{ runner.os }}-sonar-scanner
-
-      - name: Install SonarQube Cloud scanner
-        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+      - name: Install dotnet tools
         run: |
           dotnet tool install dotnet-sonarscanner --create-manifest-if-needed
+          dotnet tool restore
+
+      - name: Restore dependencies
+        run: dotnet restore
 
       - name: Sonarcloud start
         env:
@@ -57,15 +48,9 @@ jobs:
           /k:"JoseLCT_ms-logistic"
           /o:"joselct"
           /d:sonar.token="$SONAR_TOKEN"
-          /d:sonar.cs.opencover.reportsPaths="coverage/**/coverage.opencover.xml"
+          /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
           /d:sonar.coverage.exclusions="**/Program.cs,**/Migrations/**,**/*Dto.cs,**/*Dtos/**,**/appsettings*.json,**/*.csproj,**/MsLogistic.UnitTest/**"
           /d:sonar.qualitygate.wait=true
-
-      - name: Restore dependencies
-        run: dotnet restore
-
-      - name: Restore dotnet tools
-        run: dotnet tool restore
 
       - name: Build
         run: dotnet build --no-restore
@@ -73,11 +58,14 @@ jobs:
       - name: Test
         run: >
           dotnet test src/MsLogistic.UnitTest/MsLogistic.UnitTest.csproj
+          --no-build
           --verbosity normal
           --collect:"XPlat Code Coverage"
           --settings coverlet.runsettings
           --results-directory ./coverage
-          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover,cobertura
+
+      - name: Debug coverage output
+        run: find ./coverage -name "*.xml" -type f
 
       - name: Sonarcloud end
         env:

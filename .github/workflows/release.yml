@@ -9,20 +9,64 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: "zulu"
+
+      - name: Cache SonarQube Cloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Install dotnet tools
+        run: |
+          dotnet tool install dotnet-sonarscanner --create-manifest-if-needed
+          dotnet tool restore
+
       - name: Restore dependencies
         run: dotnet restore
+
+      - name: Sonarcloud start
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: >
+          dotnet sonarscanner begin
+          /k:"JoseLCT_ms-logistic"
+          /o:"joselct"
+          /d:sonar.token="$SONAR_TOKEN"
+          /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
+          /d:sonar.coverage.exclusions="**/Program.cs,**/Migrations/**,**/*Dto.cs,**/*Dtos/**,**/appsettings*.json,**/*.csproj,**/MsLogistic.UnitTest/**"
 
       - name: Build
         run: dotnet build --no-restore
 
       - name: Test
-        run: dotnet test src/MsLogistic.UnitTest/MsLogistic.UnitTest.csproj --no-build --verbosity normal
+        run: >
+          dotnet test src/MsLogistic.UnitTest/MsLogistic.UnitTest.csproj
+          --no-build
+          --verbosity normal
+          --collect:"XPlat Code Coverage"
+          --settings coverlet.runsettings
+          --results-directory ./coverage
+
+      - name: Sonarcloud end
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: >
+          dotnet sonarscanner end
+          /d:sonar.token="$SONAR_TOKEN"
 
   deploy:
     needs: build
