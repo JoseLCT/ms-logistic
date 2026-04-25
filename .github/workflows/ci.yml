@@ -71,13 +71,11 @@ jobs:
       - name: Test
         run: >
           dotnet test src/MsLogistic.UnitTest/MsLogistic.UnitTest.csproj
-          --no-build
           --verbosity normal
           --collect:"XPlat Code Coverage"
           --settings coverlet.runsettings
           --results-directory ./coverage
-          --
-          DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover,cobertura
+          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover,cobertura
 
       - name: Sonarcloud end
         env:
