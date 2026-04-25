@@ -120,19 +120,38 @@ dotnet test src/MsLogistic.UnitTest/MsLogistic.UnitTest.csproj
 
 ### Code Coverage
 
-**Collect coverage data** (outputs a Cobertura XML file):
+Coverage exclusions (migrations, persistence models, EF Core configurations, DI registrations, `Program.cs`, etc.) are
+configured in `coverlet.runsettings` at the repo root, so they only apply when using the VSTest collector below.
+
+**Collect coverage data** (outputs a Cobertura XML file with exclusions applied):
 
 ```bash
-dotnet test src/MsLogistic.UnitTest/MsLogistic.UnitTest.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+dotnet test src/MsLogistic.UnitTest/MsLogistic.UnitTest.csproj --collect:"XPlat Code Coverage" --settings coverlet.runsettings --results-directory ./TestResults
 ```
+
+The coverage file will be generated at `./TestResults/<guid>/coverage.cobertura.xml`.
 
 **Generate an HTML report** from the coverage data:
 
 ```bash
-reportgenerator \
-  -reports:"./src/MsLogistic.UnitTest/coverage.cobertura.xml" \
-  -targetdir:"coveragereport" \
-  -reporttypes:Html
+reportgenerator -reports:"./TestResults/*/coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:"Html;TextSummary"
 ```
 
-Open `coveragereport/index.html` in your browser to view the full coverage report.
+Open `coveragereport/index.html` in your browser to view the full coverage report. A plain-text summary is also
+generated at `coveragereport/Summary.txt`.
+
+**One-liner** (cleans previous results, runs tests, and generates the report):
+
+```bash
+rm -rf ./TestResults coveragereport && \
+dotnet test src/MsLogistic.UnitTest/MsLogistic.UnitTest.csproj \
+  --collect:"XPlat Code Coverage" \
+  --settings coverlet.runsettings \
+  --results-directory ./TestResults && \
+reportgenerator \
+  -reports:"./TestResults/*/coverage.cobertura.xml" \
+  -targetdir:"coveragereport" \
+  -reporttypes:"Html;TextSummary"
+```
+
+> **Note**: `TestResults/` and `coveragereport/` should be added to `.gitignore` to avoid committing coverage artifacts.
