@@ -14,17 +14,16 @@ namespace MsLogistic.UnitTest.Application.Customers;
 public class UpdateCustomerHandlerTest {
 	private readonly Mock<ICustomerRepository> _customerRepositoryMock;
 	private readonly Mock<IUnitOfWork> _unitOfWorkMock;
-	private readonly Mock<ILogger<UpdateCustomerHandler>> _logger;
 	private readonly UpdateCustomerHandler _handler;
 
 	public UpdateCustomerHandlerTest() {
 		_customerRepositoryMock = new Mock<ICustomerRepository>();
 		_unitOfWorkMock = new Mock<IUnitOfWork>();
-		_logger = new Mock<ILogger<UpdateCustomerHandler>>();
+		var logger = new Mock<ILogger<UpdateCustomerHandler>>();
 		_handler = new UpdateCustomerHandler(
 			_customerRepositoryMock.Object,
 			_unitOfWorkMock.Object,
-			_logger.Object
+			logger.Object
 		);
 	}
 
@@ -52,7 +51,7 @@ public class UpdateCustomerHandlerTest {
 		result.Error.Should().BeNull();
 		customer.FullName.Should().Be(fullName);
 		customer.PhoneNumber.Should().NotBeNull();
-		customer.PhoneNumber!.Value.Should().Be(phoneNumber);
+		customer.PhoneNumber.Value.Should().Be(phoneNumber);
 
 		_customerRepositoryMock.Verify(
 			x => x.GetByIdAsync(customer.Id, It.IsAny<CancellationToken>()),

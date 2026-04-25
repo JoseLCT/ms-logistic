@@ -12,7 +12,7 @@ using Xunit;
 namespace MsLogistic.UnitTest.Infrastructure.Queries.Routes;
 
 public class GetAllRoutesHandlerTest : IDisposable {
-	private readonly PersistenceDbContext _context;
+	private readonly PersistenceDbContext _dbContext;
 	private readonly GetAllRoutesHandler _handler;
 
 	public GetAllRoutesHandlerTest() {
@@ -20,12 +20,12 @@ public class GetAllRoutesHandlerTest : IDisposable {
 			.UseInMemoryDatabase(Guid.NewGuid().ToString())
 			.Options;
 
-		_context = new PersistenceDbContext(options);
-		_handler = new GetAllRoutesHandler(_context);
+		_dbContext = new PersistenceDbContext(options);
+		_handler = new GetAllRoutesHandler(_dbContext);
 	}
 
 	public void Dispose() {
-		_context.Dispose();
+		_dbContext.Dispose();
 	}
 
 	private static RoutePersistenceModel CreateRoutePersistenceModel(
@@ -67,12 +67,14 @@ public class GetAllRoutesHandlerTest : IDisposable {
 	}
 
 	[Fact]
-	public async Task Handle_WithSingleRoute_ShouldReturnListWithOneRoute() {
+	public async Task Handle_WithSinglePendingRoute_ShouldReturnListWithOneRoute() {
 		// Arrange
-		RoutePersistenceModel route = CreateRoutePersistenceModel();
+		RoutePersistenceModel route = CreateRoutePersistenceModel(
+			status: RouteStatusEnum.Pending
+		);
 
-		await _context.Routes.AddAsync(route);
-		await _context.SaveChangesAsync();
+		await _dbContext.Routes.AddAsync(route);
+		await _dbContext.SaveChangesAsync();
 
 		var query = new GetAllRoutesQuery();
 
@@ -84,16 +86,58 @@ public class GetAllRoutesHandlerTest : IDisposable {
 		result.Value.Should().NotBeNull();
 		result.Value.Should().HaveCount(1);
 		result.Value[0].Id.Should().Be(route.Id);
+		result.Value[0].Status.Should().Be(RouteStatusEnum.Pending);
+		result.Value[0].StartedAt.Should().BeNull();
+		result.Value[0].CompletedAt.Should().BeNull();
+		result.Value[0].CreatedAt.Should().Be(route.CreatedAt);
+	}
+
+	[Fact]
+	public async Task Handle_WithCompletedRoute_ShouldMapStartedAtAndCompletedAt() {
+		// Arrange
+		DateTime startedAt = DateTime.UtcNow.AddHours(-3);
+		DateTime completedAt = DateTime.UtcNow.AddHours(-1);
+
+		RoutePersistenceModel route = CreateRoutePersistenceModel(
+			status: RouteStatusEnum.Completed,
+			startedAt: startedAt,
+			completedAt: completedAt
+		);
+
+		await _dbContext.Routes.AddAsync(route);
+		await _dbContext.SaveChangesAsync();
+
+		var query = new GetAllRoutesQuery();
+
+		// Act
+		Result<IReadOnlyList<RouteSummaryDto>> result = await _handler.Handle(query, CancellationToken.None);
+
+		// Assert
+		result.IsSuccess.Should().BeTrue();
+		result.Value.Should().HaveCount(1);
+		result.Value[0].Status.Should().Be(RouteStatusEnum.Completed);
+		result.Value[0].StartedAt.Should().Be(startedAt);
+		result.Value[0].CompletedAt.Should().Be(completedAt);
 	}
 
 	[Fact]
 	public async Task Handle_WithMultipleRoutes_ShouldReturnAllRoutes() {
 		// Arrange
-		RoutePersistenceModel route1 = CreateRoutePersistenceModel();
-		RoutePersistenceModel route2 = CreateRoutePersistenceModel();
+		RoutePersistenceModel route1 = CreateRoutePersistenceModel(
+			status: RouteStatusEnum.Pending
+		);
+		RoutePersistenceModel route2 = CreateRoutePersistenceModel(
+			status: RouteStatusEnum.InProgress,
+			startedAt: DateTime.UtcNow.AddHours(-1)
+		);
+		RoutePersistenceModel route3 = CreateRoutePersistenceModel(
+			status: RouteStatusEnum.Completed,
+			startedAt: DateTime.UtcNow.AddHours(-3),
+			completedAt: DateTime.UtcNow.AddHours(-1)
+		);
 
-		await _context.Routes.AddRangeAsync(route1, route2);
-		await _context.SaveChangesAsync();
+		await _dbContext.Routes.AddRangeAsync(route1, route2, route3);
+		await _dbContext.SaveChangesAsync();
 
 		var query = new GetAllRoutesQuery();
 
@@ -103,6 +147,14 @@ public class GetAllRoutesHandlerTest : IDisposable {
 		// Assert
 		result.IsSuccess.Should().BeTrue();
 		result.Value.Should().NotBeNull();
-		result.Value.Should().HaveCount(2);
+		result.Value.Should().HaveCount(3);
+		result.Value.Select(r => r.Id).Should()
+			.BeEquivalentTo([route1.Id, route2.Id, route3.Id]);
+		result.Value.Select(r => r.Status).Should()
+			.BeEquivalentTo([
+				RouteStatusEnum.Pending,
+				RouteStatusEnum.InProgress,
+				RouteStatusEnum.Completed
+			]);
 	}
 }

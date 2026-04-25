@@ -77,16 +77,22 @@ public class GetAllBatchesHandlerTest : IDisposable {
 		result.Value.Should().HaveCount(1);
 		result.Value[0].Id.Should().Be(batch.Id);
 		result.Value[0].Status.Should().Be(BatchStatusEnum.Open);
+		result.Value[0].OpenedAt.Should().Be(batch.OpenedAt);
 		result.Value[0].ClosedAt.Should().BeNull();
 	}
 
 	[Fact]
-	public async Task Handle_WithMultipleBatches_ShouldReturnAllBatches() {
+	public async Task Handle_WithClosedBatch_ShouldMapClosedAtCorrectly() {
 		// Arrange
-		BatchPersistenceModel batch1 = CreateBatchPersistenceModel();
-		BatchPersistenceModel batch2 = CreateBatchPersistenceModel();
+		DateTime openedAt = DateTime.UtcNow.AddHours(-2);
+		DateTime closedAt = DateTime.UtcNow;
+		BatchPersistenceModel batch = CreateBatchPersistenceModel(
+			status: BatchStatusEnum.Closed,
+			openedAt: openedAt,
+			closedAt: closedAt
+		);
 
-		await _dbContext.Batches.AddRangeAsync(batch1, batch2);
+		await _dbContext.Batches.AddAsync(batch);
 		await _dbContext.SaveChangesAsync();
 
 		var query = new GetAllBatchesQuery();
@@ -96,6 +102,35 @@ public class GetAllBatchesHandlerTest : IDisposable {
 
 		// Assert
 		result.IsSuccess.Should().BeTrue();
-		result.Value.Should().HaveCount(2);
+		result.Value.Should().HaveCount(1);
+		result.Value[0].Id.Should().Be(batch.Id);
+		result.Value[0].Status.Should().Be(BatchStatusEnum.Closed);
+		result.Value[0].OpenedAt.Should().Be(openedAt);
+		result.Value[0].ClosedAt.Should().Be(closedAt);
+	}
+
+	[Fact]
+	public async Task Handle_WithMultipleBatches_ShouldReturnAllBatches() {
+		// Arrange
+		BatchPersistenceModel batch1 = CreateBatchPersistenceModel();
+		BatchPersistenceModel batch2 = CreateBatchPersistenceModel();
+		BatchPersistenceModel batch3 = CreateBatchPersistenceModel(
+			status: BatchStatusEnum.Closed,
+			closedAt: DateTime.UtcNow
+		);
+
+		await _dbContext.Batches.AddRangeAsync(batch1, batch2, batch3);
+		await _dbContext.SaveChangesAsync();
+
+		var query = new GetAllBatchesQuery();
+
+		// Act
+		Result<IReadOnlyList<BatchSummaryDto>> result = await _handler.Handle(query, CancellationToken.None);
+
+		// Assert
+		result.IsSuccess.Should().BeTrue();
+		result.Value.Should().HaveCount(3);
+		result.Value.Select(b => b.Id).Should()
+			.BeEquivalentTo([batch1.Id, batch2.Id, batch3.Id]);
 	}
 }

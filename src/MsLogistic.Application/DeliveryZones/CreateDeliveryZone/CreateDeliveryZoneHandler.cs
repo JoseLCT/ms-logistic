@@ -33,7 +33,7 @@ public class CreateDeliveryZoneHandler : IRequestHandler<CreateDeliveryZoneComma
 		if (request.DriverId.HasValue) {
 			Result driverExistsResult = await DriverExists(request.DriverId.Value, ct);
 			if (driverExistsResult.IsFailure) {
-				return Result.Failure<Guid>(driverExistsResult.Error);
+				return Result.Failure<Guid>(driverExistsResult.Error ?? CommonErrors.UnknownError);
 			}
 		}
 

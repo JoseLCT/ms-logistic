@@ -24,14 +24,16 @@ public class DriverTest {
 		driver.FullName.Should().Be(fullName);
 		driver.IsActive.Should().BeTrue();
 		driver.Status.Should().Be(DriverStatusEnum.Available);
+		driver.UpdatedAt.Should().BeNull();
 	}
 
 	[Theory]
+	[InlineData(null)]
 	[InlineData("")]
 	[InlineData("   ")]
-	public void Create_WithInvalidFullName_ShouldThrowDomainException(string invalidFullName) {
+	public void Create_WithInvalidFullName_ShouldThrowDomainException(string? invalidFullName) {
 		// Act
-		Action act = () => Driver.Create(invalidFullName);
+		Action act = () => Driver.Create(invalidFullName!);
 
 		// Assert
 		act.Should().Throw<DomainException>()
@@ -55,19 +57,46 @@ public class DriverTest {
 		driver.FullName.Should().Be(newFullName);
 	}
 
-	[Theory]
-	[InlineData("")]
-	[InlineData("   ")]
-	public void SetFullName_WithInvalidName_ShouldThrowDomainException(string invalidFullName) {
+	[Fact]
+	public void SetFullName_WithValidName_ShouldMarkAsUpdated() {
 		// Arrange
 		var driver = Driver.Create("John Doe");
 
 		// Act
-		Action act = () => driver.SetFullName(invalidFullName);
+		driver.SetFullName("Jane Smith");
+
+		// Assert
+		driver.UpdatedAt.Should().NotBeNull();
+	}
+
+	[Theory]
+	[InlineData(null)]
+	[InlineData("")]
+	[InlineData("   ")]
+	public void SetFullName_WithInvalidName_ShouldThrowDomainException(string? invalidFullName) {
+		// Arrange
+		var driver = Driver.Create("John Doe");
+
+		// Act
+		Action act = () => driver.SetFullName(invalidFullName!);
 
 		// Assert
 		act.Should().Throw<DomainException>()
 			.Which.Error.Should().Be(DriverErrors.FullNameIsRequired);
+	}
+
+	[Fact]
+	public void SetFullName_WithInvalidName_ShouldNotChangeNameOrMarkAsUpdated() {
+		// Arrange
+		var driver = Driver.Create("John Doe");
+
+		// Act
+		Action act = () => driver.SetFullName("");
+
+		// Assert
+		act.Should().Throw<DomainException>();
+		driver.FullName.Should().Be("John Doe");
+		driver.UpdatedAt.Should().BeNull();
 	}
 
 	#endregion
@@ -99,22 +128,57 @@ public class DriverTest {
 		driver.IsActive.Should().BeTrue();
 	}
 
-	#endregion
-
-	#region SetStatus
-
-	[Theory]
-	[InlineData(DriverStatusEnum.Available)]
-	[InlineData(DriverStatusEnum.Unavailable)]
-	public void SetStatus_WithValidStatus_ShouldUpdateStatus(DriverStatusEnum newStatus) {
+	[Fact]
+	public void SetIsActive_ShouldMarkAsUpdated() {
 		// Arrange
 		var driver = Driver.Create("John Doe");
 
 		// Act
-		driver.SetStatus(newStatus);
+		driver.SetIsActive(false);
 
 		// Assert
-		driver.Status.Should().Be(newStatus);
+		driver.UpdatedAt.Should().NotBeNull();
+	}
+
+	#endregion
+
+	#region SetStatus
+
+	[Fact]
+	public void SetStatus_FromAvailableToUnavailable_ShouldUpdateStatus() {
+		// Arrange
+		var driver = Driver.Create("John Doe");
+
+		// Act
+		driver.SetStatus(DriverStatusEnum.Unavailable);
+
+		// Assert
+		driver.Status.Should().Be(DriverStatusEnum.Unavailable);
+	}
+
+	[Fact]
+	public void SetStatus_FromUnavailableToAvailable_ShouldUpdateStatus() {
+		// Arrange
+		var driver = Driver.Create("John Doe");
+		driver.SetStatus(DriverStatusEnum.Unavailable);
+
+		// Act
+		driver.SetStatus(DriverStatusEnum.Available);
+
+		// Assert
+		driver.Status.Should().Be(DriverStatusEnum.Available);
+	}
+
+	[Fact]
+	public void SetStatus_ShouldMarkAsUpdated() {
+		// Arrange
+		var driver = Driver.Create("John Doe");
+
+		// Act
+		driver.SetStatus(DriverStatusEnum.Unavailable);
+
+		// Assert
+		driver.UpdatedAt.Should().NotBeNull();
 	}
 
 	#endregion

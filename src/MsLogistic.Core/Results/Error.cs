@@ -19,6 +19,12 @@ public record Error {
 		ErrorType.Failure
 	);
 
+	public static readonly Error UnknownError = new(
+		"General.Unknown",
+		"An unknown error occurred",
+		ErrorType.Failure
+	);
+
 	public static Error Failure(string code, string message) =>
 		new(code, message, ErrorType.Failure);
 

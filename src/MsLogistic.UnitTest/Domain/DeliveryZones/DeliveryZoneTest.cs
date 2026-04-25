@@ -9,8 +9,7 @@ namespace MsLogistic.UnitTest.Domain.DeliveryZones;
 
 public class DeliveryZoneTest {
 	private static BoundariesValue CreateValidBoundaries() {
-		var points = new List<GeoPointValue>
-		{
+		var points = new List<GeoPointValue> {
 			GeoPointValue.Create(-17.7833, -63.1821),
 			GeoPointValue.Create(-17.7833, -63.1621),
 			GeoPointValue.Create(-17.7633, -63.1621),
@@ -39,6 +38,7 @@ public class DeliveryZoneTest {
 		zone.Code.Should().Be(code);
 		zone.Name.Should().Be(name);
 		zone.Boundaries.Should().Be(boundaries);
+		zone.UpdatedAt.Should().BeNull();
 	}
 
 	[Fact]
@@ -59,14 +59,31 @@ public class DeliveryZoneTest {
 	}
 
 	[Theory]
-	[InlineData("")]
-	[InlineData("   ")]
-	public void Create_WithInvalidCode_ShouldThrowDomainException(string invalidCode) {
+	[InlineData("ABC-123")]
+	[InlineData("XYZ-999")]
+	[InlineData("AAA-000")]
+	[InlineData("ZZZ-987")]
+	public void Create_WithValidCodeFormat_ShouldSucceed(string validCode) {
 		// Arrange
 		BoundariesValue boundaries = CreateValidBoundaries();
 
 		// Act
-		Action act = () => DeliveryZone.Create(null, invalidCode, "Zone", boundaries);
+		var zone = DeliveryZone.Create(null, validCode, "Zone", boundaries);
+
+		// Assert
+		zone.Code.Should().Be(validCode);
+	}
+
+	[Theory]
+	[InlineData(null)]
+	[InlineData("")]
+	[InlineData("   ")]
+	public void Create_WithInvalidCode_ShouldThrowDomainException(string? invalidCode) {
+		// Arrange
+		BoundariesValue boundaries = CreateValidBoundaries();
+
+		// Act
+		Action act = () => DeliveryZone.Create(null, invalidCode!, "Zone", boundaries);
 
 		// Assert
 		act.Should().Throw<DomainException>()
@@ -81,6 +98,9 @@ public class DeliveryZoneTest {
 	[InlineData("ABC-1234")]
 	[InlineData("abc-123")]
 	[InlineData("123-ABC")]
+	[InlineData("ABC-12A")]
+	[InlineData(" ABC-123")]
+	[InlineData("ABC-123 ")]
 	public void Create_WithInvalidCodeFormat_ShouldThrowDomainException(string invalidCode) {
 		// Arrange
 		BoundariesValue boundaries = CreateValidBoundaries();
@@ -94,14 +114,15 @@ public class DeliveryZoneTest {
 	}
 
 	[Theory]
+	[InlineData(null)]
 	[InlineData("")]
 	[InlineData("   ")]
-	public void Create_WithInvalidName_ShouldThrowDomainException(string invalidName) {
+	public void Create_WithInvalidName_ShouldThrowDomainException(string? invalidName) {
 		// Arrange
 		BoundariesValue boundaries = CreateValidBoundaries();
 
 		// Act
-		Action act = () => DeliveryZone.Create(null, "ABC-123", invalidName, boundaries);
+		Action act = () => DeliveryZone.Create(null, "ABC-123", invalidName!, boundaries);
 
 		// Assert
 		act.Should().Throw<DomainException>()
@@ -123,6 +144,18 @@ public class DeliveryZoneTest {
 
 		// Assert
 		zone.DriverId.Should().Be(driverId);
+	}
+
+	[Fact]
+	public void SetDriverId_WithValidId_ShouldMarkAsUpdated() {
+		// Arrange
+		var zone = DeliveryZone.Create(null, "ABC-123", "Zone", CreateValidBoundaries());
+
+		// Act
+		zone.SetDriverId(Guid.NewGuid());
+
+		// Assert
+		zone.UpdatedAt.Should().NotBeNull();
 	}
 
 	[Fact]
@@ -155,15 +188,28 @@ public class DeliveryZoneTest {
 		zone.Code.Should().Be(newCode);
 	}
 
-	[Theory]
-	[InlineData("")]
-	[InlineData("   ")]
-	public void SetCode_WithInvalidCode_ShouldThrowDomainException(string invalidCode) {
+	[Fact]
+	public void SetCode_WithValidCode_ShouldMarkAsUpdated() {
 		// Arrange
 		var zone = DeliveryZone.Create(null, "ABC-123", "Zone", CreateValidBoundaries());
 
 		// Act
-		Action act = () => zone.SetCode(invalidCode);
+		zone.SetCode("XYZ-999");
+
+		// Assert
+		zone.UpdatedAt.Should().NotBeNull();
+	}
+
+	[Theory]
+	[InlineData(null)]
+	[InlineData("")]
+	[InlineData("   ")]
+	public void SetCode_WithInvalidCode_ShouldThrowDomainException(string? invalidCode) {
+		// Arrange
+		var zone = DeliveryZone.Create(null, "ABC-123", "Zone", CreateValidBoundaries());
+
+		// Act
+		Action act = () => zone.SetCode(invalidCode!);
 
 		// Assert
 		act.Should().Throw<DomainException>()
@@ -174,6 +220,10 @@ public class DeliveryZoneTest {
 	[InlineData("ABC123")]
 	[InlineData("abc-123")]
 	[InlineData("AB-123")]
+	[InlineData("ABCD-123")]
+	[InlineData("ABC-12")]
+	[InlineData("ABC-1234")]
+	[InlineData("123-ABC")]
 	public void SetCode_WithInvalidFormat_ShouldThrowDomainException(string invalidCode) {
 		// Arrange
 		var zone = DeliveryZone.Create(null, "ABC-123", "Zone", CreateValidBoundaries());
@@ -184,6 +234,20 @@ public class DeliveryZoneTest {
 		// Assert
 		act.Should().Throw<DomainException>()
 			.Which.Error.Should().Be(DeliveryZoneErrors.CodeFormatIsInvalid);
+	}
+
+	[Fact]
+	public void SetCode_WithInvalidCode_ShouldNotChangeCodeOrMarkAsUpdated() {
+		// Arrange
+		var zone = DeliveryZone.Create(null, "ABC-123", "Zone", CreateValidBoundaries());
+
+		// Act
+		Action act = () => zone.SetCode("invalid");
+
+		// Assert
+		act.Should().Throw<DomainException>();
+		zone.Code.Should().Be("ABC-123");
+		zone.UpdatedAt.Should().BeNull();
 	}
 
 	#endregion
@@ -203,19 +267,46 @@ public class DeliveryZoneTest {
 		zone.Name.Should().Be(newName);
 	}
 
-	[Theory]
-	[InlineData("")]
-	[InlineData("   ")]
-	public void SetName_WithInvalidName_ShouldThrowDomainException(string invalidName) {
+	[Fact]
+	public void SetName_WithValidName_ShouldMarkAsUpdated() {
 		// Arrange
 		var zone = DeliveryZone.Create(null, "ABC-123", "Zone", CreateValidBoundaries());
 
 		// Act
-		Action act = () => zone.SetName(invalidName);
+		zone.SetName("New Zone");
+
+		// Assert
+		zone.UpdatedAt.Should().NotBeNull();
+	}
+
+	[Theory]
+	[InlineData(null)]
+	[InlineData("")]
+	[InlineData("   ")]
+	public void SetName_WithInvalidName_ShouldThrowDomainException(string? invalidName) {
+		// Arrange
+		var zone = DeliveryZone.Create(null, "ABC-123", "Zone", CreateValidBoundaries());
+
+		// Act
+		Action act = () => zone.SetName(invalidName!);
 
 		// Assert
 		act.Should().Throw<DomainException>()
 			.Which.Error.Should().Be(DeliveryZoneErrors.NameIsRequired);
+	}
+
+	[Fact]
+	public void SetName_WithInvalidName_ShouldNotChangeNameOrMarkAsUpdated() {
+		// Arrange
+		var zone = DeliveryZone.Create(null, "ABC-123", "Original Zone", CreateValidBoundaries());
+
+		// Act
+		Action act = () => zone.SetName("");
+
+		// Assert
+		act.Should().Throw<DomainException>();
+		zone.Name.Should().Be("Original Zone");
+		zone.UpdatedAt.Should().BeNull();
 	}
 
 	#endregion
@@ -226,8 +317,7 @@ public class DeliveryZoneTest {
 	public void SetBoundaries_WithValidBoundaries_ShouldUpdateBoundaries() {
 		// Arrange
 		var zone = DeliveryZone.Create(null, "ABC-123", "Zone", CreateValidBoundaries());
-		var newPoints = new List<GeoPointValue>
-		{
+		var newPoints = new List<GeoPointValue> {
 			GeoPointValue.Create(-17.8000, -63.2000),
 			GeoPointValue.Create(-17.8000, -63.1800),
 			GeoPointValue.Create(-17.7800, -63.1800),
@@ -240,7 +330,25 @@ public class DeliveryZoneTest {
 
 		// Assert
 		zone.Boundaries.Should().Be(newBoundaries);
-		zone.Boundaries.Coordinates.Should().HaveCountGreaterThanOrEqualTo(4);
+	}
+
+	[Fact]
+	public void SetBoundaries_WithValidBoundaries_ShouldMarkAsUpdated() {
+		// Arrange
+		var zone = DeliveryZone.Create(null, "ABC-123", "Zone", CreateValidBoundaries());
+		var newPoints = new List<GeoPointValue> {
+			GeoPointValue.Create(-17.8000, -63.2000),
+			GeoPointValue.Create(-17.8000, -63.1800),
+			GeoPointValue.Create(-17.7800, -63.1800),
+			GeoPointValue.Create(-17.7800, -63.2000)
+		};
+		var newBoundaries = BoundariesValue.Create(newPoints);
+
+		// Act
+		zone.SetBoundaries(newBoundaries);
+
+		// Assert
+		zone.UpdatedAt.Should().NotBeNull();
 	}
 
 	#endregion

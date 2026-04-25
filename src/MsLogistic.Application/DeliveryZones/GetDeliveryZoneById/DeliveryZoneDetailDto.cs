@@ -7,5 +7,5 @@ public record DeliveryZoneDetailDto(
 	Guid? DriverId,
 	string Code,
 	string Name,
-	ICollection<CoordinateDto> Boundaries
+	IReadOnlyList<CoordinateDto> Boundaries
 );

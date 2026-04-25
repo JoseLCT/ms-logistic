@@ -27,11 +27,13 @@ public class ProductRepositoryTest : IDisposable {
 
 	private static Product CreateValidProduct(
 		string name = "Chicken Soup",
-		string description = "Delicious chicken soup"
+		string description = "Delicious chicken soup",
+		Guid? externalId = null
 	) {
 		return Product.Create(
 			name: name,
-			description: description
+			description: description,
+			externalId: externalId
 		);
 	}
 
@@ -64,6 +66,87 @@ public class ProductRepositoryTest : IDisposable {
 
 		// Assert
 		result.Should().BeNull();
+	}
+
+	#endregion
+
+	#region GetByExternalIdAsync
+
+	[Fact]
+	public async Task GetByExternalIdAsync_WhenProductExists_ShouldReturnProduct() {
+		// Arrange
+		var externalId = Guid.NewGuid();
+		Product product = CreateValidProduct(externalId: externalId);
+		await _dbContext.Products.AddAsync(product);
+		await _dbContext.SaveChangesAsync();
+
+		// Act
+		Product? result = await _repository.GetByExternalIdAsync(externalId);
+
+		// Assert
+		result.Should().NotBeNull();
+		result.Id.Should().Be(product.Id);
+		result.ExternalId.Should().Be(externalId);
+	}
+
+	[Fact]
+	public async Task GetByExternalIdAsync_WhenProductDoesNotExist_ShouldReturnNull() {
+		// Arrange
+		var nonExistingExternalId = Guid.NewGuid();
+
+		// Act
+		Product? result = await _repository.GetByExternalIdAsync(nonExistingExternalId);
+
+		// Assert
+		result.Should().BeNull();
+	}
+
+	#endregion
+
+	#region GetByExternalIdsAsync
+
+	[Fact]
+	public async Task GetByExternalIdsAsync_WhenProductsExist_ShouldReturnMatchingProducts() {
+		// Arrange
+		var externalId1 = Guid.NewGuid();
+		var externalId2 = Guid.NewGuid();
+		var externalId3 = Guid.NewGuid();
+
+		Product product1 = CreateValidProduct(externalId: externalId1);
+		Product product2 = CreateValidProduct(externalId: externalId2);
+		Product product3 = CreateValidProduct(externalId: externalId3);
+		Product productWithoutExternalId = CreateValidProduct();
+
+		await _dbContext.Products.AddRangeAsync(product1, product2, product3, productWithoutExternalId);
+		await _dbContext.SaveChangesAsync();
+
+		var externalIdsToFind = new List<Guid> { externalId1, externalId3 };
+
+		// Act
+		IReadOnlyList<Product> result = await _repository.GetByExternalIdsAsync(externalIdsToFind);
+
+		// Assert
+		result.Should().HaveCount(2);
+		result.Should().Contain(p => p.Id == product1.Id);
+		result.Should().Contain(p => p.Id == product3.Id);
+		result.Should().NotContain(p => p.Id == product2.Id);
+		result.Should().NotContain(p => p.Id == productWithoutExternalId.Id);
+	}
+
+	[Fact]
+	public async Task GetByExternalIdsAsync_WhenNoMatchingProducts_ShouldReturnEmptyList() {
+		// Arrange
+		Product product = CreateValidProduct(externalId: Guid.NewGuid());
+		await _dbContext.Products.AddAsync(product);
+		await _dbContext.SaveChangesAsync();
+
+		var externalIdsToFind = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
+
+		// Act
+		IReadOnlyList<Product> result = await _repository.GetByExternalIdsAsync(externalIdsToFind);
+
+		// Assert
+		result.Should().BeEmpty();
 	}
 
 	#endregion
