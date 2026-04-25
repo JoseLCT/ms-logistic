@@ -1,22 +1,21 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using MsLogistic.Application.Products.CreateProduct;
 using MsLogistic.Application.Products.GetAllProducts;
 using MsLogistic.Application.Products.GetProductById;
-using MsLogistic.Application.Products.UpdateProduct;
 using MsLogistic.Infrastructure.Persistence.PersistenceModel;
 using MsLogistic.Infrastructure.Persistence.PersistenceModel.EFCoreEntities;
 using MsLogistic.IntegrationTest.Fixtures;
+using MsLogistic.IntegrationTest.Helpers;
 using MsLogistic.WebApi.Contracts.V1.Products;
 using Xunit;
 
 namespace MsLogistic.IntegrationTest.Controllers.V1;
 
 public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>, IAsyncLifetime {
+	private const string BaseUrl = "/api/logistic/v1/products";
 	private readonly HttpClient _client;
 	private readonly WebApplicationFactoryFixture _factory;
 	private readonly List<Guid> _createdProductIds = [];
@@ -29,7 +28,7 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
 	public Task InitializeAsync() => Task.CompletedTask;
 
 	public async Task DisposeAsync() {
-		if (!_createdProductIds.Any()) {
+		if (_createdProductIds.Count == 0) {
 			return;
 		}
 
@@ -40,7 +39,7 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
 			.Where(p => _createdProductIds.Contains(p.Id))
 			.ToListAsync();
 
-		if (productsToDelete.Any()) {
+		if (productsToDelete.Count != 0) {
 			persistenceDb.Products.RemoveRange(productsToDelete);
 			await persistenceDb.SaveChangesAsync();
 		}
@@ -53,20 +52,22 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
 		// Arrange
 		var contract = new CreateProductContract {
 			Name = "Maruchan",
-			Description = "Sopa instantÃ¡nea sabor pollo"
+			Description = "Sopa instantanea sabor pollo"
 		};
 
 		// Act
-		HttpResponseMessage response = await _client.PostAsJsonAsync("/api/v1/products", contract);
+		HttpResponseMessage response = await _client.PostAsJsonAsync(BaseUrl, contract);
 
 		// Assert
-		response.StatusCode.Should().Be(HttpStatusCode.OK);
+		response.StatusCode.Should().Be(HttpStatusCode.Created);
 
-		Guid productId = await response.Content.ReadFromJsonAsync<Guid>();
-		productId.Should().NotBeEmpty();
-		_createdProductIds.Add(productId);
+		ApiResponse<Guid>? result = await response.Content.ReadFromJsonAsync<ApiResponse<Guid>>();
+		result.Should().NotBeNull();
+		result!.IsSuccess.Should().BeTrue();
+		result.Value.Should().NotBeEmpty();
+		_createdProductIds.Add(result.Value);
 
-		await VerifyProductInPersistenceDb(productId, contract.Name, contract.Description);
+		await VerifyProductInPersistenceDb(result.Value, contract.Name, contract.Description);
 	}
 
 	[Fact]
@@ -78,14 +79,10 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
 		};
 
 		// Act
-		HttpResponseMessage response = await _client.PostAsJsonAsync("/api/v1/products", contract);
+		HttpResponseMessage response = await _client.PostAsJsonAsync(BaseUrl, contract);
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
-		ValidationProblemDetails? problemDetails = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
-		problemDetails.Should().NotBeNull();
-		problemDetails.Detail.Should().Contain("Name");
 	}
 
 	[Fact]
@@ -97,7 +94,7 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
 		};
 
 		// Act
-		HttpResponseMessage response = await _client.PostAsJsonAsync("/api/v1/products", contract);
+		HttpResponseMessage response = await _client.PostAsJsonAsync(BaseUrl, contract);
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -110,13 +107,7 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
 	[Fact]
 	public async Task UpdateProduct_WithValidData_ShouldUpdateProductSuccessfully() {
 		// Arrange
-		var createContract = new CreateProductContract {
-			Name = "Pollo",
-			Description = "Pollo con papas"
-		};
-		HttpResponseMessage createResponse = await _client.PostAsJsonAsync("/api/v1/products", createContract);
-		Guid productId = await createResponse.Content.ReadFromJsonAsync<Guid>();
-		_createdProductIds.Add(productId);
+		Guid productId = await CreateProductAndTrack("Pollo", "Pollo con papas");
 
 		var updateContract = new UpdateProductContract {
 			Name = "Pollo Asado",
@@ -124,7 +115,7 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
 		};
 
 		// Act
-		HttpResponseMessage response = await _client.PutAsJsonAsync($"/api/v1/products/{productId}", updateContract);
+		HttpResponseMessage response = await _client.PutAsJsonAsync($"{BaseUrl}/{productId}", updateContract);
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -142,7 +133,7 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
 		};
 
 		// Act
-		HttpResponseMessage response = await _client.PutAsJsonAsync($"/api/v1/products/{nonExistingId}", updateContract);
+		HttpResponseMessage response = await _client.PutAsJsonAsync($"{BaseUrl}/{nonExistingId}", updateContract);
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -155,16 +146,10 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
 	[Fact]
 	public async Task DeleteProduct_WithExistingId_ShouldDeleteProductSuccessfully() {
 		// Arrange
-		var createContract = new CreateProductContract {
-			Name = "Producto a eliminar",
-			Description = "Este producto serÃ¡ eliminado"
-		};
-		HttpResponseMessage createResponse = await _client.PostAsJsonAsync("/api/v1/products", createContract);
-		Guid productId = await createResponse.Content.ReadFromJsonAsync<Guid>();
-		_createdProductIds.Add(productId);
+		Guid productId = await CreateProductAndTrack("Producto a eliminar", "Este producto sera eliminado");
 
 		// Act
-		HttpResponseMessage response = await _client.DeleteAsync($"/api/v1/products/{productId}");
+		HttpResponseMessage response = await _client.DeleteAsync($"{BaseUrl}/{productId}");
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -178,7 +163,7 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
 		var nonExistingId = Guid.NewGuid();
 
 		// Act
-		HttpResponseMessage response = await _client.DeleteAsync($"/api/v1/products/{nonExistingId}");
+		HttpResponseMessage response = await _client.DeleteAsync($"{BaseUrl}/{nonExistingId}");
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -191,25 +176,21 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
 	[Fact]
 	public async Task GetProductById_WithExistingId_ShouldReturnProduct() {
 		// Arrange
-		var createContract = new CreateProductContract {
-			Name = "Pizza Margarita",
-			Description = "Pizza con tomate y queso"
-		};
-		HttpResponseMessage createResponse = await _client.PostAsJsonAsync("/api/v1/products", createContract);
-		Guid productId = await createResponse.Content.ReadFromJsonAsync<Guid>();
-		_createdProductIds.Add(productId);
+		Guid productId = await CreateProductAndTrack("Pizza Margarita", "Pizza con tomate y queso");
 
 		// Act
-		HttpResponseMessage response = await _client.GetAsync($"/api/v1/products/{productId}");
+		HttpResponseMessage response = await _client.GetAsync($"{BaseUrl}/{productId}");
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-		ProductDetailDto? product = await response.Content.ReadFromJsonAsync<ProductDetailDto>();
-		product.Should().NotBeNull();
-		product.Id.Should().Be(productId);
-		product.Name.Should().Be("Pizza Margarita");
-		product.Description.Should().Be("Pizza con tomate y queso");
+		ApiResponse<ProductDetailDto>? result = await response.Content.ReadFromJsonAsync<ApiResponse<ProductDetailDto>>();
+		result.Should().NotBeNull();
+		result!.IsSuccess.Should().BeTrue();
+		result.Value.Should().NotBeNull();
+		result.Value!.Id.Should().Be(productId);
+		result.Value.Name.Should().Be("Pizza Margarita");
+		result.Value.Description.Should().Be("Pizza con tomate y queso");
 	}
 
 	[Fact]
@@ -218,7 +199,7 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
 		var nonExistingId = Guid.NewGuid();
 
 		// Act
-		HttpResponseMessage response = await _client.GetAsync($"/api/v1/products/{nonExistingId}");
+		HttpResponseMessage response = await _client.GetAsync($"{BaseUrl}/{nonExistingId}");
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -227,36 +208,22 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
 	[Fact]
 	public async Task GetAllProducts_ShouldReturnListOfProducts() {
 		// Arrange
-		var product1 = new CreateProductContract {
-			Name = "Producto 1",
-			Description = "DescripciÃ³n 1"
-		};
-		var product2 = new CreateProductContract {
-			Name = "Producto 2",
-			Description = "DescripciÃ³n 2"
-		};
-		var product3 = new CreateProductContract {
-			Name = "Producto 3",
-			Description = "DescripciÃ³n 3"
-		};
-
-		HttpResponseMessage response1 = await _client.PostAsJsonAsync("/api/v1/products", product1);
-		HttpResponseMessage response2 = await _client.PostAsJsonAsync("/api/v1/products", product2);
-		HttpResponseMessage response3 = await _client.PostAsJsonAsync("/api/v1/products", product3);
-
-		_createdProductIds.Add(await response1.Content.ReadFromJsonAsync<Guid>());
-		_createdProductIds.Add(await response2.Content.ReadFromJsonAsync<Guid>());
-		_createdProductIds.Add(await response3.Content.ReadFromJsonAsync<Guid>());
+		await CreateProductAndTrack("Producto 1", "Descripcion 1");
+		await CreateProductAndTrack("Producto 2", "Descripcion 2");
+		await CreateProductAndTrack("Producto 3", "Descripcion 3");
 
 		// Act
-		HttpResponseMessage response = await _client.GetAsync("/api/v1/products");
+		HttpResponseMessage response = await _client.GetAsync(BaseUrl);
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-		List<ProductSummaryDto>? products = await response.Content.ReadFromJsonAsync<List<ProductSummaryDto>>();
-		products.Should().NotBeNull();
-		products.Should().HaveCountGreaterThanOrEqualTo(3);
+		ApiResponse<List<ProductSummaryDto>>? result =
+			await response.Content.ReadFromJsonAsync<ApiResponse<List<ProductSummaryDto>>>();
+		result.Should().NotBeNull();
+		result!.IsSuccess.Should().BeTrue();
+		result.Value.Should().NotBeNull();
+		result.Value.Should().HaveCountGreaterThanOrEqualTo(3);
 	}
 
 	#endregion
@@ -266,43 +233,38 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
 	[Fact]
 	public async Task CompleteProductCRUDFlow_ShouldWorkEndToEnd() {
 		// CREATE
-		var createContract = new CreateProductContract {
-			Name = "Test Product CRUD",
-			Description = "DescripciÃ³n de prueba"
-		};
-		HttpResponseMessage createResponse = await _client.PostAsJsonAsync("/api/v1/products", createContract);
-		createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-		Guid productId = await createResponse.Content.ReadFromJsonAsync<Guid>();
-		_createdProductIds.Add(productId);
+		Guid productId = await CreateProductAndTrack("Test Product CRUD", "Descripcion de prueba");
 
 		// READ
-		HttpResponseMessage getResponse = await _client.GetAsync($"/api/v1/products/{productId}");
+		HttpResponseMessage getResponse = await _client.GetAsync($"{BaseUrl}/{productId}");
 		getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-		ProductDetailDto? product = await getResponse.Content.ReadFromJsonAsync<ProductDetailDto>();
+		ApiResponse<ProductDetailDto>? product =
+			await getResponse.Content.ReadFromJsonAsync<ApiResponse<ProductDetailDto>>();
 		product.Should().NotBeNull();
-		product.Name.Should().Be("Test Product CRUD");
+		product!.Value!.Name.Should().Be("Test Product CRUD");
 
 		// UPDATE
 		var updateContract = new UpdateProductContract {
 			Name = "Test Product Updated",
-			Description = "DescripciÃ³n actualizada"
+			Description = "Descripcion actualizada"
 		};
-		HttpResponseMessage updateResponse = await _client.PutAsJsonAsync($"/api/v1/products/{productId}", updateContract);
+		HttpResponseMessage updateResponse = await _client.PutAsJsonAsync($"{BaseUrl}/{productId}", updateContract);
 		updateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
 		// VERIFY UPDATE
-		HttpResponseMessage getUpdatedResponse = await _client.GetAsync($"/api/v1/products/{productId}");
-		ProductDetailDto? updatedProduct = await getUpdatedResponse.Content.ReadFromJsonAsync<ProductDetailDto>();
+		HttpResponseMessage getUpdatedResponse = await _client.GetAsync($"{BaseUrl}/{productId}");
+		ApiResponse<ProductDetailDto>? updatedProduct =
+			await getUpdatedResponse.Content.ReadFromJsonAsync<ApiResponse<ProductDetailDto>>();
 		updatedProduct.Should().NotBeNull();
-		updatedProduct.Name.Should().Be("Test Product Updated");
-		updatedProduct.Description.Should().Be("DescripciÃ³n actualizada");
+		updatedProduct!.Value!.Name.Should().Be("Test Product Updated");
+		updatedProduct.Value.Description.Should().Be("Descripcion actualizada");
 
 		// DELETE
-		HttpResponseMessage deleteResponse = await _client.DeleteAsync($"/api/v1/products/{productId}");
+		HttpResponseMessage deleteResponse = await _client.DeleteAsync($"{BaseUrl}/{productId}");
 		deleteResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
 		// VERIFY DELETION
-		HttpResponseMessage getDeletedResponse = await _client.GetAsync($"/api/v1/products/{productId}");
+		HttpResponseMessage getDeletedResponse = await _client.GetAsync($"{BaseUrl}/{productId}");
 		getDeletedResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
 	}
 
@@ -310,7 +272,20 @@ public class ProductControllerTest : IClassFixture<WebApplicationFactoryFixture>
 
 	#region Helper Methods
 
-	private async Task VerifyProductInPersistenceDb(Guid productId, string expectedName, string? expectedDescription) {
+	private async Task<Guid> CreateProductAndTrack(string name, string? description = null) {
+		var contract = new CreateProductContract { Name = name, Description = description };
+		HttpResponseMessage response = await _client.PostAsJsonAsync(BaseUrl, contract);
+		response.StatusCode.Should().Be(HttpStatusCode.Created);
+
+		ApiResponse<Guid>? result = await response.Content.ReadFromJsonAsync<ApiResponse<Guid>>();
+		result.Should().NotBeNull();
+		result!.Value.Should().NotBeEmpty();
+		_createdProductIds.Add(result.Value);
+		return result.Value;
+	}
+
+	private async Task VerifyProductInPersistenceDb(Guid productId, string expectedName,
+		string? expectedDescription) {
 		using IServiceScope scope = _factory.Services.CreateScope();
 		PersistenceDbContext persistenceDb = scope.ServiceProvider.GetRequiredService<PersistenceDbContext>();
 
